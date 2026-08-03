@@ -12,9 +12,9 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 当前状态
 
-- **阶段：** 0.1 局域网闭环准备就绪，交互原型与 UI 设计基线已完成
-- **正在进行：** 尚未开始产品代码；HTML 原型已覆盖 SPEC-001 至 SPEC-013 的代表性流程和全路线图信息架构
-- **下一步：** 评审 `prototype/` 与 UI 设计方案后，实施 0.1：发现 FMO、连接 `/ws`、读取与写入坐标
+- **阶段：** 0.1 局域网闭环开发中，原生 App 首个可运行切片已完成
+- **正在进行：** Swift 6 严格并发架构、四标签 App 外壳、Bonjour 发现、手动端点、GEO WebSocket、单次定位和坐标回读确认已落地并通过 Simulator 单元测试
+- **下一步：** 补齐分步连接诊断、权限/错误 UI 自动化覆盖，并在真实 iPhone + FMO 普通 Wi-Fi 上完成闭环验收
 - **首要验收设备：** 普通 Wi-Fi 或便携路由器中的真实 iPhone + FMO 盒子
 
 ## 最近变更
@@ -30,6 +30,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 | 2026-08-03 | 将原型扩展到全部规划规格并建立覆盖矩阵 | `docs/design/prototype-coverage-matrix.md` |
 | 2026-08-03 | 将用户导航重构为四标签并重新归类功能 | `docs/design/ui-design-system.md` |
 | 2026-08-03 | 移除可见评审层并新增面向 AI 的原型实现指南 | `docs/design/prototype-implementation-guide.md` |
+| 2026-08-03 | 启动 0.1 开发，完成原生局域网连接首个可运行切片 | `docs/plans/0002-milestone-0.1-local-connection.md` |
+| 2026-08-03 | 采用 Swift 6 完整严格并发检查 | `docs/adr/0004-swift-6-strict-concurrency.md` |
 
 ## 领域术语
 
@@ -59,10 +61,11 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 - [ADR-0001：原生 iOS 与公开协议边界](adr/0001-native-ios-public-protocol-boundary.md)
 - [ADR-0002：采用 Loom 文档驱动的 Agent 工作流](adr/0002-loom-document-driven-development.md)
 - [ADR-0003：最低部署版本采用 iOS 26](adr/0003-ios-26-minimum-deployment.md)
+- [ADR-0004：采用 Swift 6 严格并发](adr/0004-swift-6-strict-concurrency.md)
 
 ## 本轮开发入口
 
-1. 评审 `prototype/` 与 `docs/design/ui-design-system.md`，确认正式 UI 方向；实现时同时读取 `docs/design/prototype-implementation-guide.md`。
-2. 阅读 `docs/spec/product-spec.md` 中 SPEC-001 至 SPEC-004。
-3. 阅读 `docs/architecture/modules/device-connectivity.md`。
-4. 执行 `docs/plans/0002-milestone-0.1-local-connection.md`。
+1. 阅读 `docs/plans/0002-milestone-0.1-local-connection.md` 的剩余验收项。
+2. 继续遵循 `docs/design/ui-design-system.md` 与 `docs/design/prototype-implementation-guide.md`。
+3. 阅读 `docs/spec/product-spec.md` 中 SPEC-001 至 SPEC-004。
+4. 阅读 `docs/architecture/modules/device-connectivity.md` 后补齐诊断、UI 自动化与真机闭环。

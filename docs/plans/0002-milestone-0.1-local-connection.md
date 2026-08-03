@@ -1,6 +1,6 @@
 ---
 last-reviewed: 2026-08-03
-status: ready
+status: active
 ---
 
 # 计划 0002：里程碑 0.1 局域网闭环
@@ -10,6 +10,8 @@ status: ready
 在真实 iPhone 与 FMO 盒子位于同一普通 Wi-Fi 时，App 能发现或手动连接盒子，建立官方 GEO WebSocket，读取盒子坐标，并把 iPhone 坐标写回盒子。
 
 ## 范围
+
+规格边界：完整实现 SPEC-001 至 SPEC-003；SPEC-004 在本里程碑只实现用户主动触发的前台、When In Use 单次定位。低功耗与车载后台模式属于 0.2。
 
 包含：
 
@@ -43,6 +45,7 @@ status: ready
 - 建立 envelope 与 `setCordinate` data DTO。
 - 保留 `Cordinate` 历史拼写。
 - 对官方示例和错误/未知响应编写固定向量测试。
+- 官方协议基线固定到 `BG5ESN/FMO-Andorid-GPS-Tool@42d4c9271043a8fe5ec42119d9f4469d8d89b5fb`。
 - 协议层不得依赖 SwiftUI、Core Location 或 Bonjour。
 
 ### 3. 实现 WebSocket 客户端
@@ -64,6 +67,7 @@ status: ready
 
 - 先请求 When In Use 定位，只支持用户主动同步。
 - 获取一次满足精度策略的 WGS84 坐标。
+- 默认策略：目标水平精度 100 米、最长等待 15 秒、缓存位置最大年龄 10 秒；精度受限时明确提示但允许用户主动同步有效坐标。
 - 首版不申请 Always，不启用 Background Modes。
 - Simulator 允许通过自定义 Location 测试 UI，但 FMO 连接必须真机验收。
 

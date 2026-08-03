@@ -41,7 +41,7 @@ flowchart LR
 
 | 类别 | 技术 | 用途 |
 |---|---|---|
-| 语言 | Swift | App 与测试 |
+| 语言 | Swift 6（完整严格并发检查） | App 与测试 |
 | UI | SwiftUI | 页面、导航、状态展示 |
 | 并发 | Swift Concurrency | 可取消异步任务和 Actor 隔离 |
 | 局域网 | Network.framework | Bonjour、端点与可达性 |
@@ -57,7 +57,7 @@ flowchart LR
 
 ### DeviceConnectivity
 
-负责发现、手动端点、WebSocket 生命周期、GEO 请求/响应和诊断。它不拥有定位权限，也不直接更新 SwiftUI。
+负责发现、手动端点、WebSocket 生命周期、GEO 请求/响应和诊断。它不拥有定位权限；`DeviceHomeModel` 在 `MainActor` 上把服务状态投影给 SwiftUI。
 
 ### LocationSync
 

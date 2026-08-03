@@ -25,7 +25,7 @@ last-reviewed: 2026-08-03
 ## 官方资料
 
 - [FMO 使用说明书](https://bg5esn.com/docs/fmo-usage/)
-- [FMO Android GPS Tool](https://github.com/BG5ESN/FMO-Andorid-GPS-Tool)
+- [FMO Android GPS Tool（0.1 协议基线 commit）](https://github.com/BG5ESN/FMO-Andorid-GPS-Tool/tree/42d4c9271043a8fe5ec42119d9f4469d8d89b5fb)
 - [FMO 4.0 APRS 报文格式](https://bg5esn.com/docs/fmo-aprs-formate/)
 - [FMO APRS Remote Control Tool](https://github.com/BG5ESN/FMO-APRS-Remote-Control-Tool)
 - [FMO SQLite → ADIF](https://github.com/BG5ESN/FMO-sqlite-2-adif)

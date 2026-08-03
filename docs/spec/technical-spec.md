@@ -10,7 +10,7 @@ last-reviewed: 2026-08-03
 - API 策略：可直接使用 iOS 26 API，不主动添加旧系统 availability 分支或兼容垫片。
 - 开发工具：Xcode 26.6；工程格式由 Xcode 管理。
 - UI：SwiftUI，支持 iPhone；iPad 自适应作为非阻塞兼容目标。
-- 并发：Swift Concurrency，避免新增长生命周期的裸线程或回调金字塔。
+- 语言与并发：Swift 6 语言模式、完整严格并发检查与 Swift Concurrency；避免新增长生命周期的裸线程或回调金字塔。
 - 持久化：普通设置使用轻量本地存储；结构化 App 数据使用 SwiftData；导入 FMO QSO 数据库时只读访问 SQLite。
 
 ## 模块边界
