@@ -34,9 +34,13 @@ All agents must use these paths. Update this table when documentation moves.
 | Technical requirements | `docs/spec/technical-spec.md` |
 | Architecture overview | `docs/architecture/overview.md` |
 | Module documentation | `docs/architecture/modules/` |
+| UI design system | `docs/design/ui-design-system.md` |
+| Prototype coverage matrix | `docs/design/prototype-coverage-matrix.md` |
+| Prototype implementation guide | `docs/design/prototype-implementation-guide.md` |
 | ADR index | `docs/adr/README.md` |
 | Implementation plans | `docs/plans/` |
 | FMO protocol references | `docs/references/` |
+| Interactive HTML prototype | `prototype/` |
 | Loom project skills | `.claude/skills/` |
 | Loom project agents | `.claude/agents/` |
 | Codex skill mirror | `.agents/skills` → `.claude/skills` |
@@ -63,6 +67,7 @@ At the beginning of a development session:
 - Store secrets only in Keychain. Do not put secrets in source, UserDefaults, test fixtures, screenshots, or documentation.
 - Do not weaken certificate, signature, replay-window, or CRL validation to make tests pass.
 - Use localized user-facing strings; do not hard-code visible copy deep in service layers.
+- When implementing UI or a workflow represented in `prototype/`, read `docs/design/ui-design-system.md`, `docs/design/prototype-coverage-matrix.md`, and `docs/design/prototype-implementation-guide.md`; preserve the confirmed navigation and interaction hierarchy while replacing every browser simulation with typed Swift state and real injected services.
 - New behavior requires unit tests. User journeys or permissions behavior that cannot be unit tested should have focused UI/integration coverage and a documented manual check.
 - Never claim background execution occurs at exact periodic intervals; iOS scheduling is system-controlled.
 

@@ -1,0 +1,183 @@
+---
+last-reviewed: 2026-08-03
+status: approved
+---
+
+# FMO Companion 原型实现指南
+
+## 目的
+
+本文供后续 AI Agent 与开发者把 `prototype/` 转换为 SwiftUI 产品代码。HTML 原型只向用户展示接近最终 App 的界面；规格编号、状态覆盖、架构映射和安全要求全部记录在本文及相关项目文档中，不得为了方便开发重新放回用户界面。
+
+## 开始实现前必读
+
+按以下顺序读取：
+
+1. `AGENTS.md` 与 `docs/project-brief.md`。
+2. 当前功能对应的 `docs/spec/product-spec.md` 条目。
+3. `docs/design/ui-design-system.md`。
+4. `docs/design/prototype-coverage-matrix.md`。
+5. 对应模块文档与实施计划。
+6. `prototype/index.html`、`prototype/styles.css` 和 `prototype/app.js` 中相关页面。
+
+冲突时仍遵守 `AGENTS.md` 的 Source-of-Truth Order。产品规格决定行为与安全边界；HTML 原型决定已经确认的视觉层级、导航归属、文案方向和交互顺序。
+
+## 用户可见原则
+
+- 原型和正式 App 都只显示用户任务，不显示 SPEC 编号、里程碑、开发状态或评审工具。
+- 未配置 APRS、自建服务器或高级能力时，入口应按上下文隐藏或以简短引导出现。
+- 密码学和协议内部步骤默认折叠，只向普通用户展示“可信、无法验证、过期、吊销”等结果。
+- 每个页面只突出一个当前主操作；高级选项按需进入详情。
+- 设备连接状态只在首页及设备相关页面显示，不作为 QSO、FMO 网络和设置的全局阻塞状态。
+
+## 顶层导航
+
+正式 App 使用四个顶层区域：
+
+| 标签 | SwiftUI 容器 | 功能归属 |
+|---|---|---|
+| 首页 | 独立 `NavigationStack` | 发现、连接、坐标同步、诊断、位置自动化、远控、官方页面 |
+| FMO 网络 | 独立 `NavigationStack` | 地图、台站、事件、APRS 消息与按需验证详情 |
+| QSO | 独立 `NavigationStack` | 导入、查询、验签、地图、ADIF |
+| 设置 | 独立 `NavigationStack` | 外观、通知、管理员功能、系统集成、隐私与关于 |
+
+不要新增“通讯”顶层标签。消息从 FMO 网络的台站、事件或消息入口进入；远控属于当前 FMO 设备；服务器运维属于设置中的管理员功能。
+
+## 页面与状态映射
+
+### 首页与设备
+
+```text
+idle
+→ discovering
+→ found(endpoint)
+→ connecting(endpoint)
+→ connected(deviceCoordinate)
+→ locating(phoneCoordinate)
+→ syncing
+→ success / deviceRejected / timeout / disconnected
+```
+
+- 坐标卡只在连接成功后显示。
+- 自动发现和手动地址是同一任务的两条入口。
+- 诊断顺序固定为网络、主机解析、HTTP、WebSocket。
+- 位置自动化、远控和官方页面位于“更多设备功能”。
+
+### 可靠定位
+
+- 模式：手动、低功耗、车载。
+- 后台发送必须由 Core Location 事件触发，再应用时间与距离阈值。
+- 离开局域网后暂停发送；网络恢复后退避重连。
+- 不承诺严格周期，不把 HTML 滑块默认值直接当成产品默认策略。
+
+### FMO 网络
+
+- 首页先展示地图摘要、过滤器和事件摘要。
+- 台站目录承担搜索、收藏、数据年龄和服务器目录。
+- 点击台站后先展示用户可理解的信任结果，再进入详细验证步骤。
+- APRS 消息从台站或消息入口进入，不与设备远控混合。
+
+### 身份验证
+
+内部验证顺序保持：
+
+```text
+解析
+→ 呼号绑定
+→ 证书链
+→ 有效期
+→ CRL
+→ Ed25519 签名
+→ timeSalt / 重放窗口
+→ JOINT / EVENT 关系
+→ 业务展示
+```
+
+任何一步失败都不得显示为可信。原型中的异常标签代表独立业务状态，不是普通字符串错误。
+
+### APRS 消息与远控
+
+- 消息状态：草稿、发送中、等待 ACK、已 ACK、失败。
+- PASSCODE 与 SECRET 只进入 Keychain。
+- 远控状态：准备安全上下文、Counter 持久化、生成 HMAC、发送、等待 ACK、成功/失败。
+- `REBOOT` 必须使用 LocalAuthentication 二次确认。
+- Counter 必须在同一 Time Slot 内单调递增并原子持久化。
+
+### QSO
+
+导入状态：
+
+```text
+选择用户导出文件
+→ Schema 检查
+→ SHA-256 完整性
+→ ECDSA P-256 验签
+→ 可取消的索引
+→ 查询可用
+```
+
+- SQLite 只读访问，不修改原文件。
+- 查询、地图、验证详情和 ADIF 导出属于 QSO 导航栈。
+- ADIF 可包含 `APP_FMO_*` 扩展字段。
+
+### 自建服务器
+
+- 只有配置并认证自建服务器后才显示管理员入口。
+- 读状态包括 DNS、MQTT、EMQX、SAS、资源、广播与脱敏日志。
+- 写操作必须独立授权、解释影响并二次确认。
+- 服务器令牌不得与 APRS 或设备凭据混用。
+
+## 视觉实现映射
+
+| HTML 原型 | SwiftUI 建议 |
+|---|---|
+| `.phone-frame` | 不实现；它只是浏览器中的设备展示框 |
+| `.tab-bar` | 系统 `TabView` |
+| `.app-header` | `NavigationStack` 标题与 toolbar |
+| `.hero-card` | 语义状态模型驱动的首页状态卡 |
+| `.bottom-sheet` | `.sheet`、confirmation dialog 或系统权限弹窗 |
+| `.feature-row` | `NavigationLink` 或明确按钮 |
+| `.toast` | 可访问性播报、系统反馈或短暂状态提示 |
+| HTML 定时器 | `Task`、真实异步服务、可注入 Clock 与取消 |
+
+颜色、字体、间距、圆角与对比度以 `docs/design/ui-design-system.md` 为准。正式用户文案必须进入 String Catalog。
+
+## 原型模拟替换规则
+
+以下 HTML 行为只用于表达交互，不得直接复制为正式实现：
+
+- `setTimeout` 模拟发现、连接、ACK、导入和服务器刷新。
+- 固定设备、呼号、服务器、消息、坐标和 QSO 数据。
+- 浏览器内的权限、Keychain、Face ID、文件选择和通知反馈。
+- CSS 地图、Widget 和系统页面占位图。
+- DOM class 切换形成的业务状态。
+
+正式实现必须使用协议注入、Swift Concurrency、类型化状态与错误、真实系统 API 和对应测试替身。
+
+## 安全与隐私不可变约束
+
+- 不实现未公开语音协议、抓包、设备模拟、私钥提取或未公开设置映射。
+- 不在日志、测试夹具、文档、截图或源码中保存真实 PASSCODE、SECRET、令牌或精确位置。
+- 不削弱证书链、签名、CRL、重放窗口或 QSO 验签以通过测试。
+- 诊断默认脱敏，导出前再次预览。
+- 危险操作必须显示具体影响并二次确认。
+
+## 可访问性
+
+- 使用 Dynamic Type，避免固定正文高度。
+- 最小触控区 `44 × 44 pt`。
+- VoiceOver 朗读状态变化，坐标作为语义组处理。
+- 不只依赖颜色表达状态。
+- 支持减少动态效果、深色模式和中英文扩展。
+
+## AI 实施检查单
+
+每实现一个规格，AI 必须：
+
+1. 说明对应原型入口和规格条目。
+2. 提取页面状态与失败分支，不只实现成功路径。
+3. 用协议注入网络、位置、时间、安全和存储依赖。
+4. 为新行为编写单元测试；必要时补 UI/集成和真机检查。
+5. 对照原型验证导航、状态披露、主操作和文案层级。
+6. 判断是否需要同步规格、设计、模块文档或 ADR。
+7. 更新 `docs/project-brief.md`，并运行文档同步流程。

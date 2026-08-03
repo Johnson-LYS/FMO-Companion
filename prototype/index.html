@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FF8800">
+  <link rel="icon" href="data:,">
+  <title>FMO Companion · 交互原型</title>
+  <meta name="description" content="FMO Companion iOS 应用的交互式 HTML 原型与 UI 设计验证稿。">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="prototype-shell">
+    <main class="device-stage">
+      <div class="phone-frame" id="phoneFrame">
+        <div class="status-bar" aria-hidden="true">
+          <span>9:41</span>
+          <div><span class="signal-bars">▮▮▮</span><span>Wi-Fi</span><span class="battery">88</span></div>
+        </div>
+
+        <div class="app-header" id="appHeader">
+          <div class="header-leading">
+            <button class="back-button" id="backButton" type="button" data-action="back" aria-label="返回" hidden>‹</button>
+            <div>
+            <span class="eyebrow">FMO COMPANION</span>
+            <h2 id="screenTitle">首页</h2>
+            </div>
+          </div>
+          <button class="header-status" id="headerStatus" type="button" data-action="open-diagnostics" aria-label="查看连接诊断">
+            <span class="status-dot"></span><span>未连接</span>
+          </button>
+        </div>
+
+        <div class="app-content" id="appContent">
+          <section class="screen is-active" data-screen="home" aria-labelledby="screenTitle">
+            <div class="hero-card device-hero" id="deviceHero">
+              <div class="hero-topline">
+                <span class="hero-icon" aria-hidden="true">⌁</span>
+                <span class="hero-state" id="heroState">等待连接</span>
+              </div>
+              <h3 id="heroTitle">让 iPhone 找到你的 FMO</h3>
+              <p id="heroDescription">确保手机与盒子位于同一 Wi-Fi。自动发现失败时，也可以手动输入地址。</p>
+              <button class="primary-button hero-action" id="discoverButton" type="button" data-action="discover">
+                <span>开始发现</span><span aria-hidden="true">→</span>
+              </button>
+              <div class="signal-rings" aria-hidden="true"><i></i><i></i><i></i></div>
+            </div>
+
+            <div class="section-heading">
+              <div><span class="eyebrow">LOCAL NETWORK</span><h3>附近设备</h3></div>
+              <button class="text-button" type="button" data-action="open-manual">手动输入</button>
+            </div>
+
+            <div class="device-list" id="deviceList" aria-live="polite">
+              <div class="empty-card" id="deviceEmpty">
+                <span class="empty-icon" aria-hidden="true">⌕</span>
+                <strong>尚未开始搜索</strong>
+                <p>发现窗口最长 10 秒，结果会显示在这里。</p>
+              </div>
+              <button class="device-row" id="discoveredDevice" type="button" data-action="connect" hidden>
+                <span class="device-mark">FM</span>
+                <span class="device-copy"><strong>FMO-7C2A</strong><small>fmo.local · 示例设备</small></span>
+                <span class="device-meta"><b>优</b><small>局域网</small></span>
+              </button>
+            </div>
+
+            <section class="coordinate-card" id="coordinateCard" hidden>
+              <div class="card-heading">
+                <div><span class="eyebrow">GEO WEBSOCKET</span><h3>坐标同步</h3></div>
+                <span class="secure-label">仅局域网</span>
+              </div>
+              <div class="coordinate-grid">
+                <div class="coordinate-block">
+                  <div class="coordinate-label"><span class="mini-dot device-color"></span>盒子位置</div>
+                  <strong id="deviceCoordinate">30.000000, 120.000000</strong>
+                  <small>刚刚读取 · 原型示例</small>
+                </div>
+                <div class="coordinate-connector" aria-hidden="true">⇣</div>
+                <div class="coordinate-block phone-coordinate">
+                  <div class="coordinate-label"><span class="mini-dot phone-color"></span>iPhone 位置</div>
+                  <strong id="phoneCoordinate">30.000420, 120.000310</strong>
+                  <small>精度约 8 米 · 原型示例</small>
+                </div>
+              </div>
+              <button class="primary-button full-width" id="syncButton" type="button" data-action="sync-coordinate">
+                <span class="button-label">同步到 FMO</span><span aria-hidden="true">↗</span>
+              </button>
+              <p class="privacy-caption">精确位置仅发送到当前盒子，不进入分析服务。</p>
+            </section>
+
+            <button class="diagnostic-row" type="button" data-action="open-diagnostics">
+              <span class="diagnostic-icon">≋</span>
+              <span><strong>连接诊断</strong><small>主机解析、HTTP 与 WebSocket</small></span>
+              <span aria-hidden="true">›</span>
+            </button>
+
+            <div class="section-heading compact-heading"><div><h3>更多设备功能</h3><p>仅在需要时进入</p></div></div>
+            <div class="feature-stack">
+              <button class="feature-row" type="button" data-action="open-detail" data-target="location-automation"><span class="feature-glyph">◔</span><span><strong>位置自动化</strong><small>同步模式、后台权限与网络恢复</small></span><b>›</b></button>
+              <button class="feature-row" type="button" data-action="open-detail" data-target="remote-control"><span class="feature-glyph">●</span><span><strong>设备远程控制</strong><small>NORMAL、STANDBY 与安全重启</small></span><b>›</b></button>
+              <button class="feature-row" type="button" data-action="open-detail" data-target="official-portals"><span class="feature-glyph">↗</span><span><strong>打开官方页面</strong><small>设备后台与 QSO 下载页面</small></span><b>›</b></button>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="network" aria-labelledby="screenTitle">
+            <div class="section-heading top-heading">
+              <div><span class="eyebrow">FMO NETWORK</span><h3>网络态势</h3></div>
+            </div>
+            <div class="network-map" role="img" aria-label="示意地图，展示三个 APRS 台站">
+              <div class="map-grid"></div>
+              <span class="station-dot station-a"><i></i><b>BI8SYN</b></span>
+              <span class="station-dot station-b"><i></i><b>BG0AAA</b></span>
+              <span class="station-dot station-c"><i></i><b>BH4XYZ</b></span>
+              <div class="map-caption"><strong>3 个可信台站</strong><small>均为虚构原型数据</small></div>
+            </div>
+            <div class="filter-chips" role="group" aria-label="事件过滤">
+              <button class="chip is-selected" type="button">全部</button>
+              <button class="chip" type="button">在线</button>
+              <button class="chip" type="button">呼叫</button>
+              <button class="chip" type="button">收藏</button>
+            </div>
+            <div class="timeline-card">
+              <article class="timeline-item">
+                <span class="event-mark orange">CQ</span>
+                <div><strong>BH4XYZ 发起 CQ</strong><p>已验证 · 距离约 18 km</p></div><time>刚刚</time>
+              </article>
+              <article class="timeline-item">
+                <span class="event-mark green">ON</span>
+                <div><strong>BG0AAA 上线</strong><p>证书链有效 · 数据新鲜</p></div><time>3 分</time>
+              </article>
+              <article class="timeline-item">
+                <span class="event-mark gray">ST</span>
+                <div><strong>示例服务器广播</strong><p>覆盖 60 km · 在线 24</p></div><time>8 分</time>
+              </article>
+            </div>
+            <div class="section-heading compact-heading"><div><h3>继续探索</h3><p>按任务进入，不展示协议实现细节</p></div></div>
+            <div class="feature-stack">
+              <button class="feature-row" type="button" data-action="open-detail" data-target="station-directory"><span class="feature-glyph">⌖</span><span><strong>台站与服务器目录</strong><small>搜索、收藏、覆盖与数据年龄</small></span><b>›</b></button>
+              <button class="feature-row" type="button" data-action="open-detail" data-target="event-explorer"><span class="feature-glyph">≋</span><span><strong>完整事件流</strong><small>CQ、VOCAL、JOINT / EVENT 等</small></span><b>›</b></button>
+              <button class="feature-row" type="button" data-action="open-detail" data-target="communications-hub"><span class="feature-glyph">◌</span><span><strong>消息与通讯</strong><small>APRS 消息、会话与 ACK</small></span><b>›</b></button>
+            </div>
+            <p class="prototype-disclaimer">所有台站、事件和服务状态均为虚构原型数据，不代表当前已连接 APRS-IS 或服务器。</p>
+          </section>
+
+          <section class="screen detail-screen" data-detail="communications-hub" data-title="消息与通讯" aria-labelledby="screenTitle">
+            <div class="section-heading top-heading">
+              <div><span class="eyebrow">APRS MESSAGES</span><h3>消息与身份</h3></div>
+            </div>
+            <button class="identity-card" type="button" data-action="open-detail" data-target="aprs-setup">
+              <div class="identity-avatar">BI</div>
+              <div><strong>BI8SYN-10</strong><small>凭据将由 Keychain 保护</small></div>
+              <span class="identity-status">配置 ›</span>
+            </button>
+            <div class="message-preview">
+              <div class="message-bubble incoming">下午好，便携台已架设。<small>BH4XYZ · 已 ACK</small></div>
+              <div class="message-bubble outgoing">收到，稍后呼叫。<small>原型消息 · 14:32</small></div>
+            </div>
+            <button class="composer" type="button" data-action="open-detail" data-target="conversation">
+              <span>发送 APRS 消息…</span><b>↑</b>
+            </button>
+            <p class="prototype-disclaimer">设备远程控制已移动到“首页 → 更多设备功能”，消息页只处理通讯任务。</p>
+          </section>
+
+          <section class="screen" data-screen="qso" aria-labelledby="screenTitle">
+            <div class="section-heading top-heading">
+              <div><span class="eyebrow">LOGBOOK</span><h3>通联日志</h3></div>
+            </div>
+            <div class="qso-summary">
+              <span class="summary-kicker">本月通联</span>
+              <strong>24</strong>
+              <div><span>已验证 22</span><span>待检查 2</span></div>
+              <div class="bar-chart" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <button class="import-card" type="button" data-action="open-detail" data-target="qso-import">
+              <span class="import-icon">＋</span>
+              <span><strong>导入 QSO 数据库</strong><small>从“文件”选择用户主动导出的 SQLite</small></span>
+              <span aria-hidden="true">›</span>
+            </button>
+            <div class="section-heading compact-heading"><div><h3>最近通联</h3></div><button class="text-button" type="button">全部</button></div>
+            <div class="qso-list">
+              <article><span class="verified-mark">✓</span><div><strong>BH4XYZ</strong><small>示例服务器 · 8 分钟</small></div><time>今天 14:32</time></article>
+              <article><span class="verified-mark">✓</span><div><strong>BG0AAA</strong><small>示例服务器 · 3 分钟</small></div><time>昨天 20:18</time></article>
+              <article><span class="pending-mark">!</span><div><strong>BD7ABC</strong><small>签名待检查 · 原型数据</small></div><time>8 月 1 日</time></article>
+            </div>
+            <div class="feature-link-grid qso-actions">
+              <button class="feature-link" type="button" data-action="open-detail" data-target="qso-browser"><span class="feature-glyph">⌕</span><strong>查询与详情</strong><small>过滤、地图和验签</small><b>›</b></button>
+              <button class="feature-link" type="button" data-action="open-detail" data-target="qso-export"><span class="feature-glyph">↗</span><strong>ADIF 导出</strong><small>含 APP_FMO 字段</small><b>›</b></button>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="settings" aria-labelledby="screenTitle">
+            <div class="section-heading top-heading">
+              <div><span class="eyebrow">PREFERENCES</span><h3>设置</h3></div>
+            </div>
+            <div class="settings-group">
+              <h4>外观</h4>
+              <div class="segmented-control" role="group" aria-label="外观模式">
+                <button class="is-selected" type="button" data-theme="light">浅色</button>
+                <button type="button" data-theme="dark">深色</button>
+                <button type="button" data-theme="system">系统</button>
+              </div>
+            </div>
+            <div class="settings-list">
+              <button type="button" data-action="open-detail" data-target="server-dashboard"><span>管理员功能</span><small>配置自建服务器后显示运维入口</small><b>›</b></button>
+              <button type="button" data-action="open-detail" data-target="notifications"><span>通知</span><small>APNs、本地通知与事件过滤</small><b>›</b></button>
+              <button type="button" data-action="open-detail" data-target="system-integrations"><span>小组件与快捷指令</span><small>桌面、锁屏、Siri 与深层链接</small><b>›</b></button>
+              <button type="button" data-action="open-detail" data-target="privacy-accessibility"><span>隐私与无障碍</span><small>精确位置、凭据、诊断与 VoiceOver</small><b>›</b></button>
+              <button type="button" data-action="open-detail" data-target="product-boundaries"><span>关于与产品边界</span><small>公开协议、明确排除与版本</small><b>›</b></button>
+            </div>
+          </section>
+
+          <section class="screen detail-screen" data-detail="location-automation" data-title="位置自动化" aria-labelledby="screenTitle">
+            <div class="detail-hero orange-detail">
+              <span class="detail-icon">◔</span><span class="future-badge">0.2</span>
+              <h3>可靠、可见、由系统调度</h3>
+              <p>后台更新由 Core Location 事件触发，再应用时间与距离阈值；不会承诺固定分钟周期。</p>
+            </div>
+            <div class="detail-card">
+              <div class="card-heading"><div><span class="eyebrow">SYNC MODE</span><h3>选择同步模式</h3></div></div>
+              <div class="selectable-list" data-choice-group="location-mode">
+                <button class="selectable-option is-selected" type="button"><span>↗</span><span><strong>手动</strong><small>仅由用户点击触发</small></span><b>✓</b></button>
+                <button class="selectable-option" type="button"><span>◔</span><span><strong>低功耗</strong><small>显著位置变化 + 节流</small></span><b>✓</b></button>
+                <button class="selectable-option" type="button"><span>⌁</span><span><strong>车载</strong><small>更及时，耗电更高</small></span><b>✓</b></button>
+              </div>
+            </div>
+            <div class="detail-card">
+              <div class="card-heading"><div><h3>节流策略</h3><p>用于原型评审，不代表最终默认值</p></div><span class="secure-label">事件驱动</span></div>
+              <label class="range-row"><span><strong>最短间隔</strong><small><output id="timeOutput">5 分钟</output></small></span><input type="range" min="1" max="30" value="5" data-output="timeOutput" data-suffix=" 分钟"></label>
+              <label class="range-row"><span><strong>最小距离</strong><small><output id="distanceOutput">500 米</output></small></span><input type="range" min="100" max="3000" step="100" value="500" data-output="distanceOutput" data-suffix=" 米"></label>
+            </div>
+            <div class="status-banner warning-banner"><span>!</span><div><strong>后台定位尚未授权</strong><small>正式版会先解释耗电与隐私影响，再打开系统授权。</small></div></div>
+            <button class="primary-button full-width" type="button" data-action="simulate-permission">模拟授权流程</button>
+            <div class="detail-card network-recovery-card">
+              <div class="card-heading"><div><h3>网络恢复策略</h3></div><span class="state-pill good">待命</span></div>
+              <div class="flow-line"><span>离开局域网</span><b>暂停发送</b><span>网络恢复</span><b>退避重连</b><span>继续同步</span></div>
+              <button class="secondary-button full-width" type="button" data-action="simulate-reconnect">演示断线与恢复</button>
+            </div>
+            <p class="prototype-disclaimer">iPhone 个人热点反向访问保持“实验性”标记，真机验证前不作为保证能力。</p>
+          </section>
+
+          <section class="screen detail-screen" data-detail="official-portals" data-title="官方 Web 入口" aria-labelledby="screenTitle">
+            <div class="detail-hero dark-detail"><span class="detail-icon">↗</span><span class="future-badge">SPEC-005</span><h3>需要官方页面时，安全地打开</h3><p>未公开设置不做原生映射，不注入脚本，也不模拟官方设备操作。</p></div>
+            <div class="portal-card">
+              <span class="portal-icon">FM</span><div><strong>FMO 官方后台</strong><small>http://fmo.local · 仅局域网</small></div><button type="button" data-action="open-web-preview" data-portal="admin">打开</button>
+            </div>
+            <div class="portal-card">
+              <span class="portal-icon qso-icon">Q</span><div><strong>QSO 下载页面</strong><small>用户主动导出数据库与签名文件</small></div><button type="button" data-action="open-web-preview" data-portal="qso">打开</button>
+            </div>
+            <div class="detail-card">
+              <h3>打开方式</h3>
+              <div class="selectable-list" data-choice-group="web-mode">
+                <button class="selectable-option is-selected" type="button"><span>▣</span><span><strong>受限 App 内浏览器</strong><small>保留上下文，限制跳转</small></span><b>✓</b></button>
+                <button class="selectable-option" type="button"><span>↗</span><span><strong>系统浏览器</strong><small>获得完整 Safari 能力</small></span><b>✓</b></button>
+              </div>
+            </div>
+            <div class="status-banner info-banner"><span>i</span><div><strong>公开接口边界</strong><small>原型只展示入口与安全提醒，不复制官方后台设置能力。</small></div></div>
+          </section>
+
+          <section class="screen detail-screen" data-detail="station-directory" data-title="台站与服务器" aria-labelledby="screenTitle">
+            <div class="search-field"><span>⌕</span><input type="search" placeholder="搜索呼号、服务器或地区" aria-label="搜索台站与服务器"></div>
+            <div class="inline-tabs" data-choice-group="directory-tab"><button class="is-selected" type="button">台站</button><button type="button">服务器</button><button type="button">收藏</button></div>
+            <div class="directory-summary"><div><strong>128</strong><small>已验证台站</small></div><div><strong>12</strong><small>服务器</small></div><div><strong>4</strong><small>收藏</small></div></div>
+            <div class="station-list">
+              <button class="station-card" type="button" data-action="open-detail" data-target="trust-center"><span class="station-avatar">BI</span><span><strong>BI8SYN</strong><small>18 km · 在线 · 1 分钟前</small></span><span class="trust-mark">✓ 可信</span></button>
+              <button class="station-card" type="button" data-action="open-detail" data-target="trust-center"><span class="station-avatar alt">BH</span><span><strong>BH4XYZ</strong><small>42 km · VOCAL · 刚刚</small></span><span class="trust-mark">✓ 可信</span></button>
+              <button class="station-card" type="button" data-action="open-detail" data-target="trust-center"><span class="station-avatar muted">BD</span><span><strong>BD7ABC</strong><small>未知距离 · 数据已过期</small></span><span class="unknown-mark">? 未知根</span></button>
+            </div>
+            <div class="section-heading compact-heading"><div><h3>服务器目录</h3></div><button class="text-button" type="button" data-action="toggle-favorite">仅看收藏</button></div>
+            <div class="server-directory-card"><div><strong>示例华东服务器</strong><small>fmo.example.invalid:1883 · 覆盖 60 km</small></div><span><b>24</b><small>在线</small></span><span><b>37</b><small>峰值</small></span></div>
+            <p class="prototype-disclaimer">呼号、服务器与距离均为虚构数据。</p>
+          </section>
+
+          <section class="screen detail-screen" data-detail="trust-center" data-title="FMO V4 信任" aria-labelledby="screenTitle">
+            <div class="trust-hero"><span class="trust-seal">✓</span><div><span class="eyebrow">VERIFIED IDENTITY</span><h3>BI8SYN</h3><p>证书链、签名和重放窗口均通过</p></div></div>
+            <div class="detail-card trust-checklist">
+              <div><span class="check good">✓</span><span><strong>CERT blob</strong><small>确定性 CBOR 解析成功</small></span></div>
+              <div><span class="check good">✓</span><span><strong>呼号绑定</strong><small>消息呼号与证书主体一致</small></span></div>
+              <div><span class="check good">✓</span><span><strong>证书链与有效期</strong><small>根与中间证书可信，当前有效</small></span></div>
+              <div><span class="check good">✓</span><span><strong>CRL</strong><small>最近更新 18 分钟前，未吊销</small></span></div>
+              <div><span class="check good">✓</span><span><strong>Ed25519 签名</strong><small>报文签名有效</small></span></div>
+              <div><span class="check good">✓</span><span><strong>timeSalt / 重放窗口</strong><small>时间窗口有效，未发现重放</small></span></div>
+              <div><span class="check good">✓</span><span><strong>JOINT / EVENT 关系</strong><small>事件哈希链一致</small></span></div>
+            </div>
+            <div class="detail-card">
+              <div class="card-heading"><div><h3>异常状态预览</h3><p>失败数据不会显示为可信</p></div></div>
+              <div class="failure-chips" data-choice-group="trust-failure"><button class="is-selected" type="button">过期</button><button type="button">吊销</button><button type="button">签名错误</button><button type="button">呼号不匹配</button><button type="button">未知根</button></div>
+            </div>
+            <button class="secondary-button full-width" type="button" data-action="simulate-check">重新验证并更新 CRL</button>
+          </section>
+
+          <section class="screen detail-screen" data-detail="event-explorer" data-title="完整事件流" aria-labelledby="screenTitle">
+            <div class="inline-tabs scroll-tabs" data-choice-group="event-filter"><button class="is-selected" type="button">全部</button><button type="button">CQ</button><button type="button">OMCQ</button><button type="button">VOCAL</button><button type="button">ONLINE</button><button type="button">BEACON</button><button type="button">STATION</button></div>
+            <div class="event-stream">
+              <article><span class="event-mark orange">CQ</span><div><strong>BH4XYZ 发起 CQ</strong><small>已验证 · 18 km</small></div><time>刚刚</time></article>
+              <article><span class="event-mark orange">OM</span><div><strong>BG0AAA 发起 OMCQ</strong><small>老友呼叫 · 已验证</small></div><time>1 分</time></article>
+              <article><span class="event-mark green">VO</span><div><strong>BI8SYN 语音活跃</strong><small>VOCAL 仅表示活跃，不含语音内容</small></div><time>2 分</time></article>
+              <article><span class="event-mark green">ON</span><div><strong>BD7ABC 上线</strong><small>ONLINE · 数据新鲜</small></div><time>4 分</time></article>
+              <article><span class="event-mark gray">BC</span><div><strong>BEACON 位置更新</strong><small>精度约 30 m · 6 分钟前</small></div><time>6 分</time></article>
+              <article><span class="event-mark gray">ST</span><div><strong>STATION 服务广播</strong><small>在线 24 · 覆盖 60 km</small></div><time>8 分</time></article>
+              <article><span class="event-mark orange">JE</span><div><strong>JOINT + EVENT 已关联</strong><small>哈希关系验证通过</small></div><time>10 分</time></article>
+            </div>
+            <button class="primary-button full-width" type="button" data-action="open-detail" data-target="notifications">配置事件通知</button>
+          </section>
+
+          <section class="screen detail-screen" data-detail="server-dashboard" data-title="服务器运维" aria-labelledby="screenTitle">
+            <div class="server-hero"><div><span class="live-dot"></span><span>示例服务器</span></div><h3>所有核心服务正常</h3><p>通过独立 HTTPS API 获取 · 12 秒前</p><button type="button" data-action="refresh-server">刷新</button></div>
+            <div class="metric-grid"><div><span>在线连接</span><strong>24</strong><small>峰值 37</small></div><div><span>CPU</span><strong>18%</strong><small>正常</small></div><div><span>内存</span><strong>42%</strong><small>1.7 GB</small></div><div><span>运行时间</span><strong>18d</strong><small>无中断</small></div></div>
+            <div class="detail-card service-health">
+              <div><span class="check good">✓</span><span><strong>DNS</strong><small>解析正常</small></span><b>22 ms</b></div>
+              <div><span class="check good">✓</span><span><strong>MQTT 443</strong><small>TLS 可达</small></span><b>31 ms</b></div>
+              <div><span class="check good">✓</span><span><strong>EMQX</strong><small>集群健康</small></span><b>3 节点</b></div>
+              <div><span class="check good">✓</span><span><strong>SAS</strong><small>鉴权服务正常</small></span><b>v1.4</b></div>
+              <div><span class="check good">✓</span><span><strong>STATION 广播</strong><small>最近发送 32 秒前</small></span><b>正常</b></div>
+            </div>
+            <div class="section-heading compact-heading"><div><h3>脱敏日志</h3><p>不显示令牌、精确位置或 QSO 内容</p></div></div>
+            <div class="log-list"><code>14:36 INFO  station broadcast accepted</code><code>14:35 INFO  sas authorization healthy</code><code>14:34 WARN  mqtt reconnect recovered</code></div>
+            <button class="danger-outline-button full-width" type="button" data-action="open-detail" data-target="server-admin">管理员写操作</button>
+          </section>
+
+          <section class="screen detail-screen" data-detail="server-admin" data-title="管理员操作" aria-labelledby="screenTitle">
+            <div class="status-banner warning-banner"><span>!</span><div><strong>写操作单独授权</strong><small>正式版需要服务器写权限与 LocalAuthentication 二次确认。</small></div></div>
+            <div class="detail-card admin-actions">
+              <button type="button" data-action="confirm-admin"><span>↻</span><span><strong>重启 SAS 服务</strong><small>预计中断鉴权约 10 秒</small></span><b>›</b></button>
+              <button type="button" data-action="confirm-admin"><span>≋</span><span><strong>立即广播 STATION</strong><small>向 APRS-IS 发送最新公开状态</small></span><b>›</b></button>
+              <button type="button" data-action="confirm-admin"><span>◫</span><span><strong>刷新公开证书材料</strong><small>不涉及任何设备私钥</small></span><b>›</b></button>
+            </div>
+            <div class="detail-card"><h3>授权范围</h3><div class="key-value"><span>身份</span><b>owner@example.invalid</b><span>会话</span><b>剩余 8 分钟</b><span>能力</span><b>server.write</b></div></div>
+            <p class="prototype-disclaimer">原型不会连接服务器或执行任何写操作。</p>
+          </section>
+
+          <section class="screen detail-screen" data-detail="aprs-setup" data-title="APRS 凭据" aria-labelledby="screenTitle">
+            <div class="detail-hero dark-detail"><span class="detail-icon">◌</span><span class="future-badge">0.6</span><h3>配置自己的 APRS 身份</h3><p>PASSCODE 与远控 SECRET 只进入 Keychain，不写入日志或云端同步。</p></div>
+            <div class="detail-card form-card">
+              <label>呼号<input type="text" value="BI8SYN" autocomplete="off"></label>
+              <label>SSID<input type="number" value="10" min="0" max="15"></label>
+              <label>APRS PASSCODE<input type="password" placeholder="输入后仅保存到 Keychain" autocomplete="off"></label>
+              <label>远控 SECRET<input type="password" placeholder="输入后仅保存到 Keychain" autocomplete="off"></label>
+              <div class="keychain-note"><span>⌑</span><div><strong>将安全保存到 Keychain</strong><small>示例值不会离开当前原型页面</small></div></div>
+            </div>
+            <button class="primary-button full-width" type="button" data-action="save-credentials">保存示例配置</button>
+          </section>
+
+          <section class="screen detail-screen" data-detail="conversation" data-title="APRS 消息" aria-labelledby="screenTitle">
+            <div class="conversation-header"><span class="station-avatar alt">BH</span><div><strong>BH4XYZ</strong><small>标准 APRS 消息 · 在线</small></div><span class="trust-mark">✓</span></div>
+            <div class="conversation-thread" id="conversationThread">
+              <div class="message-bubble incoming">下午好，便携台已架设。<small>收到 · 14:31</small></div>
+              <div class="message-bubble outgoing">收到，稍后呼叫。<small>ACK 01 · 14:32</small></div>
+              <div class="message-bubble incoming">好的，频点保持。<small>收到 · 14:33</small></div>
+            </div>
+            <div class="ack-legend"><span><i class="sent"></i>已发送</span><span><i class="waiting"></i>等待 ACK</span><span><i class="acked"></i>已 ACK</span><span><i class="failed"></i>失败</span></div>
+            <div class="composer active-composer"><input id="messageInput" type="text" value="信号收到，感谢测试。" aria-label="消息内容"><button type="button" data-action="send-message">↑</button></div>
+            <p class="prototype-disclaimer">原型只模拟标准 APRS 消息和 ACK 状态，不连接 APRS-IS。</p>
+          </section>
+
+          <section class="screen detail-screen" data-detail="remote-control" data-title="远程控制" aria-labelledby="screenTitle">
+            <div class="detail-card"><div class="card-heading"><div><span class="eyebrow">REPLAY PROTECTION</span><h3>命令安全上下文</h3></div><span class="state-pill good">已就绪</span></div><div class="key-value"><span>Time Slot</span><b>28 765 432</b><span>Counter</span><b id="counterValue">0042</b><span>签名</span><b>HMAC-SHA1 截断</b><span>凭据</span><b>Keychain</b></div></div>
+            <div class="command-list">
+              <button type="button" data-action="simulate-command" data-command="NORMAL"><span class="command-symbol">●</span><span><strong>NORMAL</strong><small>恢复正常工作状态</small></span><b>发送 ›</b></button>
+              <button type="button" data-action="simulate-command" data-command="STANDBY"><span class="command-symbol">◐</span><span><strong>STANDBY</strong><small>进入待机状态</small></span><b>发送 ›</b></button>
+              <button class="danger-command" type="button" data-action="open-reboot"><span class="command-symbol">↻</span><span><strong>REBOOT</strong><small>需生物认证并等待 ACK</small></span><b>确认 ›</b></button>
+            </div>
+            <div class="command-result" id="commandResult"><span>—</span><div><strong>等待命令</strong><small>发送后将在这里显示签名、发送与 ACK 阶段。</small></div></div>
+          </section>
+
+          <section class="screen detail-screen" data-detail="qso-import" data-title="导入 QSO" aria-labelledby="screenTitle">
+            <div class="detail-hero orange-detail"><span class="detail-icon">＋</span><span class="future-badge">0.8</span><h3>导入用户主动导出的文件</h3><p>只读检查 SQLite、签名与完整性，不修改原始文件。</p></div>
+            <div class="import-drop"><span>▤</span><strong>选择 QSO SQLite 与签名文件</strong><small>支持从“文件”App 选择 · 原型不读取本地文件</small><button type="button" data-action="simulate-import">选择示例文件</button></div>
+            <div class="import-progress" id="importProgress" hidden><div><span>导入与验证</span><b id="importPercent">0%</b></div><progress value="0" max="100"></progress></div>
+            <div class="detail-card import-steps">
+              <div data-import-step="schema"><span class="check neutral">—</span><span><strong>Schema 检查</strong><small>表与字段结构</small></span></div>
+              <div data-import-step="hash"><span class="check neutral">—</span><span><strong>SHA-256 完整性</strong><small>数据库摘要</small></span></div>
+              <div data-import-step="signature"><span class="check neutral">—</span><span><strong>ECDSA P-256 验签</strong><small>用户导出签名</small></span></div>
+              <div data-import-step="index"><span class="check neutral">—</span><span><strong>建立查询索引</strong><small>可取消的批处理</small></span></div>
+            </div>
+          </section>
+
+          <section class="screen detail-screen" data-detail="qso-browser" data-title="QSO 查询" aria-labelledby="screenTitle">
+            <div class="search-field"><span>⌕</span><input type="search" placeholder="搜索呼号、日期或服务器" aria-label="搜索 QSO"></div>
+            <div class="filter-chips"><button class="chip is-selected" type="button">全部</button><button class="chip" type="button">已验证</button><button class="chip" type="button">待检查</button><button class="chip" type="button">收藏</button></div>
+            <div class="qso-detail-card"><div class="qso-call"><span class="verified-mark">✓</span><div><span class="eyebrow">VERIFIED QSO</span><h3>BH4XYZ</h3></div><time>今天 14:32</time></div><div class="mini-map"><span class="route-point start"></span><span class="route-line"></span><span class="route-point end"></span><small>示意线路 · 不含真实位置</small></div><div class="key-value"><span>时长</span><b>8 分钟</b><span>服务器</span><b>示例华东</b><span>完整性</span><b>SHA-256 通过</b><span>签名</span><b>P-256 有效</b></div></div>
+            <div class="qso-list compact-qso-list"><article><span class="verified-mark">✓</span><div><strong>BG0AAA</strong><small>昨天 · 3 分钟</small></div><time>20:18</time></article><article><span class="pending-mark">!</span><div><strong>BD7ABC</strong><small>签名待检查</small></div><time>8 月 1 日</time></article></div>
+          </section>
+
+          <section class="screen detail-screen" data-detail="qso-export" data-title="ADIF 导出" aria-labelledby="screenTitle">
+            <div class="detail-card"><span class="eyebrow">EXPORT RANGE</span><h3>选择导出范围</h3><div class="selectable-list" data-choice-group="export-range"><button class="selectable-option is-selected" type="button"><span>◉</span><span><strong>当前筛选结果</strong><small>24 条记录</small></span><b>✓</b></button><button class="selectable-option" type="button"><span>▤</span><span><strong>全部记录</strong><small>1,284 条记录</small></span><b>✓</b></button></div></div>
+            <div class="detail-card option-list"><label><span><strong>包含标准 ADIF 字段</strong><small>CALL、QSO_DATE、TIME_ON 等</small></span><input type="checkbox" checked></label><label><span><strong>包含 APP_FMO_* 字段</strong><small>服务器、验签与 FMO 扩展信息</small></span><input type="checkbox" checked></label><label><span><strong>导出前再次验证</strong><small>更新摘要与签名状态</small></span><input type="checkbox" checked></label></div>
+            <button class="primary-button full-width" type="button" data-action="simulate-export">生成示例 ADIF</button>
+            <p class="prototype-disclaimer">正式版通过系统分享面板导出，原型不会创建真实文件。</p>
+          </section>
+
+          <section class="screen detail-screen" data-detail="notifications" data-title="通知" aria-labelledby="screenTitle">
+            <div class="status-banner info-banner"><span>i</span><div><strong>通知来源可区分</strong><small>APNs、自建服务器推送和本地系统事件分别标注。</small></div></div>
+            <div class="detail-card option-list notification-options">
+              <label><span><strong>CQ / OMCQ</strong><small>附近或收藏呼号发起呼叫</small></span><input type="checkbox" checked></label>
+              <label><span><strong>VOCAL</strong><small>仅代表语音活跃事件</small></span><input type="checkbox"></label>
+              <label><span><strong>上线与离线</strong><small>收藏台站和自建服务器</small></span><input type="checkbox" checked></label>
+              <label><span><strong>连接与坐标同步失败</strong><small>本地通知，不包含精确位置</small></span><input type="checkbox" checked></label>
+              <label><span><strong>服务器告警</strong><small>DNS、MQTT、EMQX、SAS 与资源阈值</small></span><input type="checkbox" checked></label>
+            </div>
+            <div class="detail-card"><h3>勿扰与过滤</h3><div class="key-value"><span>时间</span><b>23:00–07:00</b><span>距离</span><b>50 km 内</b><span>呼号</span><b>收藏优先</b><span>聚合</span><b>5 分钟</b></div></div>
+            <button class="secondary-button full-width" type="button" data-action="test-notification">发送原型测试通知</button>
+          </section>
+
+          <section class="screen detail-screen" data-detail="system-integrations" data-title="系统集成" aria-labelledby="screenTitle">
+            <div class="section-heading top-heading"><div><span class="eyebrow">WIDGETS</span><h3>桌面与锁屏</h3></div><span class="future-badge">1.0</span></div>
+            <div class="widget-gallery"><div class="widget-large"><span>FMO Companion</span><strong>FMO-7C2A</strong><small><i></i> 已连接 · 2 分钟前同步</small><div><b>24</b><em>在线台站</em></div></div><div class="widget-lock"><span>⌁</span><strong>已连接</strong><small>2m</small></div></div>
+            <div class="section-heading compact-heading"><div><span class="eyebrow">SHORTCUTS</span><h3>Siri 与快捷指令</h3></div></div>
+            <div class="shortcut-list"><button type="button" data-action="run-shortcut"><span>↗</span><div><strong>同步 FMO 位置</strong><small>需要解锁并确认位置访问</small></div><b>运行</b></button><button type="button" data-action="run-shortcut"><span>⌖</span><div><strong>查看附近 FMO 台站</strong><small>打开网络地图并应用距离过滤</small></div><b>运行</b></button><button type="button" data-action="run-shortcut"><span>▤</span><div><strong>打开最近 QSO</strong><small>跳转到最近一条已验证记录</small></div><b>运行</b></button></div>
+          </section>
+
+          <section class="screen detail-screen" data-detail="privacy-accessibility" data-title="隐私与无障碍" aria-labelledby="screenTitle">
+            <div class="privacy-score"><span>隐私状态</span><strong>A</strong><small>所有敏感数据均保持在预期边界内</small></div>
+            <div class="detail-card permission-status"><div><span class="check good">✓</span><span><strong>本地网络</strong><small>仅发现和连接 FMO</small></span><b>使用时</b></div><div><span class="check good">✓</span><span><strong>精确位置</strong><small>仅同步到当前盒子</small></span><b>使用时</b></div><div><span class="check good">✓</span><span><strong>Keychain</strong><small>PASSCODE、SECRET 与令牌</small></span><b>4 项</b></div></div>
+            <button class="feature-row standalone-row" type="button" data-action="export-diagnostics"><span class="feature-glyph">↗</span><span><strong>预览并导出脱敏诊断</strong><small>导出前再次检查敏感字段</small></span><b>›</b></button>
+            <div class="detail-card"><div class="card-heading"><div><h3>可访问性预览</h3><p>正式版纳入发布验收</p></div></div><div class="accessibility-grid"><span>动态字体</span><b>支持</b><span>VoiceOver</span><b>语义分组</b><span>减少动态</span><b>支持</b><span>触控区域</span><b>≥ 44 pt</b><span>深色模式</span><b>支持</b></div><label class="range-row"><span><strong>文字大小预览</strong><small><output id="textSizeOutput">100%</output></small></span><input type="range" min="90" max="160" step="10" value="100" data-output="textSizeOutput" data-suffix="%"></label></div>
+          </section>
+
+          <section class="screen detail-screen" data-detail="product-boundaries" data-title="产品边界" aria-labelledby="screenTitle">
+            <div class="detail-hero dark-detail"><span class="detail-icon">FM</span><span class="future-badge">PUBLIC ONLY</span><h3>只使用公开接口和用户授权数据</h3><p>产品能力边界与安全模型同等重要，原型将排除项明确展示。</p></div>
+            <div class="boundary-section allowed"><h3><span>✓</span>计划内能力</h3><ul><li>Bonjour/mDNS 与官方 GEO WebSocket</li><li>公开 FMO V4 APRS 与标准 APRS-IS</li><li>官方 APRS 远控格式</li><li>用户导出的 QSO SQLite 与签名</li><li>独立认证的自建服务器 HTTPS API</li></ul></div>
+            <div class="boundary-section excluded"><h3><span>×</span>明确排除</h3><ul><li>解码或收发未公开 MQTT 语音</li><li>抓包、固件逆向或模拟盒子身份</li><li>获取、导出、复制或使用设备私钥</li><li>映射未公开设置、OTA 或自动设备激活</li><li>未经实机验证即保证个人热点反向访问</li></ul></div>
+            <div class="detail-card"><div class="key-value"><span>最低系统</span><b>iOS 26.0</b><span>UI</span><b>SwiftUI</b><span>当前阶段</span><b>原型评审</b><span>正式代码</span><b>尚未开始</b></div></div>
+          </section>
+        </div>
+
+        <nav class="tab-bar" aria-label="主要导航">
+          <button class="tab-button is-active" type="button" data-tab="home"><span>⌁</span><small>首页</small></button>
+          <button class="tab-button" type="button" data-tab="network"><span>⌖</span><small>FMO 网络</small></button>
+          <button class="tab-button" type="button" data-tab="qso"><span>▤</span><small>QSO</small></button>
+          <button class="tab-button" type="button" data-tab="settings"><span>⚙</span><small>设置</small></button>
+        </nav>
+
+        <div class="modal-backdrop is-visible" id="onboardingModal">
+          <section class="bottom-sheet onboarding-sheet" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="onboarding-art" aria-hidden="true"><span class="phone-node"></span><span class="connection-line"></span><span class="fmo-node">FMO</span></div>
+            <span class="step-label">开始之前</span>
+            <h2 id="onboardingTitle">建立可信的局域网连接</h2>
+            <p>FMO Companion 需要本地网络与使用期间定位权限。我们会先说明用途，再触发系统授权。</p>
+            <ul class="permission-list">
+              <li><span>⌁</span><div><strong>本地网络</strong><small>发现并连接同一 Wi-Fi 中的 FMO</small></div></li>
+              <li><span>⌖</span><div><strong>使用期间定位</strong><small>由你主动把 iPhone 坐标同步给盒子</small></div></li>
+            </ul>
+            <button class="primary-button full-width" type="button" data-action="finish-onboarding">了解并继续</button>
+            <small class="sheet-footnote">原型不会请求真实系统权限或读取位置。</small>
+          </section>
+        </div>
+
+        <div class="modal-backdrop" id="manualModal" hidden>
+          <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="manualTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <span class="step-label">手动回退</span>
+            <h2 id="manualTitle">输入设备地址</h2>
+            <p>请输入 <code>fmo.local</code> 或局域网 IPv4 地址。不会保存 Wi-Fi 密码。</p>
+            <label class="input-label">主机名或 IP
+              <input id="manualHost" type="text" value="fmo.local" autocomplete="off" spellcheck="false">
+            </label>
+            <div class="sheet-actions">
+              <button class="secondary-button" type="button" data-action="close-modal">取消</button>
+              <button class="primary-button" type="button" data-action="manual-connect">连接</button>
+            </div>
+          </section>
+        </div>
+
+        <div class="modal-backdrop" id="diagnosticsModal" hidden>
+          <section class="bottom-sheet diagnostics-sheet" role="dialog" aria-modal="true" aria-labelledby="diagnosticsTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <span class="step-label">脱敏诊断</span>
+            <h2 id="diagnosticsTitle">连接诊断</h2>
+            <p id="diagnosticSummary">尚未连接设备，可先自动发现或手动输入地址。</p>
+            <div class="diagnostic-steps">
+              <div data-diag="wifi"><span class="diag-state neutral">—</span><strong>Wi-Fi 网络</strong><small>等待检测</small></div>
+              <div data-diag="host"><span class="diag-state neutral">—</span><strong>主机解析</strong><small>等待设备地址</small></div>
+              <div data-diag="http"><span class="diag-state neutral">—</span><strong>官方后台</strong><small>等待连接</small></div>
+              <div data-diag="ws"><span class="diag-state neutral">—</span><strong>GEO WebSocket</strong><small>等待握手</small></div>
+            </div>
+            <button class="primary-button full-width" type="button" data-action="close-modal">完成</button>
+          </section>
+        </div>
+
+        <div class="modal-backdrop" id="rebootModal" hidden>
+          <section class="bottom-sheet danger-sheet" role="alertdialog" aria-modal="true" aria-labelledby="rebootTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <span class="danger-symbol">↻</span>
+            <h2 id="rebootTitle">确认重启 FMO？</h2>
+            <p>正式版本将调用 Face ID / Touch ID 再次确认，并等待设备 ACK。原型不会发送命令。</p>
+            <div class="sheet-actions">
+              <button class="secondary-button" type="button" data-action="close-modal">取消</button>
+              <button class="danger-button" type="button" data-action="confirm-reboot">模拟确认</button>
+            </div>
+          </section>
+        </div>
+
+        <div class="modal-backdrop" id="webPreviewModal" hidden>
+          <section class="bottom-sheet web-sheet" role="dialog" aria-modal="true" aria-labelledby="webPreviewTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="mock-browser-bar"><span>🔒</span><code id="webPreviewURL">http://fmo.local</code><button type="button" data-action="close-modal" aria-label="关闭">×</button></div>
+            <div class="web-preview-content"><span class="portal-icon" id="webPreviewIcon">FM</span><h2 id="webPreviewTitle">FMO 官方后台</h2><p id="webPreviewDescription">受限浏览器预览。不会注入脚本或模拟未公开接口。</p><div class="web-placeholder-lines"><i></i><i></i><i></i><i></i></div></div>
+            <small class="sheet-footnote">这是原型占位页，不会访问真实设备。</small>
+          </section>
+        </div>
+
+        <div class="modal-backdrop" id="adminConfirmModal" hidden>
+          <section class="bottom-sheet danger-sheet" role="alertdialog" aria-modal="true" aria-labelledby="adminConfirmTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <span class="danger-symbol">⌑</span>
+            <h2 id="adminConfirmTitle">确认管理员写操作？</h2>
+            <p>正式版会显示具体影响、请求服务器写权限并调用生物认证。原型只演示确认层级。</p>
+            <div class="sheet-actions"><button class="secondary-button" type="button" data-action="close-modal">取消</button><button class="danger-button" type="button" data-action="confirm-admin-final">模拟确认</button></div>
+          </section>
+        </div>
+
+        <div class="toast" id="toast" role="status" aria-live="polite"><span>✓</span><p>操作已完成</p></div>
+      </div>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
