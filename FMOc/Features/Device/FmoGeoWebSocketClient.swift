@@ -76,12 +76,20 @@ actor FmoGeoWebSocketClient: FmoGeoClient {
                 return result
             }
         } catch let error as FmoDeviceError {
+            if error == .disconnected {
+                await invalidateConnection()
+            }
             throw error
         } catch is CancellationError {
             throw FmoDeviceError.operationCancelled
         } catch {
-            connectedEndpoint = nil
+            await invalidateConnection()
             throw FmoDeviceError.disconnected
         }
+    }
+
+    private func invalidateConnection() async {
+        connectedEndpoint = nil
+        await transport.disconnect()
     }
 }

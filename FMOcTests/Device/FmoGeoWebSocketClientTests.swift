@@ -35,6 +35,23 @@ struct FmoGeoWebSocketClientTests {
             try await client.getCoordinate()
         }
     }
+
+    @Test
+    func clearsLogicalConnectionAfterTransportDisconnects() async throws {
+        let transport = FakeWebSocketTransport(responses: [])
+        let client = FmoGeoWebSocketClient(transport: transport)
+        try await client.connect(to: FmoDeviceEndpoint(host: "fmo.local", source: .manual))
+
+        await #expect(throws: FmoDeviceError.disconnected) {
+            try await client.getCoordinate()
+        }
+        #expect(await transport.sentMessages().count == 1)
+
+        await #expect(throws: FmoDeviceError.disconnected) {
+            try await client.getCoordinate()
+        }
+        #expect(await transport.sentMessages().count == 1)
+    }
 }
 
 private actor FakeWebSocketTransport: FmoWebSocketTransport {

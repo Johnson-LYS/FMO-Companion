@@ -25,6 +25,16 @@ extension PhoneLocationError: LocalizedError {
         case .invalidCoordinate: "系统返回了无效坐标"
         }
     }
+
+    var recoverySuggestion: String? {
+        switch self {
+        case .denied: "请前往系统设置允许定位访问。"
+        case .restricted: "请检查屏幕使用时间或设备管理中的定位限制。"
+        case .unavailable: "请到视野开阔处后重试。"
+        case .timedOut: "请确认定位服务已开启后重试。"
+        case .invalidCoordinate: "请重新获取位置。"
+        }
+    }
 }
 
 nonisolated protocol PhoneLocationProviding: Sendable {

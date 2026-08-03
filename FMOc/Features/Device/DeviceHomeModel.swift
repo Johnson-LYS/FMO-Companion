@@ -17,9 +17,14 @@ final class DeviceHomeModel {
     }
 
     struct Issue: Equatable, Identifiable {
+        enum RecoveryAction: Equatable {
+            case openSettings
+        }
+
         let title: String
         let suggestion: String?
-        var id: String { title + (suggestion ?? "") }
+        let recoveryAction: RecoveryAction?
+        var id: String { title + (suggestion ?? "") + String(describing: recoveryAction) }
     }
 
     private let discovery: any FmoDeviceDiscovering
@@ -155,7 +160,7 @@ final class DeviceHomeModel {
             phase = .connected
             lastOperationText = "FMO 坐标已刷新"
         } catch {
-            present(error)
+            await presentGeoOperationError(error)
         }
     }
 
@@ -188,7 +193,7 @@ final class DeviceHomeModel {
             phase = .success
             lastOperationText = "坐标已同步，FMO 已回读确认"
         } catch {
-            present(error, keepConnection: true)
+            await presentGeoOperationError(error)
         }
     }
 
@@ -216,8 +221,29 @@ final class DeviceHomeModel {
         let localized = error as? any LocalizedError
         issue = Issue(
             title: localized?.errorDescription ?? fallbackTitle,
-            suggestion: explicitSuggestion ?? localized?.recoverySuggestion
+            suggestion: explicitSuggestion ?? localized?.recoverySuggestion,
+            recoveryAction: recoveryAction(for: error)
         )
         phase = keepConnection ? .connected : .failure
+    }
+
+    private func presentGeoOperationError(_ error: any Error) async {
+        let connectionWasLost = (error as? FmoDeviceError) == .disconnected
+        if connectionWasLost {
+            await geoClient.disconnect()
+            deviceCoordinate = nil
+            lastOperationText = nil
+        }
+        present(error, keepConnection: !connectionWasLost)
+    }
+
+    private func recoveryAction(for error: any Error) -> Issue.RecoveryAction? {
+        if (error as? FmoDeviceError) == .localNetworkDenied {
+            return .openSettings
+        }
+        if (error as? PhoneLocationError) == .denied {
+            return .openSettings
+        }
+        return nil
     }
 }

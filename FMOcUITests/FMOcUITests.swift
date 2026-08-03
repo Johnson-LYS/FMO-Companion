@@ -28,4 +28,21 @@ final class FMOcUITests: XCTestCase {
         XCTAssertTrue(app.textFields["主机名或 IPv4"].exists)
         XCTAssertTrue(app.textFields["端口（可选）"].exists)
     }
+
+    @MainActor
+    func testLocalNetworkDenialOffersSettingsRecovery() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "local-network-denied"
+        app.launch()
+
+        app.buttons["发现附近的 FMO"].tap()
+
+        let alert = app.alerts["本地网络访问已关闭"]
+        XCTAssertTrue(alert.waitForExistence(timeout: 2))
+        XCTAssertTrue(alert.buttons["前往设置"].exists)
+        XCTAssertTrue(alert.buttons["暂不"].exists)
+
+        alert.buttons["暂不"].tap()
+        XCTAssertFalse(alert.exists)
+    }
 }

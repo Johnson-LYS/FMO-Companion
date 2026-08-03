@@ -1,10 +1,12 @@
 import SwiftUI
+import UIKit
 
 struct DeviceHomeView: View {
     @Bindable var model: DeviceHomeModel
     @State private var actionTask: Task<Void, Never>?
     @State private var showsManualAddress = false
     @State private var showsDiagnostics = false
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         ScrollView {
@@ -32,13 +34,7 @@ struct DeviceHomeView: View {
             DeviceDiagnosticsView(endpoint: model.diagnosticEndpoint)
                 .presentationDetents([.medium, .large])
         }
-        .alert(item: $model.issue) { issue in
-            Alert(
-                title: Text(issue.title),
-                message: issue.suggestion.map(Text.init),
-                dismissButton: .default(Text("知道了")) { model.clearIssue() }
-            )
-        }
+        .alert(item: $model.issue, content: issueAlert)
         .sensoryFeedback(.success, trigger: model.phase == .success)
     }
 
@@ -246,6 +242,28 @@ struct DeviceHomeView: View {
     private func run(_ operation: @escaping @MainActor @Sendable () async -> Void) {
         actionTask?.cancel()
         actionTask = Task { await operation() }
+    }
+
+    private func issueAlert(_ issue: DeviceHomeModel.Issue) -> Alert {
+        if issue.recoveryAction == .openSettings {
+            return Alert(
+                title: Text(issue.title),
+                message: issue.suggestion.map(Text.init),
+                primaryButton: .default(Text("前往设置")) {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        openURL(url)
+                    }
+                    model.clearIssue()
+                },
+                secondaryButton: .cancel(Text("暂不")) { model.clearIssue() }
+            )
+        }
+
+        return Alert(
+            title: Text(issue.title),
+            message: issue.suggestion.map(Text.init),
+            dismissButton: .default(Text("知道了")) { model.clearIssue() }
+        )
     }
 
     private var statusTitle: String {
