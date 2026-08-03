@@ -1,0 +1,117 @@
+---
+last-reviewed: 2026-08-03
+status: ready
+---
+
+# 计划 0002：里程碑 0.1 局域网闭环
+
+## 目标
+
+在真实 iPhone 与 FMO 盒子位于同一普通 Wi-Fi 时，App 能发现或手动连接盒子，建立官方 GEO WebSocket，读取盒子坐标，并把 iPhone 坐标写回盒子。
+
+## 范围
+
+包含：
+
+- 本地网络、定位权限说明与状态。
+- Bonjour `_http._tcp` 发现 FMO。
+- 手动主机名/IP。
+- `ws://<host>/ws` 生命周期。
+- `getCordinate` / `setCordinate` JSON 编解码。
+- 当前坐标、同步结果和可行动错误 UI。
+- 单元测试与真机验收清单。
+
+不包含：
+
+- 后台持续定位。
+- APRS、地图、短消息或远控。
+- QSO 与服务器运维。
+- 对官方 Web 后台做原生设置映射。
+
+## 实施顺序
+
+### 1. 建立领域模型
+
+- `GeoCoordinate`：有限 Double、经纬度范围校验、Sendable。
+- `FmoDeviceEndpoint`：主机名、可选端口、来源（Bonjour/手动）。
+- `FmoDeviceError`：权限、发现、解析、握手、连接、超时、协议、设备拒绝。
+
+测试先覆盖坐标边界、相等性和错误映射。
+
+### 2. 实现 GEO 协议编解码
+
+- 建立 envelope 与 `setCordinate` data DTO。
+- 保留 `Cordinate` 历史拼写。
+- 对官方示例和错误/未知响应编写固定向量测试。
+- 协议层不得依赖 SwiftUI、Core Location 或 Bonjour。
+
+### 3. 实现 WebSocket 客户端
+
+- 抽象 transport 以便测试。
+- 使用 `URLSessionWebSocketTask`。
+- 单连接串行化请求，防止响应处理器互相覆盖。
+- 默认 5 秒超时，支持 Task cancellation。
+- 明确 connect/get/set/disconnect 状态转换。
+
+### 4. 实现设备发现
+
+- 使用 `NWBrowser` 浏览 `_http._tcp`。
+- 根据官方 Android 工具行为识别名称包含 `fmo` 的服务。
+- 输出 AsyncStream，不把 NWBrowser 暴露给 UI。
+- 提供 10 秒发现窗口与手动主机回退。
+
+### 5. 实现定位适配器
+
+- 先请求 When In Use 定位，只支持用户主动同步。
+- 获取一次满足精度策略的 WGS84 坐标。
+- 首版不申请 Always，不启用 Background Modes。
+- Simulator 允许通过自定义 Location 测试 UI，但 FMO 连接必须真机验收。
+
+### 6. 构建首版界面
+
+单页状态流：
+
+```text
+权限说明
+→ 发现或输入设备
+→ 连接
+→ 读取盒子坐标
+→ 获取 iPhone 坐标
+→ 用户点击同步
+→ 成功/失败结果
+```
+
+界面至少显示设备端点、连接状态、盒子坐标、手机坐标、最后操作和诊断入口。
+
+### 7. 工程配置
+
+- 增加本地网络用途说明。
+- 声明所浏览的 Bonjour 服务类型。
+- 增加使用期间定位用途说明。
+- 为局域网明文连接配置最小范围的 ATS 例外，不允许全局任意加载。
+
+### 8. 验证
+
+自动化：
+
+- 单元测试：模型、JSON、状态机、超时和取消。
+- Build：Simulator 无签名构建。
+- UI 测试：手动 IP 与错误状态的可访问标签。
+
+真机：
+
+- 首次本地网络权限允许/拒绝。
+- 首次定位权限允许/拒绝。
+- 普通 Wi-Fi 自动发现。
+- 手动 `fmo.local` 和 IPv4。
+- 读取坐标。
+- 写入坐标后再次读取并比对。
+- 锁屏、切后台和切换 Wi-Fi时无崩溃。
+
+## 完成定义
+
+- 所有新增单元测试通过。
+- Simulator 构建通过。
+- 至少一次真实 iPhone + FMO 普通 Wi-Fi 闭环成功。
+- `docs/project-brief.md` 和 `docs/architecture/modules/device-connectivity.md` 与代码一致。
+- 无真实位置、PASSCODE、SECRET、证书私钥或服务器令牌进入 Git。
