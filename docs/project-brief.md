@@ -13,8 +13,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 ## 当前状态
 
 - **阶段：** 0.1 局域网闭环开发中，原生 App 首个可运行切片已完成
-- **正在进行：** Swift 6 严格并发架构、四标签 App 外壳、Bonjour 发现、手动端点、GEO WebSocket、单次定位和坐标回读确认已落地并通过 Simulator 单元测试
-- **下一步：** 补齐分步连接诊断、权限/错误 UI 自动化覆盖，并在真实 iPhone + FMO 普通 Wi-Fi 上完成闭环验收
+- **正在进行：** Swift 6 严格并发架构、四标签 App 外壳、Bonjour 发现、手动端点、GEO WebSocket、单次定位、坐标回读确认和四步连接诊断已落地并通过 Simulator 自动化测试
+- **下一步：** 补齐权限拒绝与异常断线覆盖，并在真实 iPhone + FMO 普通 Wi-Fi 上完成发现、诊断、读取和坐标同步闭环验收
 - **首要验收设备：** 普通 Wi-Fi 或便携路由器中的真实 iPhone + FMO 盒子
 
 ## 最近变更
@@ -34,6 +34,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 | 2026-08-03 | 采用 Swift 6 完整严格并发检查 | `docs/adr/0004-swift-6-strict-concurrency.md` |
 | 2026-08-03 | 真机修正 Bonjour 地址作用域问题，改为持久化 `fmo.local` 稳定身份 | `docs/architecture/modules/device-connectivity.md` |
 | 2026-08-03 | 修正 SwiftUI 整行条目留白无法点击，并固化全宽命中规范 | `docs/design/ui-design-system.md` |
+| 2026-08-03 | 完成 Wi-Fi、主机端口、HTTP 与 GEO WebSocket 四步实时连接诊断 | `docs/architecture/modules/device-connectivity.md` |
 
 ## 领域术语
 
@@ -70,4 +71,4 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 1. 阅读 `docs/plans/0002-milestone-0.1-local-connection.md` 的剩余验收项。
 2. 继续遵循 `docs/design/ui-design-system.md` 与 `docs/design/prototype-implementation-guide.md`。
 3. 阅读 `docs/spec/product-spec.md` 中 SPEC-001 至 SPEC-004。
-4. 阅读 `docs/architecture/modules/device-connectivity.md` 后补齐诊断、UI 自动化与真机闭环。
+4. 阅读 `docs/architecture/modules/device-connectivity.md` 后补齐权限/断线覆盖与真机闭环。

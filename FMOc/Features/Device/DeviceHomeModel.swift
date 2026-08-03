@@ -76,6 +76,15 @@ final class DeviceHomeModel {
         }
     }
 
+    var diagnosticEndpoint: FmoDeviceEndpoint? {
+        if let selectedEndpoint { return selectedEndpoint }
+        if let endpoint = endpoints.first { return endpoint }
+
+        let portText = manualPort.trimmingCharacters(in: .whitespacesAndNewlines)
+        let port = portText.isEmpty ? nil : Int(portText)
+        return try? FmoDeviceEndpoint(host: manualHost, port: port, source: .manual)
+    }
+
     func restoreSavedEndpoint() async {
         guard endpoints.isEmpty, let endpoint = await endpointStore.load() else { return }
         endpoints = [endpoint]

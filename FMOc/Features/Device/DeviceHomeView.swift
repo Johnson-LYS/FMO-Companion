@@ -29,7 +29,7 @@ struct DeviceHomeView: View {
                 .presentationDetents([.medium])
         }
         .sheet(isPresented: $showsDiagnostics) {
-            DeviceDiagnosticsView(model: model)
+            DeviceDiagnosticsView(endpoint: model.diagnosticEndpoint)
                 .presentationDetents([.medium, .large])
         }
         .alert(item: $model.issue) { issue in

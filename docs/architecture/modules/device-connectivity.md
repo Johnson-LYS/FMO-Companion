@@ -33,9 +33,13 @@ protocol FmoEndpointStoring: Sendable {
     func load() async -> FmoDeviceEndpoint?
     func save(_ endpoint: FmoDeviceEndpoint?) async
 }
+
+protocol FmoConnectionDiagnosing: Sendable {
+    func diagnose(_ endpoint: FmoDeviceEndpoint) -> AsyncStream<FmoDiagnosticUpdate>
+}
 ```
 
-发现、GEO 传输和已选端点存储保持分离；`DeviceHomeModel` 只依赖这些协议和 `PhoneLocationProviding`。服务实现使用 Actor，UI 状态归属 `MainActor`，超时策略可替换测试。
+发现、GEO 传输、已选端点存储和连接诊断保持分离；`DeviceHomeModel` 只依赖这些协议和 `PhoneLocationProviding`。服务实现使用 Actor，UI 状态归属 `MainActor`，超时策略可替换测试。
 
 Bonjour 端点使用稳定的 `fmo.local` 作为可连接、可持久化的主机身份。服务解析得到的 IPv4/IPv6 地址及接口作用域只属于当前网络路径，不显示、不持久化；每次新连接由系统 mDNS 重新解析。用户手动输入的主机名或 IPv4 则按原值保存。
 
@@ -45,7 +49,9 @@ Bonjour 端点使用稳定的 `fmo.local` 作为可连接、可持久化的主�
 - `FmoGeoProtocol` 是不依赖 UI 或网络的值类型编解码器，负责 envelope、历史拼写、坐标与设备错误校验。
 - `FmoGeoWebSocketClient` 作为 Actor 串行化请求/响应，并通过可替换 transport 隔离 `URLSessionWebSocketTask`。
 - `DeviceHomeModel` 是 `MainActor` 上的可观察状态机，编排发现、连接、读取、单次定位、写入和回读确认。
-- 当前诊断入口展示已知连接阶段与可行动错误；独立的 Wi-Fi、DNS、HTTP、WebSocket 分步探测仍属于本里程碑后续工作。
+- `FmoConnectionDiagnoser` 按依赖顺序执行 Wi-Fi、本地主机与 TCP 端口、官方 HTTP 后台和 GEO WebSocket 四步检查；首个失败会停止后续网络操作并把依赖步骤标记为跳过。
+- 各探针通过协议注入。Network.framework 负责网络路径、DNS/mDNS 与 TCP 检查，`URLSession` 发送无正文的 HTTP `HEAD` 请求，独立 GEO 客户端完成握手和坐标响应检查。诊断状态通过 `AsyncStream` 实时投影到 `DeviceDiagnosticsModel`，支持取消和重新检查。
+- 诊断优先使用当前选择的端点，其次使用发现结果或手动地址；Bonjour 仍以 `fmo.local` 重新解析，不缓存临时 IP。
 
 ## GEO 协议
 
@@ -81,7 +87,7 @@ ws://<host>/ws
 ## 依赖
 
 - Network.framework：Bonjour 和端点解析。
-- Foundation/URLSession：WebSocket。
+- Foundation/URLSession：HTTP 可达性和 WebSocket。
 - Core Location 由上层 Location 模块使用，不由本模块直接请求权限。
 
 ## 错误模型
@@ -105,8 +111,10 @@ ws://<host>/ws
 - `FMOc/Features/Device/FmoDeviceServices.swift`
 - `FMOc/Features/Device/NWBrowserFmoDeviceDiscovery.swift`
 - `FMOc/Features/Device/FmoGeoWebSocketClient.swift`
+- `FMOc/Features/Device/FmoConnectionDiagnostics.swift`
+- `FMOc/Core/Networking/FmoConnectionDiagnosticProbes.swift`
 - `FMOc/Features/Device/DeviceHomeModel.swift`
-- `FMOc/Models/GeoCoordinate.swift`
+- `FMOc/Features/Device/DeviceDiagnosticsModel.swift`
 
 ## 测试
 
@@ -115,5 +123,7 @@ ws://<host>/ws
 - 未知消息和错误结果。
 - WebSocket 请求顺序和响应超时。
 - 页面状态机的发现、连接、定位、同步与错误投影。
+- 分步诊断的执行顺序、成功证据、首个失败和后续跳过状态。
 - Bonjour 端点稳定主机规范化，以及旧版临时 IP 持久化数据的读取迁移。
-- Bonjour、系统权限和真实 mDNS 使用真机验收；取消、重复连接、断线与诊断的自动化覆盖仍需补齐。
+- UI 自动化覆盖诊断入口整行命中、诊断页呈现和返回流程。
+- Bonjour、系统权限、真实 mDNS 与诊断结果仍需真机验收；重复连接和断线的自动化覆盖仍需补齐。
