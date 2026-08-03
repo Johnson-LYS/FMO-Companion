@@ -4,7 +4,7 @@ FMO Companion 是面向 FMO（NFM Over Internet）盒子的原生 iOS 伴侣应�
 
 ## 技术基线
 
-- iOS 17+
+- iOS 26+
 - SwiftUI
 - Swift Concurrency
 - Swift Testing / XCUITest

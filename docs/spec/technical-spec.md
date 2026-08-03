@@ -6,7 +6,8 @@ last-reviewed: 2026-08-03
 
 ## 平台与兼容性
 
-- 最低系统：iOS 17.0。
+- 最低系统：iOS 26.0；不为 iOS 18 及更早版本维护兼容分支。
+- API 策略：可直接使用 iOS 26 API，不主动添加旧系统 availability 分支或兼容垫片。
 - 开发工具：Xcode 26.6；工程格式由 Xcode 管理。
 - UI：SwiftUI，支持 iPhone；iPad 自适应作为非阻塞兼容目标。
 - 并发：Swift Concurrency，避免新增长生命周期的裸线程或回调金字塔。

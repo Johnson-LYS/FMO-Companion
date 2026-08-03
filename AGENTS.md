@@ -53,7 +53,8 @@ At the beginning of a development session:
 
 ## Development Rules
 
-- Target iOS 17 or later and use SwiftUI with Swift Concurrency.
+- Target iOS 26 or later and use SwiftUI with Swift Concurrency.
+- Prefer current iOS 26 APIs directly. Do not add availability branches or compatibility shims for older iOS releases unless the deployment policy is explicitly changed.
 - Prefer Apple frameworks before adding dependencies: Network, CoreLocation, MapKit, CryptoKit, SwiftData, UserNotifications, WebKit, LocalAuthentication.
 - Treat all network and location operations as asynchronous and cancellation-aware.
 - Keep protocol parsing and cryptographic verification independent from UI code.

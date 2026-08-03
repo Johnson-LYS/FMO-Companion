@@ -4,6 +4,7 @@
 |---|---|---|---|
 | 0001 | [原生 iOS 与公开协议边界](0001-native-ios-public-protocol-boundary.md) | Accepted | 2026-08-03 |
 | 0002 | [采用 Loom 文档驱动的 Agent 工作流](0002-loom-document-driven-development.md) | Accepted | 2026-08-03 |
+| 0003 | [最低部署版本采用 iOS 26](0003-ios-26-minimum-deployment.md) | Accepted | 2026-08-03 |
 
 ## 规则
 
