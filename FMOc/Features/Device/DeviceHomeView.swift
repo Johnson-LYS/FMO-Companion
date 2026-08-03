@@ -139,6 +139,7 @@ struct DeviceHomeView: View {
                                     .foregroundStyle(.tertiary)
                             }
                         }
+                        .fullWidthRowHitArea()
                     }
                     .buttonStyle(.plain)
                     .disabled(model.isBusy)
@@ -205,9 +206,10 @@ struct DeviceHomeView: View {
                     .foregroundStyle(.tertiary)
             }
             .foregroundStyle(.primary)
+            .appCard()
+            .fullWidthRowHitArea()
         }
         .buttonStyle(.plain)
-        .appCard()
     }
 
     private var manualAddressSheet: some View {

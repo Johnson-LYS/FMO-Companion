@@ -33,6 +33,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 | 2026-08-03 | 启动 0.1 开发，完成原生局域网连接首个可运行切片 | `docs/plans/0002-milestone-0.1-local-connection.md` |
 | 2026-08-03 | 采用 Swift 6 完整严格并发检查 | `docs/adr/0004-swift-6-strict-concurrency.md` |
 | 2026-08-03 | 真机修正 Bonjour 地址作用域问题，改为持久化 `fmo.local` 稳定身份 | `docs/architecture/modules/device-connectivity.md` |
+| 2026-08-03 | 修正 SwiftUI 整行条目留白无法点击，并固化全宽命中规范 | `docs/design/ui-design-system.md` |
 
 ## 领域术语
 

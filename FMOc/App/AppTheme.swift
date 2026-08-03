@@ -12,6 +12,11 @@ extension View {
         padding(AppTheme.cardPadding)
             .background(.background.secondary, in: .rect(cornerRadius: AppTheme.cardRadius))
     }
+
+    func fullWidthRowHitArea() -> some View {
+        frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+            .contentShape(.rect)
+    }
 }
 
 struct BrandPrimaryButtonStyle: ButtonStyle {

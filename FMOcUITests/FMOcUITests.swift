@@ -17,6 +17,12 @@ final class FMOcUITests: XCTestCase {
         XCTAssertTrue(app.buttons["QSO"].exists)
         XCTAssertTrue(app.buttons["设置"].exists)
 
+        let diagnosticsRow = app.buttons["连接诊断"]
+        XCTAssertTrue(diagnosticsRow.exists)
+        diagnosticsRow.coordinate(withNormalizedOffset: CGVector(dx: 0.72, dy: 0.5)).tap()
+        XCTAssertTrue(app.navigationBars["连接诊断"].waitForExistence(timeout: 2))
+        app.buttons["完成"].tap()
+
         app.buttons["手动地址"].tap()
         XCTAssertTrue(app.navigationBars["手动连接"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.textFields["主机名或 IPv4"].exists)
