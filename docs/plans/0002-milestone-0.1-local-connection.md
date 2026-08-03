@@ -61,6 +61,7 @@ status: active
 - 使用 `NWBrowser` 浏览 `_http._tcp`。
 - 根据官方 Android 工具行为识别名称包含 `fmo` 的服务。
 - 输出 AsyncStream，不把 NWBrowser 暴露给 UI。
+- Bonjour 结果保存稳定的 `fmo.local` 与服务端口，不保存带接口作用域或可能因 DHCP 变化的临时 IP。
 - 提供 10 秒发现窗口与手动主机回退。
 
 ### 5. 实现定位适配器

@@ -82,14 +82,14 @@ private nonisolated final class DiscoverySession: @unchecked Sendable {
             guard let self, let connection else { return }
             switch connectionState {
             case .ready:
-                if case .hostPort(let host, let port) = connection.currentPath?.remoteEndpoint {
-                    self.yield(host: host.debugDescription, port: Int(port.rawValue), name: name)
+                if case .hostPort(_, let port) = connection.currentPath?.remoteEndpoint {
+                    self.yield(port: Int(port.rawValue), name: name)
                 } else {
-                    self.yield(host: "fmo.local", port: nil, name: name)
+                    self.yield(port: nil, name: name)
                 }
                 connection.cancel()
             case .failed:
-                self.yield(host: "fmo.local", port: nil, name: name)
+                self.yield(port: nil, name: name)
                 connection.cancel()
             default:
                 break
@@ -111,9 +111,9 @@ private nonisolated final class DiscoverySession: @unchecked Sendable {
         finish()
     }
 
-    private func yield(host: String, port: Int?, name: String) {
+    private func yield(port: Int?, name: String) {
         guard let endpoint = try? FmoDeviceEndpoint(
-            host: host,
+            host: FmoDeviceEndpoint.bonjourHost,
             port: port,
             source: .bonjour,
             name: name

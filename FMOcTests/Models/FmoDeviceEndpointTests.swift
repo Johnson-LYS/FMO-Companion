@@ -5,8 +5,23 @@ import Testing
 struct FmoDeviceEndpointTests {
     @Test
     func buildsWebSocketURLWithResolvedPort() throws {
-        let endpoint = try FmoDeviceEndpoint(host: "192.0.2.10", port: 8080, source: .bonjour)
+        let endpoint = try FmoDeviceEndpoint(host: "192.0.2.10", port: 8080, source: .manual)
         #expect(try endpoint.webSocketURL.absoluteString == "ws://192.0.2.10:8080/ws")
+    }
+
+    @Test
+    func usesStableHostnameForBonjourEndpoint() throws {
+        let endpoint = try FmoDeviceEndpoint(
+            host: "192.168.8.174%en0",
+            port: 80,
+            source: .bonjour,
+            name: "FMO"
+        )
+
+        #expect(endpoint.host == "fmo.local")
+        #expect(endpoint.port == nil)
+        #expect(endpoint.displayAddress == "fmo.local")
+        #expect(try endpoint.webSocketURL.absoluteString == "ws://fmo.local/ws")
     }
 
     @Test
@@ -26,5 +41,16 @@ struct FmoDeviceEndpointTests {
         #expect(throws: FmoDeviceEndpoint.ValidationError.unsupportedAddress) {
             try JSONDecoder().decode(FmoDeviceEndpoint.self, from: invalid)
         }
+    }
+
+    @Test
+    func migratesPreviouslyPersistedBonjourIP() throws {
+        let legacy = Data(
+            #"{"host":"192.168.8.174%en0","port":80,"source":"bonjour","name":"FMO"}"#.utf8
+        )
+
+        let endpoint = try JSONDecoder().decode(FmoDeviceEndpoint.self, from: legacy)
+        #expect(endpoint.host == "fmo.local")
+        #expect(endpoint.port == nil)
     }
 }

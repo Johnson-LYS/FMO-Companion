@@ -1,6 +1,8 @@
 import Foundation
 
 nonisolated struct FmoDeviceEndpoint: Codable, Hashable, Identifiable, Sendable {
+    static let bonjourHost = "fmo.local"
+
     nonisolated enum Source: String, Codable, Sendable {
         case bonjour
         case manual
@@ -27,7 +29,9 @@ nonisolated struct FmoDeviceEndpoint: Codable, Hashable, Identifiable, Sendable 
     var id: String { "\(host.lowercased()):\(port ?? 80)" }
 
     init(host: String, port: Int? = nil, source: Source, name: String? = nil) throws {
-        let normalizedHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedHost = source == .bonjour
+            ? Self.bonjourHost
+            : host.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalizedHost.isEmpty else { throw ValidationError.emptyHost }
         guard !normalizedHost.contains("://"),
               !normalizedHost.contains("/"),
@@ -39,7 +43,7 @@ nonisolated struct FmoDeviceEndpoint: Codable, Hashable, Identifiable, Sendable 
         }
 
         self.host = normalizedHost
-        self.port = port
+        self.port = port == 80 ? nil : port
         self.source = source
         self.name = name
     }

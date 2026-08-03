@@ -37,9 +37,11 @@ protocol FmoEndpointStoring: Sendable {
 
 发现、GEO 传输和已选端点存储保持分离；`DeviceHomeModel` 只依赖这些协议和 `PhoneLocationProviding`。服务实现使用 Actor，UI 状态归属 `MainActor`，超时策略可替换测试。
 
+Bonjour 端点使用稳定的 `fmo.local` 作为可连接、可持久化的主机身份。服务解析得到的 IPv4/IPv6 地址及接口作用域只属于当前网络路径，不显示、不持久化；每次新连接由系统 mDNS 重新解析。用户手动输入的主机名或 IPv4 则按原值保存。
+
 ## 内部结构
 
-- `NWBrowserFmoDeviceDiscovery` 浏览 `_http._tcp`，只接收名称包含 `fmo` 的服务，并将 Network.framework 回调桥接为可取消的 `AsyncThrowingStream`。
+- `NWBrowserFmoDeviceDiscovery` 浏览 `_http._tcp`，只接收名称包含 `fmo` 的服务，并将 Network.framework 回调桥接为可取消的 `AsyncThrowingStream`。解析结果只用于取得服务端口，不使用 `debugDescription` 构造主机地址。
 - `FmoGeoProtocol` 是不依赖 UI 或网络的值类型编解码器，负责 envelope、历史拼写、坐标与设备错误校验。
 - `FmoGeoWebSocketClient` 作为 Actor 串行化请求/响应，并通过可替换 transport 隔离 `URLSessionWebSocketTask`。
 - `DeviceHomeModel` 是 `MainActor` 上的可观察状态机，编排发现、连接、读取、单次定位、写入和回读确认。
@@ -113,4 +115,5 @@ ws://<host>/ws
 - 未知消息和错误结果。
 - WebSocket 请求顺序和响应超时。
 - 页面状态机的发现、连接、定位、同步与错误投影。
+- Bonjour 端点稳定主机规范化，以及旧版临时 IP 持久化数据的读取迁移。
 - Bonjour、系统权限和真实 mDNS 使用真机验收；取消、重复连接、断线与诊断的自动化覆盖仍需补齐。
