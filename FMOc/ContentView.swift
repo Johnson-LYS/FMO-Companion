@@ -2,16 +2,26 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var deviceModel: DeviceHomeModel
+    @State private var locationAutomationModel: LocationAutomationModel
+    @State private var officialWebModel: OfficialWebModel
+    @Environment(\.scenePhase) private var scenePhase
 
-    init(deviceModel: DeviceHomeModel = .live()) {
-        _deviceModel = State(initialValue: deviceModel)
+    @MainActor
+    init(models: AppComposition.Models = AppComposition.makeModels()) {
+        _deviceModel = State(initialValue: models.device)
+        _locationAutomationModel = State(initialValue: models.locationAutomation)
+        _officialWebModel = State(initialValue: models.officialWeb)
     }
 
     var body: some View {
         TabView {
             Tab("首页", systemImage: "antenna.radiowaves.left.and.right") {
                 NavigationStack {
-                    DeviceHomeView(model: deviceModel)
+                    DeviceHomeView(
+                        model: deviceModel,
+                        locationAutomationModel: locationAutomationModel,
+                        officialWebModel: officialWebModel
+                    )
                 }
             }
 
@@ -34,6 +44,12 @@ struct ContentView: View {
             }
         }
         .tint(.accentColor)
+        .task { await locationAutomationModel.restoreIfNeeded() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                locationAutomationModel.refreshAuthorization()
+            }
+        }
     }
 }
 

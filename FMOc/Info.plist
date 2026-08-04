@@ -20,6 +20,8 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>CLRequireExplicitServiceSession</key>
+	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -35,8 +37,14 @@
 	<string>用于发现并连接同一局域网内的 FMO 设备。</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>用于读取当前 iPhone 位置并由你主动同步到 FMO 设备。</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>启用低功耗或车载模式后，用于在后台把 iPhone 位置同步到你选择的 FMO 设备。</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>

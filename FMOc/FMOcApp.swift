@@ -11,7 +11,7 @@ import SwiftUI
 struct FMOcApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView(deviceModel: AppComposition.makeDeviceModel())
+            ContentView(models: AppComposition.makeModels())
         }
     }
 }

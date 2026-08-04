@@ -70,6 +70,28 @@ nonisolated struct FmoDeviceEndpoint: Codable, Hashable, Identifiable, Sendable 
         }
     }
 
+    func officialWebURL(for page: FmoOfficialPage) throws -> URL {
+        var components = URLComponents()
+        components.scheme = "http"
+        components.host = host
+        components.port = port
+        components.path = page.path
+        guard let url = components.url else { throw ValidationError.unsupportedAddress }
+        return url
+    }
+
     var displayName: String { name ?? host }
     var displayAddress: String { port.map { "\(host):\($0)" } ?? host }
+}
+
+nonisolated enum FmoOfficialPage: String, CaseIterable, Sendable {
+    case management
+    case qso
+
+    var path: String {
+        switch self {
+        case .management: "/"
+        case .qso: "/qso.html"
+        }
+    }
 }

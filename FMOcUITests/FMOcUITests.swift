@@ -8,6 +8,7 @@ final class FMOcUITests: XCTestCase {
     @MainActor
     func testHomeShowsPrimaryConnectionPathAndTabs() throws {
         let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "empty"
         app.launch()
 
         XCTAssertTrue(app.navigationBars["首页"].waitForExistence(timeout: 5))
@@ -67,5 +68,52 @@ final class FMOcUITests: XCTestCase {
         confirmation.buttons["删除设备"].tap()
 
         XCTAssertTrue(app.staticTexts["尚未发现设备"].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testLocationAutomationExplainsAutomaticModeBeforeEnabling() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "saved-device"
+        app.launch()
+
+        let entry = app.buttons["location-automation-entry"]
+        if !entry.waitForExistence(timeout: 2) { app.swipeUp() }
+        XCTAssertTrue(entry.waitForExistence(timeout: 5))
+        entry.tap()
+
+        XCTAssertTrue(app.navigationBars["位置自动化"].waitForExistence(timeout: 2))
+        app.buttons["location-mode-lowPower"].tap()
+
+        let confirmation = app.alerts["启用低功耗？"]
+        XCTAssertTrue(confirmation.waitForExistence(timeout: 2))
+        XCTAssertTrue(
+            confirmation.staticTexts[
+                "首次有效位置会立即同步，之后达到 15 分钟或移动 1 公里时同步。需要“始终”定位授权。"
+            ].exists
+        )
+    }
+
+    @MainActor
+    func testOfficialPagesRequireDeviceAndPresentSystemBrowser() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "empty"
+        app.launch()
+
+        let management = app.buttons["official-management-entry"]
+        if !management.waitForExistence(timeout: 2) { app.swipeUp() }
+        XCTAssertTrue(management.waitForExistence(timeout: 5))
+        management.tap()
+        XCTAssertTrue(app.alerts["无法打开 FMO 页面"].waitForExistence(timeout: 2))
+        app.alerts["无法打开 FMO 页面"].buttons["知道了"].tap()
+
+        app.terminate()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "saved-device"
+        app.launch()
+
+        let qso = app.buttons["official-qso-entry"]
+        if !qso.waitForExistence(timeout: 2) { app.swipeUp() }
+        XCTAssertTrue(qso.waitForExistence(timeout: 5))
+        qso.tap()
+        XCTAssertTrue(app.otherElements["official-safari-view"].waitForExistence(timeout: 5))
     }
 }

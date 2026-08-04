@@ -8,7 +8,7 @@ status: active
 | 版本 | 主题 | 主要交付 | 状态 |
 |---|---|---|---|
 | 0.1 | 局域网闭环 | 发现、诊断、GEO 读写、手动定位 | Complete |
-| 0.2 | 可靠定位 | 低功耗/车载模式、重连、后台权限、官方 Web 后台入口 | Planned |
+| 0.2 | 可靠定位 | 低功耗/车载模式、重连、后台权限、官方 Web 后台入口 | In Progress |
 | 0.4 | FMO APRS | V4 解析、证书链、签名/CRL、地图、服务器目录、事件流 | Planned |
 | 0.6 | 通讯与远控 | APRS 短消息、ACK、NORMAL/STANDBY/REBOOT、Keychain | Planned |
 | 0.8 | QSO | SQLite 导入、查询、P-256 验签、ADIF 导出 | Planned |

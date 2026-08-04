@@ -12,9 +12,9 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 当前状态
 
-- **阶段：** 0.1 局域网闭环已完成并通过真机验收
-- **已完成：** Swift 6 严格并发架构、四标签 App 外壳、Bonjour 发现、手动端点、端点合并与左滑删除、GEO WebSocket、单次定位、坐标回读确认、会话状态分层的四步连接诊断，以及权限拒绝/异常断线恢复均已落地
-- **下一步：** 按产品路线图制定 0.2“可靠定位”实施计划，再开始低功耗/车载模式、重连与后台权限开发
+- **阶段：** 0.2 可靠定位开发中
+- **已完成：** 0.1 局域网闭环；0.2 已完成三种定位模式、后台位置事件、自动同步协调器、可取消退避、位置自动化 UI、App 生命周期恢复及官方 Web 入口
+- **进行中：** 真实 iPhone + FMO 的后台、锁屏、离网恢复、停止及系统终止恢复闭环
 - **首要验收设备：** 普通 Wi-Fi 或便携路由器中的真实 iPhone + FMO 盒子
 
 ## 最近变更
@@ -39,6 +39,10 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 | 2026-08-04 | 修正发现覆盖手动设备、补齐设备移除，并区分首页会话与独立诊断结果 | `docs/architecture/modules/device-connectivity.md` |
 | 2026-08-04 | 设备删除改为系统原生左滑，并固化为所有可删除列表的 UI 规范 | `docs/design/ui-design-system.md` |
 | 2026-08-04 | Johnson iPhone 13 Pro + 真实 FMO 完成 0.1 全流程真机验收 | `docs/plans/0002-milestone-0.1-local-connection.md` |
+| 2026-08-04 | 冻结 0.2 模式阈值、离网恢复与系统浏览器契约并启动开发 | `docs/plans/0005-milestone-0.2-reliable-location.md` |
+| 2026-08-04 | 完成 0.2 定位策略、iOS 26 后台会话、授权映射、模式存储与工程配置 | `docs/architecture/modules/location-sync.md` |
+| 2026-08-04 | 完成自动同步协调器、网络门控、离网恢复和可取消指数退避 | `docs/architecture/modules/location-sync.md` |
+| 2026-08-04 | 接入位置自动化状态页、启动恢复、共享稳定端点与官方管理/QSO 系统浏览器入口 | `docs/plans/0005-milestone-0.2-reliable-location.md` |
 
 ## 领域术语
 
@@ -75,4 +79,4 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.2 范围。
 2. 阅读 `docs/spec/product-spec.md` 的 SPEC-004、SPEC-005。
 3. 继续遵循 `docs/design/ui-design-system.md` 与 `docs/design/prototype-implementation-guide.md`。
-4. 创建 0.2 实施计划后，再开始低功耗/车载定位、网络恢复和官方 Web 后台入口开发。
+4. 按 `docs/plans/0005-milestone-0.2-reliable-location.md` 在真机完成后台、锁屏、离网恢复、停止和系统终止恢复测试。

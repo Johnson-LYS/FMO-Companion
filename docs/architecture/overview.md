@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-03
+last-reviewed: 2026-08-04
 ---
 
 # 架构总览
@@ -47,6 +47,7 @@ flowchart LR
 | 局域网 | Network.framework | Bonjour、端点与可达性 |
 | WebSocket | URLSession | GEO 协议 |
 | 定位 | Core Location | 手动与后台位置更新 |
+| 系统网页 | SafariServices | FMO 官方管理与 QSO 页面 |
 | 地图 | MapKit | FMO/APRS 节点与 QSO 地图 |
 | 安全 | CryptoKit、Keychain、LocalAuthentication | 签名、哈希、秘密与二次确认 |
 | 数据 | SwiftData、SQLite | App 状态与导入日志 |
@@ -57,11 +58,11 @@ flowchart LR
 
 ### DeviceConnectivity
 
-负责发现、手动端点、WebSocket 生命周期、GEO 请求/响应和诊断。它不拥有定位权限；`DeviceHomeModel` 在 `MainActor` 上把服务状态投影给 SwiftUI。
+负责发现、手动端点、WebSocket 生命周期、GEO 请求/响应和诊断。它不拥有定位权限；`DeviceHomeModel` 在 `MainActor` 上把服务状态投影给 SwiftUI。官方管理与 QSO URL 只从已验证端点构造，再交给 `SFSafariViewController`，App 不读取页面 DOM。
 
 ### LocationSync
 
-负责 Core Location 授权、位置更新、时间/距离节流和同步调度。通过 `FmoGeoClient` 接口写入设备。
+负责 Core Location 授权、位置更新、固定模式的时间/距离节流和同步调度。节流只处理系统已交付的位置事件，以最后成功同步为检查点，并通过独立的 `FmoGeoClient` 写入设备；离网时不持久化精确坐标。它与设备首页共享稳定端点存储，但不共享前台 GEO 会话；App 启动时按已保存模式重建系统定位会话。
 
 ### APRS
 

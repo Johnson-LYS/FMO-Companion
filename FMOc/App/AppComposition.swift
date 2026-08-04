@@ -2,29 +2,71 @@ import Foundation
 
 enum AppComposition {
     @MainActor
-    static func makeDeviceModel(processInfo: ProcessInfo = .processInfo) -> DeviceHomeModel {
+    struct Models {
+        let device: DeviceHomeModel
+        let locationAutomation: LocationAutomationModel
+        let officialWeb: OfficialWebModel
+    }
+
+    @MainActor
+    static func makeModels(processInfo: ProcessInfo = .processInfo) -> Models {
+        let endpointStore: any FmoEndpointStoring
+        let discovery: any FmoDeviceDiscovering
+        let modeStore: any LocationSyncModeStoring
+
 #if DEBUG
         switch processInfo.environment["FMO_UI_TEST_SCENARIO"] {
         case "local-network-denied":
-            return DeviceHomeModel(
-                discovery: LocalNetworkDeniedDiscovery(),
-                geoClient: FmoGeoWebSocketClient(),
-                locationProvider: CoreLocationProvider(),
-                endpointStore: UserDefaultsFmoEndpointStore()
-            )
+            endpointStore = UserDefaultsFmoEndpointStore()
+            discovery = LocalNetworkDeniedDiscovery()
         case "saved-device":
             let endpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual)
-            return DeviceHomeModel(
-                discovery: EmptyDeviceDiscovery(),
-                geoClient: FmoGeoWebSocketClient(),
-                locationProvider: CoreLocationProvider(),
-                endpointStore: UITestEndpointStore(endpoint: endpoint)
-            )
+            endpointStore = UITestEndpointStore(endpoint: endpoint)
+            discovery = EmptyDeviceDiscovery()
+        case "empty":
+            endpointStore = UITestEndpointStore(endpoint: nil)
+            discovery = EmptyDeviceDiscovery()
         default:
-            break
+            endpointStore = UserDefaultsFmoEndpointStore()
+            discovery = NWBrowserFmoDeviceDiscovery()
         }
+        modeStore = processInfo.environment["FMO_UI_TEST_SCENARIO"] == nil
+            ? UserDefaultsLocationSyncModeStore()
+            : UITestLocationSyncModeStore()
+#else
+        endpointStore = UserDefaultsFmoEndpointStore()
+        discovery = NWBrowserFmoDeviceDiscovery()
+        modeStore = UserDefaultsLocationSyncModeStore()
 #endif
-        return .live()
+
+        let device = DeviceHomeModel(
+            discovery: discovery,
+            geoClient: FmoGeoWebSocketClient(),
+            locationProvider: CoreLocationProvider(),
+            endpointStore: endpointStore
+        )
+        let coordinator = AutomaticLocationSyncCoordinator(
+            locationProvider: CoreLocationAutomaticProvider(),
+            networkObserver: NWPathNetworkObserver(),
+            geoClient: FmoGeoWebSocketClient(),
+            endpointStore: endpointStore,
+            modeStore: modeStore
+        )
+        let locationAutomation = LocationAutomationModel(
+            coordinator: coordinator,
+            authorizationReader: CoreLocationAuthorizationReader()
+        )
+
+        return Models(
+            device: device,
+            locationAutomation: locationAutomation,
+            officialWeb: OfficialWebModel()
+        )
+    }
+
+    @MainActor
+    static func makeDeviceModel(processInfo: ProcessInfo = .processInfo) -> DeviceHomeModel {
+        makeModels(processInfo: processInfo).device
     }
 }
 
@@ -54,5 +96,12 @@ private actor UITestEndpointStore: FmoEndpointStoring {
 
     func load() -> FmoDeviceEndpoint? { endpoint }
     func save(_ endpoint: FmoDeviceEndpoint?) { self.endpoint = endpoint }
+}
+
+private actor UITestLocationSyncModeStore: LocationSyncModeStoring {
+    private var mode = LocationSyncMode.manual
+
+    func load() -> LocationSyncMode { mode }
+    func save(_ mode: LocationSyncMode) { self.mode = mode }
 }
 #endif

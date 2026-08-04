@@ -10,6 +10,37 @@ struct FmoDeviceEndpointTests {
     }
 
     @Test
+    func buildsOfficialManagementAndQsoURLs() throws {
+        let endpoint = try FmoDeviceEndpoint(
+            host: "192.0.2.10",
+            port: 8080,
+            source: .manual
+        )
+
+        #expect(
+            try endpoint.officialWebURL(for: .management).absoluteString
+                == "http://192.0.2.10:8080/"
+        )
+        #expect(
+            try endpoint.officialWebURL(for: .qso).absoluteString
+                == "http://192.0.2.10:8080/qso.html"
+        )
+    }
+
+    @Test
+    func officialWebURLUsesStableBonjourHostname() throws {
+        let endpoint = try FmoDeviceEndpoint(
+            host: "192.0.2.20%en0",
+            source: .bonjour
+        )
+
+        #expect(
+            try endpoint.officialWebURL(for: .management).absoluteString
+                == "http://fmo.local/"
+        )
+    }
+
+    @Test
     func usesStableHostnameForBonjourEndpoint() throws {
         let endpoint = try FmoDeviceEndpoint(
             host: "192.168.8.174%en0",

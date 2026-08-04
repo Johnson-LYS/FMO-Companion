@@ -90,6 +90,10 @@ final class DeviceHomeModel {
         return try? FmoDeviceEndpoint(host: manualHost, port: port, source: .manual)
     }
 
+    var officialWebEndpoint: FmoDeviceEndpoint? {
+        selectedEndpoint ?? endpoints.first
+    }
+
     func restoreSavedEndpoint() async {
         guard endpoints.isEmpty, let endpoint = await endpointStore.load() else { return }
         endpoints = [endpoint]

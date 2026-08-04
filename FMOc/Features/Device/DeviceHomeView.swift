@@ -3,6 +3,8 @@ import UIKit
 
 struct DeviceHomeView: View {
     @Bindable var model: DeviceHomeModel
+    @Bindable var locationAutomationModel: LocationAutomationModel
+    @Bindable var officialWebModel: OfficialWebModel
     @State private var actionTask: Task<Void, Never>?
     @State private var showsManualAddress = false
     @State private var showsDiagnostics = false
@@ -17,6 +19,8 @@ struct DeviceHomeView: View {
                 .listRowBackground(Color.clear)
 
             deviceSection
+
+            deviceFeaturesSection
 
             if model.isConnected {
                 coordinateSection
@@ -47,6 +51,10 @@ struct DeviceHomeView: View {
             )
                 .presentationDetents([.medium, .large])
         }
+        .sheet(item: $officialWebModel.destination) { destination in
+            SafariView(url: destination.url)
+                .ignoresSafeArea()
+        }
         .alert(item: $model.issue, content: issueAlert)
         .confirmationDialog(
             "删除这台设备？",
@@ -65,6 +73,94 @@ struct DeviceHomeView: View {
             Text("将删除 \(endpoint.displayAddress) 并清除它的保存记录。如果设备仍在附近，下次发现时会重新出现。")
         }
         .sensoryFeedback(.success, trigger: model.phase == .success)
+    }
+
+    private var deviceFeaturesSection: some View {
+        Section("设备功能") {
+            NavigationLink {
+                LocationAutomationView(model: locationAutomationModel)
+            } label: {
+                featureRow(
+                    title: "位置自动化",
+                    subtitle: locationAutomationSubtitle,
+                    symbol: "location.circle",
+                    showsDisclosureIndicator: false
+                )
+            }
+            .accessibilityIdentifier("location-automation-entry")
+
+            Button {
+                openOfficialPage(.management)
+            } label: {
+                featureRow(
+                    title: "管理后台",
+                    subtitle: "使用 FMO 官方网页管理设备",
+                    symbol: "safari"
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("official-management-entry")
+
+            Button {
+                openOfficialPage(.qso)
+            } label: {
+                featureRow(
+                    title: "QSO 页面",
+                    subtitle: "在 FMO 官方页面查看与导出记录",
+                    symbol: "book.pages"
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("official-qso-entry")
+        }
+        .alert(item: $officialWebModel.issue) { issue in
+            Alert(
+                title: Text(issue.title),
+                message: Text(issue.message),
+                dismissButton: .default(Text("知道了")) { officialWebModel.clearIssue() }
+            )
+        }
+    }
+
+    private func featureRow(
+        title: LocalizedStringResource,
+        subtitle: LocalizedStringResource,
+        symbol: String,
+        showsDisclosureIndicator: Bool = true
+    ) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: symbol)
+                .font(.title3)
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 38, height: 38)
+                .background(Color.accentColor.opacity(0.12), in: .rect(cornerRadius: 11))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.headline)
+                Text(subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            if showsDisclosureIndicator {
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .foregroundStyle(.primary)
+        .fullWidthRowHitArea()
+    }
+
+    private var locationAutomationSubtitle: LocalizedStringResource {
+        switch locationAutomationModel.snapshot.mode {
+        case .manual: "当前为手动同步"
+        case .lowPower: "低功耗模式"
+        case .vehicle: "车载模式"
+        }
+    }
+
+    private func openOfficialPage(_ page: FmoOfficialPage) {
+        officialWebModel.open(page, endpoint: model.officialWebEndpoint)
     }
 
     private var statusCard: some View {

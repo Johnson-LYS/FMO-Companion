@@ -6,7 +6,7 @@ last-reviewed: 2026-08-04
 
 ## 目的
 
-发现局域网中的 FMO 盒子，管理用户选择的设备端点，通过官方 GEO WebSocket 读取/写入坐标，并生成不含秘密的连接诊断。
+发现局域网中的 FMO 盒子，管理用户选择的设备端点，通过官方 GEO WebSocket 读取/写入坐标，生成不含秘密的连接诊断，并安全路由到盒子官方管理与 QSO 页面。
 
 ## 公共接口
 
@@ -37,9 +37,13 @@ protocol FmoEndpointStoring: Sendable {
 protocol FmoConnectionDiagnosing: Sendable {
     func diagnose(_ endpoint: FmoDeviceEndpoint) -> AsyncStream<FmoDiagnosticUpdate>
 }
+
+protocol FmoOfficialWebURLBuilding: Sendable {
+    func url(for page: FmoOfficialPage, endpoint: FmoDeviceEndpoint) throws -> URL
+}
 ```
 
-发现、GEO 传输、已选端点存储和连接诊断保持分离；`DeviceHomeModel` 只依赖这些协议和 `PhoneLocationProviding`。服务实现使用 Actor，UI 状态归属 `MainActor`，超时策略可替换测试。
+发现、GEO 传输、已选端点存储、连接诊断和官方页面路由保持分离；`DeviceHomeModel` 只依赖设备服务协议和 `PhoneLocationProviding`。服务实现使用 Actor，UI 状态归属 `MainActor`，超时策略与 URL 构造可替换测试。
 
 Bonjour 端点使用稳定的 `fmo.local` 作为可连接、可持久化的主机身份。服务解析得到的 IPv4/IPv6 地址及接口作用域只属于当前网络路径，不显示、不持久化；每次新连接由系统 mDNS 重新解析。用户手动输入的主机名或 IPv4 则按原值保存。
 
@@ -58,6 +62,8 @@ Bonjour 端点使用稳定的 `fmo.local` 作为可连接、可持久化的主�
 - 各探针通过协议注入。Network.framework 负责网络路径、DNS/mDNS 与 TCP 检查，`URLSession` 发送无正文的 HTTP `HEAD` 请求，独立 GEO 客户端完成握手和坐标响应检查。诊断状态通过 `AsyncStream` 实时投影到 `DeviceDiagnosticsModel`，支持取消和重新检查。
 - 诊断优先使用当前选择的端点，其次使用发现结果或手动地址；Bonjour 仍以 `fmo.local` 重新解析，不缓存临时 IP。
 - 诊断探针使用独立连接验证网络路径，不代表首页 GEO 会话已建立。诊断页必须同时显示首页当前会话状态；四步全部通过只表述为“设备可达”。
+- `FmoOfficialWebURLBuilder` 只能从已验证 `FmoDeviceEndpoint` 构造 HTTP `/` 或 `/qso.html`；Bonjour 继续使用稳定 `fmo.local`，不会把解析到的临时 IP 写入 URL 或存储。
+- `OfficialWebModel` 负责无设备、无效端点和待呈现目标状态，`SafariView` 只把目标交给 `SFSafariViewController`。App 不使用自定义 WebView、不注入脚本，也不读取官方页面 DOM。
 
 ## GEO 协议
 
@@ -94,6 +100,7 @@ ws://<host>/ws
 
 - Network.framework：Bonjour 和端点解析。
 - Foundation/URLSession：HTTP 可达性和 WebSocket。
+- SafariServices：以系统标准界面呈现官方管理与 QSO 页面。
 - Core Location 由上层 Location 模块使用，不由本模块直接请求权限。
 
 ## 错误模型
@@ -121,6 +128,8 @@ ws://<host>/ws
 - `FMOc/Core/Networking/FmoConnectionDiagnosticProbes.swift`
 - `FMOc/Features/Device/DeviceHomeModel.swift`
 - `FMOc/Features/Device/DeviceDiagnosticsModel.swift`
+- `FMOc/Features/Device/OfficialWebModel.swift`
+- `FMOc/Features/Device/SafariView.swift`
 
 ## 测试
 
@@ -134,5 +143,6 @@ ws://<host>/ws
 - 分步诊断的执行顺序、成功证据、首个失败和后续跳过状态。
 - Bonjour 端点稳定主机规范化，以及旧版临时 IP 持久化数据的读取迁移。
 - 发现时保留手动/已保存端点、稳定身份去重，以及移除当前端点时断开并清除持久化。
+- 官方管理与 QSO URL 的确定性构造、无设备/无效地址恢复提示，以及 `SFSafariViewController` 呈现入口。
 - UI 自动化覆盖诊断入口整行命中、未连接会话与独立探测说明、手动地址流程、已保存设备原生左滑删除，以及本地网络拒绝时的设置恢复入口。场景通过 Debug 依赖注入稳定复现，不改变生产服务组合。
 - Bonjour、系统权限、真实 mDNS、异常断线与诊断结果仍需真机验收；自动化覆盖不能替代 iOS 系统权限弹窗和真实网络切换测试。

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-03
+last-reviewed: 2026-08-04
 ---
 
 # 技术规格
@@ -38,9 +38,22 @@ UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 
 
 - 权限按需请求，先解释用途再触发系统弹窗。
 - 精确坐标默认只用于同步，不上传到分析服务。
-- 后台工作由 Core Location 允许的事件驱动；时间/距离阈值只做节流。
-- 连接不可用时停止高频发送，保存有限诊断状态并等待网络恢复。
+- 手动同步使用 `CLServiceSession` 的使用期间授权与一次性 `CLLocationUpdate.liveUpdates(.default)`。
+- 低功耗与车载模式分别使用 `.default` 与 `.automotiveNavigation` 的 `CLLocationUpdate`，并在用户明确启用后持有始终授权的 `CLServiceSession` 和 `CLBackgroundActivitySession`。
+- 工程启用 `CLRequireExplicitServiceSession`、始终定位用途说明与 `location` 后台模式；任一定位入口都不得绕过相应服务会话。
+- 后台工作由 Core Location 允许的事件驱动；低功耗的 15 分钟/1 公里与车载的 2 分钟/250 米只做“或”关系节流，不创建保证周期的定时器。
+- 自动模式、最后尝试/成功的时间与类型化结果可以持久化；用于节流的坐标检查点只保留在内存中，离网、终止或重启时不得落盘等待补发。
+- 使用 Network.framework 的路径状态阻止离网连接；路径可用但连接失败时采用 1、2、4、8、16、30、60 秒指数退避并封顶 60 秒，退避时长、时钟和等待器必须可注入及取消。
+- 网络恢复后合并并发事件，只允许一个连接/发送任务；优先发送内存中的最新有效位置，重启后则等待新位置事件。
+- App 被系统因位置事件重新启动时，仅在用户此前启用自动模式且授权仍满足时重建定位会话；用户主动停止后不得自行恢复。
 - 个人热点反向访问必须作为独立测试矩阵，不从普通 Wi-Fi 结果推断。
+
+## 官方 Web 页面
+
+- 使用 `SFSafariViewController` 以模态方式呈现盒子官方页面，不嵌入自定义 `WKWebView`。
+- URL 只能从当前选择的 `FmoDeviceEndpoint` 构造：管理后台为 `/`，QSO 为 `/qso.html`；仅允许 HTTP/HTTPS。
+- App 不注入 JavaScript、不检查 DOM、不复制网页登录态，也不把官方页面行为映射为未公开原生接口。
+- 页面入口的 URL 构造、无设备状态及呈现动作应通过协议注入以便单元测试。
 
 ## 安全与隐私
 
