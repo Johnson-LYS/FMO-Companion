@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-03
+last-reviewed: 2026-08-04
 ---
 
 # 项目简报
@@ -12,9 +12,9 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 当前状态
 
-- **阶段：** 0.1 局域网闭环开发中，原生 App 首个可运行切片已完成
-- **正在进行：** Swift 6 严格并发架构、四标签 App 外壳、Bonjour 发现、手动端点、GEO WebSocket、单次定位、坐标回读确认、四步连接诊断，以及权限拒绝/异常断线恢复已落地并通过 Simulator 自动化测试
-- **下一步：** 在真实 iPhone + FMO 普通 Wi-Fi 上完成权限允许/拒绝、发现、诊断、异常断线、读取和坐标同步闭环验收
+- **阶段：** 0.1 局域网闭环已完成并通过真机验收
+- **已完成：** Swift 6 严格并发架构、四标签 App 外壳、Bonjour 发现、手动端点、端点合并与左滑删除、GEO WebSocket、单次定位、坐标回读确认、会话状态分层的四步连接诊断，以及权限拒绝/异常断线恢复均已落地
+- **下一步：** 按产品路线图制定 0.2“可靠定位”实施计划，再开始低功耗/车载模式、重连与后台权限开发
 - **首要验收设备：** 普通 Wi-Fi 或便携路由器中的真实 iPhone + FMO 盒子
 
 ## 最近变更
@@ -36,6 +36,9 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 | 2026-08-03 | 修正 SwiftUI 整行条目留白无法点击，并固化全宽命中规范 | `docs/design/ui-design-system.md` |
 | 2026-08-03 | 完成 Wi-Fi、主机端口、HTTP 与 GEO WebSocket 四步实时连接诊断 | `docs/architecture/modules/device-connectivity.md` |
 | 2026-08-03 | 补齐权限拒绝的系统设置恢复入口与异常断线状态收敛覆盖 | `docs/architecture/modules/device-connectivity.md` |
+| 2026-08-04 | 修正发现覆盖手动设备、补齐设备移除，并区分首页会话与独立诊断结果 | `docs/architecture/modules/device-connectivity.md` |
+| 2026-08-04 | 设备删除改为系统原生左滑，并固化为所有可删除列表的 UI 规范 | `docs/design/ui-design-system.md` |
+| 2026-08-04 | Johnson iPhone 13 Pro + 真实 FMO 完成 0.1 全流程真机验收 | `docs/plans/0002-milestone-0.1-local-connection.md` |
 
 ## 领域术语
 
@@ -69,7 +72,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 本轮开发入口
 
-1. 阅读 `docs/plans/0002-milestone-0.1-local-connection.md` 的剩余验收项。
-2. 继续遵循 `docs/design/ui-design-system.md` 与 `docs/design/prototype-implementation-guide.md`。
-3. 阅读 `docs/spec/product-spec.md` 中 SPEC-001 至 SPEC-004。
-4. 阅读 `docs/architecture/modules/device-connectivity.md` 后执行普通 Wi-Fi 真机闭环验收。
+1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.2 范围。
+2. 阅读 `docs/spec/product-spec.md` 的 SPEC-004、SPEC-005。
+3. 继续遵循 `docs/design/ui-design-system.md` 与 `docs/design/prototype-implementation-guide.md`。
+4. 创建 0.2 实施计划后，再开始低功耗/车载定位、网络恢复和官方 Web 后台入口开发。

@@ -110,6 +110,66 @@ struct DeviceHomeModelTests {
         #expect(model.issue?.title == "FMO 连接已断开")
         #expect(await geo.disconnectCallCount() == 1)
     }
+
+    @Test
+    func discoveryPreservesSavedManualEndpointAndAddsNearbyDevice() async throws {
+        let manual = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual)
+        let nearby = try FmoDeviceEndpoint(host: "fmo.local", source: .bonjour, name: "FMO")
+        let store = MemoryEndpointStore(endpoint: manual)
+        let model = DeviceHomeModel(
+            discovery: FakeDiscovery(endpoint: nearby),
+            geoClient: FakeGeoClient(coordinate: try GeoCoordinate(latitude: 30, longitude: 120)),
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: store
+        )
+
+        await model.restoreSavedEndpoint()
+        await model.discover()
+
+        #expect(model.endpoints == [manual, nearby])
+        #expect(model.selectedEndpoint == manual)
+        #expect(await store.load() == manual)
+    }
+
+    @Test
+    func discoveryDoesNotDuplicateManualAndBonjourVersionsOfSameEndpoint() async throws {
+        let manual = try FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+        let nearby = try FmoDeviceEndpoint(host: "fmo.local", source: .bonjour, name: "FMO")
+        let model = DeviceHomeModel(
+            discovery: FakeDiscovery(endpoint: nearby),
+            geoClient: FakeGeoClient(coordinate: try GeoCoordinate(latitude: 30, longitude: 120)),
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: MemoryEndpointStore(endpoint: manual)
+        )
+
+        await model.restoreSavedEndpoint()
+        await model.discover()
+
+        #expect(model.endpoints == [manual])
+    }
+
+    @Test
+    func removingSelectedDeviceDisconnectsAndClearsPersistence() async throws {
+        let endpoint = try FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+        let geo = FakeGeoClient(coordinate: try GeoCoordinate(latitude: 30, longitude: 120))
+        let store = MemoryEndpointStore()
+        let model = DeviceHomeModel(
+            discovery: FakeDiscovery(endpoint: endpoint),
+            geoClient: geo,
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: store
+        )
+
+        model.endpoints = [endpoint]
+        await model.connect(to: endpoint)
+        await model.remove(endpoint)
+
+        #expect(model.endpoints.isEmpty)
+        #expect(model.selectedEndpoint == nil)
+        #expect(!model.isConnected)
+        #expect(await store.load() == nil)
+        #expect(await geo.disconnectCallCount() == 1)
+    }
 }
 
 private nonisolated struct FakeDiscovery: FmoDeviceDiscovering {
@@ -136,6 +196,7 @@ private nonisolated struct FailingDiscovery: FmoDeviceDiscovering {
 private actor FakeGeoClient: FmoGeoClient {
     private var coordinate: GeoCoordinate
     private var setCoordinateValue: GeoCoordinate?
+    private var disconnectCalls = 0
 
     init(coordinate: GeoCoordinate) {
         self.coordinate = coordinate
@@ -147,8 +208,9 @@ private actor FakeGeoClient: FmoGeoClient {
         self.coordinate = coordinate
         setCoordinateValue = coordinate
     }
-    func disconnect() {}
+    func disconnect() { disconnectCalls += 1 }
     func lastSetCoordinate() -> GeoCoordinate? { setCoordinateValue }
+    func disconnectCallCount() -> Int { disconnectCalls }
 }
 
 private actor FailingGeoClient: FmoGeoClient {
@@ -187,6 +249,11 @@ private nonisolated struct DeniedLocationProvider: PhoneLocationProviding {
 
 private actor MemoryEndpointStore: FmoEndpointStoring {
     private var endpoint: FmoDeviceEndpoint?
+
+    init(endpoint: FmoDeviceEndpoint? = nil) {
+        self.endpoint = endpoint
+    }
+
     func load() -> FmoDeviceEndpoint? { endpoint }
     func save(_ endpoint: FmoDeviceEndpoint?) { self.endpoint = endpoint }
 }

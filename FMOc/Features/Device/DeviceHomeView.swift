@@ -6,22 +6,32 @@ struct DeviceHomeView: View {
     @State private var actionTask: Task<Void, Never>?
     @State private var showsManualAddress = false
     @State private var showsDiagnostics = false
+    @State private var pendingRemoval: FmoDeviceEndpoint?
     @Environment(\.openURL) private var openURL
 
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: AppTheme.sectionSpacing) {
-                statusCard
-                deviceSection
+        List {
+            statusCard
+                .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
 
-                if model.isConnected {
-                    coordinateSection
-                }
+            deviceSection
 
-                diagnosticsButton
+            if model.isConnected {
+                coordinateSection
+                    .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
             }
-            .padding(AppTheme.pageSpacing)
+
+            diagnosticsButton
+                .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
         }
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
         .background(Color(uiColor: .systemGroupedBackground))
         .navigationTitle("首页")
         .task { await model.restoreSavedEndpoint() }
@@ -31,10 +41,29 @@ struct DeviceHomeView: View {
                 .presentationDetents([.medium])
         }
         .sheet(isPresented: $showsDiagnostics) {
-            DeviceDiagnosticsView(endpoint: model.diagnosticEndpoint)
+            DeviceDiagnosticsView(
+                endpoint: model.diagnosticEndpoint,
+                isMainConnected: model.isConnected
+            )
                 .presentationDetents([.medium, .large])
         }
         .alert(item: $model.issue, content: issueAlert)
+        .confirmationDialog(
+            "删除这台设备？",
+            isPresented: removalConfirmationIsPresented,
+            titleVisibility: .visible,
+            presenting: pendingRemoval
+        ) { endpoint in
+            Button("删除设备", role: .destructive) {
+                pendingRemoval = nil
+                run { await model.remove(endpoint) }
+            }
+            Button("取消", role: .cancel) {
+                pendingRemoval = nil
+            }
+        } message: { endpoint in
+            Text("将删除 \(endpoint.displayAddress) 并清除它的保存记录。如果设备仍在附近，下次发现时会重新出现。")
+        }
         .sensoryFeedback(.success, trigger: model.phase == .success)
     }
 
@@ -90,14 +119,7 @@ struct DeviceHomeView: View {
     }
 
     private var deviceSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("设备")
-                    .font(.title3.weight(.semibold))
-                Spacer()
-                Button("手动地址") { showsManualAddress = true }
-            }
-
+        Section {
             if model.endpoints.isEmpty {
                 ContentUnavailableView(
                     "尚未发现设备",
@@ -107,42 +129,71 @@ struct DeviceHomeView: View {
                 .frame(minHeight: 160)
             } else {
                 ForEach(model.endpoints) { endpoint in
-                    Button {
-                        run { await model.connect(to: endpoint) }
-                    } label: {
-                        HStack(spacing: 14) {
-                            Image(systemName: endpoint.source == .bonjour ? "dot.radiowaves.left.and.right" : "keyboard")
-                                .font(.title3)
-                                .foregroundStyle(Color.accentColor)
-                                .frame(width: 42, height: 42)
-                                .background(Color.accentColor.opacity(0.12), in: .rect(cornerRadius: 12))
-
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(endpoint.displayName)
-                                    .font(.headline)
-                                    .foregroundStyle(.primary)
-                                Text(endpoint.displayAddress)
-                                    .font(.subheadline.monospaced())
-                                    .foregroundStyle(.secondary)
+                    deviceRow(endpoint)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button("删除", systemImage: "trash", role: .destructive) {
+                                pendingRemoval = endpoint
                             }
-                            Spacer()
-                            if model.selectedEndpoint == endpoint, model.isConnected {
-                                Label("已连接", systemImage: "checkmark.circle.fill")
-                                    .labelStyle(.iconOnly)
-                                    .foregroundStyle(.green)
-                            } else {
-                                Image(systemName: "chevron.right")
-                                    .foregroundStyle(.tertiary)
+                            .labelStyle(.iconOnly)
+                            .accessibilityLabel("删除")
+                            .tint(Color(uiColor: .systemRed))
+                        }
+                        .contextMenu {
+                            Button("删除设备", systemImage: "trash", role: .destructive) {
+                                pendingRemoval = endpoint
                             }
                         }
-                        .fullWidthRowHitArea()
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(model.isBusy)
+                        .accessibilityAction(named: Text("删除设备")) {
+                            pendingRemoval = endpoint
+                        }
                 }
             }
+        } header: {
+            HStack {
+                Text("设备")
+                    .font(.title3.weight(.semibold))
+                Spacer()
+                Button("手动地址") { showsManualAddress = true }
+                    .textCase(nil)
+            }
         }
-        .appCard()
+        .headerProminence(.increased)
+    }
+
+    private func deviceRow(_ endpoint: FmoDeviceEndpoint) -> some View {
+        Button {
+            run { await model.connect(to: endpoint) }
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: endpoint.source == .bonjour ? "dot.radiowaves.left.and.right" : "keyboard")
+                    .font(.title3)
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 42, height: 42)
+                    .background(Color.accentColor.opacity(0.12), in: .rect(cornerRadius: 12))
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(endpoint.displayName)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    Text(endpoint.displayAddress)
+                        .font(.subheadline.monospaced())
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                if model.selectedEndpoint?.id == endpoint.id, model.isConnected {
+                    Label("已连接", systemImage: "checkmark.circle.fill")
+                        .labelStyle(.iconOnly)
+                        .foregroundStyle(.green)
+                } else {
+                    Image(systemName: "chevron.right")
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .fullWidthRowHitArea()
+        }
+        .buttonStyle(.plain)
+        .disabled(model.isBusy)
+        .accessibilityIdentifier("device-row-\(endpoint.id)")
     }
 
     private var coordinateSection: some View {
@@ -242,6 +293,15 @@ struct DeviceHomeView: View {
     private func run(_ operation: @escaping @MainActor @Sendable () async -> Void) {
         actionTask?.cancel()
         actionTask = Task { await operation() }
+    }
+
+    private var removalConfirmationIsPresented: Binding<Bool> {
+        Binding(
+            get: { pendingRemoval != nil },
+            set: { isPresented in
+                if !isPresented { pendingRemoval = nil }
+            }
+        )
     }
 
     private func issueAlert(_ issue: DeviceHomeModel.Issue) -> Alert {

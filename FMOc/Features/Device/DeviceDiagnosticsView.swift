@@ -2,21 +2,40 @@ import SwiftUI
 
 struct DeviceDiagnosticsView: View {
     let endpoint: FmoDeviceEndpoint?
+    let isMainConnected: Bool
     @State private var model: DeviceDiagnosticsModel
     @State private var retryID = 0
     @Environment(\.dismiss) private var dismiss
 
     init(
         endpoint: FmoDeviceEndpoint?,
+        isMainConnected: Bool,
         diagnoser: any FmoConnectionDiagnosing = FmoConnectionDiagnoser()
     ) {
         self.endpoint = endpoint
+        self.isMainConnected = isMainConnected
         _model = State(initialValue: DeviceDiagnosticsModel(diagnoser: diagnoser))
     }
 
     var body: some View {
         NavigationStack {
             List {
+                Section("App 连接状态") {
+                    Label(
+                        isMainConnected ? "首页连接已建立" : "首页当前未连接",
+                        systemImage: isMainConnected ? "link.circle.fill" : "link.badge.plus"
+                    )
+                    .foregroundStyle(isMainConnected ? Color.green : Color.primary)
+
+                    Text(
+                        isMainConnected
+                            ? "以下结果用于独立验证当前网络路径。"
+                            : "以下结果是独立可达性检查，不代表首页已建立连接。"
+                    )
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                }
+
                 Section {
                     ForEach(FmoDiagnosticStep.allCases) { step in
                         DiagnosticRow(
@@ -27,9 +46,9 @@ struct DeviceDiagnosticsView: View {
                         )
                     }
                 } header: {
-                    Text(endpoint?.displayAddress ?? "尚未选择设备")
+                    Text("独立探测 · \(endpoint?.displayAddress ?? "尚未选择设备")")
                 } footer: {
-                    Text("诊断按依赖顺序执行，不包含精确位置、凭据或设备私密数据。")
+                    Text("每一步均为独立可达性检查；全部通过表示设备可达，不等于首页连接状态。诊断不包含精确位置、凭据或设备私密数据。")
                 }
             }
             .navigationTitle("连接诊断")
@@ -72,7 +91,7 @@ struct DeviceDiagnosticsView: View {
             case .wifiAvailable: "已检测到 Wi-Fi 接口"
             case .endpointReachable(let port): "主机与 TCP 端口 \(port) 可达"
             case .httpResponse(let statusCode): "收到 HTTP \(statusCode) 响应"
-            case .geoResponse: "握手与坐标响应正常"
+            case .geoResponse: "独立握手与坐标响应正常"
             }
         }
     }

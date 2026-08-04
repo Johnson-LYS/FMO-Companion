@@ -99,17 +99,14 @@ final class DeviceHomeModel {
 
     func discover() async {
         issue = nil
-        endpoints = []
         phase = .discovering
 
         do {
             for try await endpoint in discovery.discover(timeout: .seconds(10)) {
-                if !endpoints.contains(endpoint) {
-                    endpoints.append(endpoint)
-                }
+                merge(endpoint)
                 phase = .found
             }
-            if endpoints.isEmpty { phase = .idle }
+            phase = endpoints.isEmpty ? .idle : .found
         } catch is CancellationError {
             phase = endpoints.isEmpty ? .idle : .found
         } catch {
@@ -145,8 +142,9 @@ final class DeviceHomeModel {
                 throw FmoDeviceEndpoint.ValidationError.invalidPort
             }
 
-            let endpoint = try FmoDeviceEndpoint(host: manualHost, port: port, source: .manual)
-            if !endpoints.contains(endpoint) { endpoints.append(endpoint) }
+            let endpoint = merge(
+                try FmoDeviceEndpoint(host: manualHost, port: port, source: .manual)
+            )
             await connect(to: endpoint)
         } catch {
             present(error, fallbackTitle: "设备地址格式不正确", suggestion: "请输入主机名或 IPv4 地址，不要包含 http:// 或路径。")
@@ -207,6 +205,29 @@ final class DeviceHomeModel {
         phase = endpoints.isEmpty ? .idle : .found
     }
 
+    func remove(_ endpoint: FmoDeviceEndpoint) async {
+        let removesSelectedEndpoint = selectedEndpoint?.id == endpoint.id
+
+        if removesSelectedEndpoint {
+            await geoClient.disconnect()
+            deviceCoordinate = nil
+            phoneLocation = nil
+            selectedEndpoint = nil
+            lastOperationText = nil
+            issue = nil
+        }
+
+        endpoints.removeAll { $0.id == endpoint.id }
+
+        if let storedEndpoint = await endpointStore.load(), storedEndpoint.id == endpoint.id {
+            await endpointStore.save(nil)
+        }
+
+        if removesSelectedEndpoint || !isConnected {
+            phase = endpoints.isEmpty ? .idle : .found
+        }
+    }
+
     func clearIssue() {
         issue = nil
         if phase == .failure { phase = endpoints.isEmpty ? .idle : .found }
@@ -245,5 +266,14 @@ final class DeviceHomeModel {
             return .openSettings
         }
         return nil
+    }
+
+    @discardableResult
+    private func merge(_ endpoint: FmoDeviceEndpoint) -> FmoDeviceEndpoint {
+        if let existingEndpoint = endpoints.first(where: { $0.id == endpoint.id }) {
+            return existingEndpoint
+        }
+        endpoints.append(endpoint)
+        return endpoint
     }
 }
