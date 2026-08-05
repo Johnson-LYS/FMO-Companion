@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-03
+last-reviewed: 2026-08-04
 ---
 
 # FMO 已公开能力与来源
@@ -12,8 +12,9 @@ last-reviewed: 2026-08-03
 |---|---|---|
 | Bonjour 发现 FMO | Android GPS 工具浏览 `_http._tcp.local.` 并匹配 `fmo` | 可原生实现 |
 | GEO 坐标读写 | `ws://host/ws`；`getCordinate` / `setCordinate` JSON | 可原生实现 |
+| 设备综合状态 API | 官方说明书描述屏幕字段，但截至 2026-08-04 未公开状态端点、字段 schema、鉴权、错误或版本契约；官方 GEO 工具仅公开坐标消息 | 保留最终设计；除 GEO 坐标派生字段外逐项延期，不探测或依赖未公开接口 |
 | 官方管理后台 | 使用说明书确认同局域网访问 `fmo.local` | 可在 App 打开，不映射未知 API |
-| APRS FMO V4 | 官方报文格式公开 CQ、OMCQ、VOCAL、ONLINE、BEACON、STATION、JOINT/EVENT | 可解析、展示与验证 |
+| APRS FMO V4 | 官方报文格式公开 CQ、OMCQ、VOCAL、ONLINE、BEACON、STATION、JOINT/EVENT；VOCAL 由 PTT ≥ 3 秒触发并携带呼号、位置与 serverUID，但没有会话目标或结束状态 | 可解析、展示与验证；VOCAL 只表述为最近语音活动 |
 | FMO V4 信任验证 | CERT CBOR、Ed25519、timeSalt、根/中间证书与 CRL | 可原生实现 |
 | APRS 远控 | 官方示例公开 NORMAL、STANDBY、REBOOT、HMAC、Counter、ACK | 可原生实现 |
 | QSO 数据 | Web UI 备份 SQLite，官方脚本读取 `qso_logs` 并导出 ADIF | 可由用户导入处理 |

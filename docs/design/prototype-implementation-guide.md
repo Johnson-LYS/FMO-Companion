@@ -66,6 +66,29 @@ idle
 - 诊断探针独立于首页会话，页面必须分开显示两者；探针全部通过只能表述为设备可达。
 - 位置自动化、远控和官方页面位于“更多设备功能”。
 
+### 设备仪表盘与实时活动
+
+原型中的完整仪表盘是已确认的最终信息架构，不代表现有 GEO WebSocket 已经能提供这些字段。0.3 原生实现先交付共享模型和 GEO 能力支持的真实字段；其他字段读取 `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` 的延期登记，只有正式、公开、只读的设备状态接口出现后才接入。
+
+唯一状态模型为 `DashboardSnapshot`：
+
+```text
+device status provider ─┐
+GEO-derived Maidenhead ─┼→ DashboardStore actor → home projection
+trusted future sources ─┘                    └→ Live Activity projection
+```
+
+- 每个字段是类型化状态，不是可空字符串：`available(value, source, observedAt)`、`unknown`、`stale(lastValue, observedAt)`、`unsupported` 或 `rejected(reason)`。
+- 首页和锁屏从同一不可变快照生成；公共字段的值、来源、观测时间和过期状态必须一致。
+- GEO 本地会话、设备到服务器连接和未来 APRS-IS 会话是独立状态轴，不能用一个“connected” Boolean 合并。
+- 当前服务器、TX/RX、设备实时 QSO 数和盒子到服务器延迟只接受正式状态接口值。APRS 最后观测服务器、BEACON 单频、导入 QSO 数和 App 到 GEO RTT 不得替代。
+- `Deferred — external contract` 字段不得在 Release 中注入原型值；视布局选择不渲染或明确 `unknown / unsupported`。fixture 仅用于测试、Preview 与 HTML 原型，生产 composition 不得配置 demo provider。
+- Maidenhead 由带来源时间的有效 WGS84 坐标派生，并继承源可信度；无坐标时显示未知，不使用原型固定值。
+- `VOCAL` 只表达“最近检测到语音活动”。不解析音频，不把它写成准确的“当前说话人”，可见界面不要求重复这段文字。
+- Widget Extension 只渲染精简 ActivityKit 内容状态，不持有 Bonjour、WebSocket、APRS 或 Core Location 客户端。
+- 用户显式开始/结束实时活动；App 进行尽力而为更新并设置 `staleDate`。活动不可用、失败、系统结束或过期不能影响首页。
+- 锁屏最多包含最新一条事件，并通过编码 fixture 保证内容小于 4 KB。呼号可隐藏，位置类字段默认不进入锁屏。
+
 ### 可靠定位
 
 - 模式：手动、低功耗、车载。
@@ -81,8 +104,13 @@ idle
 
 - 首页先展示地图摘要、过滤器和事件摘要。
 - 台站目录承担搜索、收藏、数据年龄和服务器目录。
+- 收藏模型分为 `FavoriteCallsign` 与 `FavoriteServer`：前者以规范化基础呼号、后者以已验证服务器稳定 UID 唯一化；只保存偏好与必要元数据，不复制整份 APRS 报文。
+- 目录行的星标与详情页共享状态；“收藏”分段按呼号和服务器分组。取消收藏幂等且不删除缓存、事件、QSO 或信任材料。
+- 消息联系人复用收藏呼号；公共 FMO 服务器收藏与自建管理服务器配置保持不同模型。
 - 点击台站后先展示用户可理解的信任结果，再进入详细验证步骤。
 - APRS 消息从台站或消息入口进入，不与设备远控混合。
+- `VOCAL` 只投影为 `RecentVoiceActivity`。可见 UI 用系统语音图标、呼号、约略位置和观测时间表达；VoiceOver 读作“最近检测到语音活动”。没有正式设备会话接口时不得构造 active conversation/current speaker。
+- 多个可信 `VOCAL` 只将最新一条投影到首页/锁屏事件位，其他事件保留在时间线；展示 TTL 通过可注入策略定义，不能复用签名 `timeSalt` 窗口。
 
 ### 身份验证
 
@@ -142,6 +170,9 @@ idle
 | `.tab-bar` | 系统 `TabView` |
 | `.app-header` | `NavigationStack` 标题与 toolbar |
 | `.hero-card` | 语义状态模型驱动的首页状态卡 |
+| `.dashboard-panel` | 连接态下的 `DeviceDashboardCard`；由首页快照投影驱动 |
+| `.dashboard-event-kind.is-voice` | SwiftUI 使用 `speaker.wave.2.fill` / `radio.fill`；图标附辅助功能标签，不复制 CSS 造型 |
+| `.lock-screen-preview` | ActivityKit `ActivityConfiguration` 的锁屏 / Dynamic Island 视图，不复制外层锁屏背景 |
 | `.bottom-sheet` | 按语义选择 `.sheet`、系统 `Alert` 或系统权限弹窗；模式切换固定使用居中 `Alert` |
 | `.feature-row` | `NavigationLink` 或明确按钮 |
 | `.toast` | 可访问性播报、系统反馈或短暂状态提示 |
@@ -155,6 +186,7 @@ idle
 
 - `setTimeout` 模拟发现、连接、ACK、导入和服务器刷新。
 - 固定设备、呼号、服务器、消息、坐标和 QSO 数据。
+- 固定仪表盘字段与每 3.8 秒轮换的事件；正式实现由可信快照更新，不使用定时器制造实时数据。
 - 浏览器内的权限、Keychain、Face ID、文件选择和通知反馈。
 - CSS 地图、Widget 和系统页面占位图。
 - DOM class 切换形成的业务状态。

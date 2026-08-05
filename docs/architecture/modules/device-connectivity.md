@@ -43,7 +43,7 @@ protocol FmoOfficialWebURLBuilding: Sendable {
 }
 ```
 
-发现、GEO 传输、已选端点存储、连接诊断和官方页面路由保持分离；`DeviceHomeModel` 只依赖设备服务协议和 `PhoneLocationProviding`。服务实现使用 Actor，UI 状态归属 `MainActor`，超时策略与 URL 构造可替换测试。
+发现、GEO 传输、已选端点存储、连接诊断和官方页面路由保持分离；`DeviceHomeModel` 依赖设备服务协议、`PhoneLocationProviding` 与 Dashboard 聚合 Actor。服务实现使用 Actor，UI 状态归属 `MainActor`，超时策略与 URL 构造可替换测试。
 
 Bonjour 端点使用稳定的 `fmo.local` 作为可连接、可持久化的主机身份。服务解析得到的 IPv4/IPv6 地址及接口作用域只属于当前网络路径，不显示、不持久化；每次新连接由系统 mDNS 重新解析。用户手动输入的主机名或 IPv4 则按原值保存。
 
@@ -56,6 +56,7 @@ Bonjour 端点使用稳定的 `fmo.local` 作为可连接、可持久化的主�
 - `FmoGeoWebSocketClient` 作为 Actor 串行化请求/响应，并通过可替换 transport 隔离 `URLSessionWebSocketTask`。
 - `FmoGeoWebSocketClient` 在传输报告异常断线时同时清除逻辑端点并关闭 transport，后续请求会立即返回未连接，不继续向失效任务发送消息。
 - `DeviceHomeModel` 是 `MainActor` 上的可观察状态机，编排发现、连接、读取、单次定位、写入和回读确认。GEO 异常断线会退出已连接状态、清除失效的盒子坐标，但保留目标端点与手机位置供用户重连后继续；定位权限拒绝不会误断开仍然有效的 GEO 连接。
+- GEO 坐标读取或同步回读成功后，`DeviceHomeModel` 把已校验坐标交给 `DashboardStore` 派生 Maidenhead；它不自行构造服务器、频率、延迟或事件字段。
 - `DeviceHomeModel` 同时负责端点集合的稳定身份合并和显式移除；发现流只追加新身份，移除当前端点会收敛连接状态并清除匹配的保存记录。
 - 本地网络或定位权限被拒绝时，错误状态携带 `openSettings` 恢复动作，界面同时提供“前往设置”和“暂不”，其他错误继续使用普通确认提示。
 - `FmoConnectionDiagnoser` 按依赖顺序执行 Wi-Fi、本地主机与 TCP 端口、官方 HTTP 后台和 GEO WebSocket 四步检查；首个失败会停止后续网络操作并把依赖步骤标记为跳过。
@@ -130,6 +131,7 @@ ws://<host>/ws
 - `FMOc/Features/Device/DeviceDiagnosticsModel.swift`
 - `FMOc/Features/Device/OfficialWebModel.swift`
 - `FMOc/Features/Device/SafariView.swift`
+- `FMOc/Features/Dashboard/DashboardStore.swift`
 
 ## 测试
 
@@ -138,6 +140,7 @@ ws://<host>/ws
 - 未知消息和错误结果。
 - WebSocket 请求顺序和响应超时。
 - 页面状态机的发现、连接、定位、同步与错误投影。
+- GEO 成功、断线与设备移除时的 Dashboard 快照投影和旧设备隔离。
 - 本地网络与定位权限拒绝的恢复动作，以及定位拒绝时保持设备连接。
 - 传输异常断线后的客户端失效、首页状态收敛与端点保留。
 - 分步诊断的执行顺序、成功证据、首个失败和后续跳过状态。

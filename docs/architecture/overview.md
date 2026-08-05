@@ -64,6 +64,10 @@ flowchart LR
 
 负责 Core Location 授权、位置更新、固定模式的时间/距离节流和同步调度。节流只处理系统已交付的位置事件，以最后成功同步为检查点，并通过独立的 `FmoGeoClient` 写入设备；离网时不持久化精确坐标。它与设备首页共享稳定端点存储，但不共享前台 GEO 会话；App 启动时按已保存模式重建系统定位会话。
 
+### Dashboard
+
+负责把 GEO、未来正式设备状态和 APRS 等彼此独立的来源聚合为同一个类型化 `DashboardSnapshot`。每个字段保留来源、观测时间、可信度和可用性；首页与未来 ActivityKit 只做白名单投影。当前实现只接入 GEO 会话与 Maidenhead 派生，不把精确坐标写入 Dashboard，也不以 fixture 填充尚无公开接口的设备内部字段。
+
 ### APRS
 
 由传输、帧解析、FMO V4 语义解析、信任验证、存储和地图投影组成。未通过验证的数据仍可用于诊断，但不能显示为可信。
@@ -87,6 +91,14 @@ Core Location event
 → WebSocket envelope
 → 盒子响应
 → 同步结果与有限诊断状态
+```
+
+### 设备仪表盘
+
+```text
+GEO coordinate ──────────┐
+future device provider ──┼→ DashboardStore actor → DashboardSnapshot → home / Live Activity
+future trusted APRS ─────┘
 ```
 
 ### FMO V4 APRS

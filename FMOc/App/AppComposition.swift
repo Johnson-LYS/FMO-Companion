@@ -12,6 +12,7 @@ enum AppComposition {
     static func makeModels(processInfo: ProcessInfo = .processInfo) -> Models {
         let endpointStore: any FmoEndpointStoring
         let discovery: any FmoDeviceDiscovering
+        let geoClient: any FmoGeoClient
         let modeStore: any LocationSyncModeStoring
 
 #if DEBUG
@@ -19,16 +20,25 @@ enum AppComposition {
         case "local-network-denied":
             endpointStore = UserDefaultsFmoEndpointStore()
             discovery = LocalNetworkDeniedDiscovery()
+            geoClient = FmoGeoWebSocketClient()
         case "saved-device":
             let endpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual)
             endpointStore = UITestEndpointStore(endpoint: endpoint)
             discovery = EmptyDeviceDiscovery()
+            geoClient = FmoGeoWebSocketClient()
+        case "dashboard-connected":
+            let endpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+            endpointStore = UITestEndpointStore(endpoint: endpoint)
+            discovery = EmptyDeviceDiscovery()
+            geoClient = UITestGeoClient()
         case "empty":
             endpointStore = UITestEndpointStore(endpoint: nil)
             discovery = EmptyDeviceDiscovery()
+            geoClient = FmoGeoWebSocketClient()
         default:
             endpointStore = UserDefaultsFmoEndpointStore()
             discovery = NWBrowserFmoDeviceDiscovery()
+            geoClient = FmoGeoWebSocketClient()
         }
         modeStore = processInfo.environment["FMO_UI_TEST_SCENARIO"] == nil
             ? UserDefaultsLocationSyncModeStore()
@@ -36,12 +46,13 @@ enum AppComposition {
 #else
         endpointStore = UserDefaultsFmoEndpointStore()
         discovery = NWBrowserFmoDeviceDiscovery()
+        geoClient = FmoGeoWebSocketClient()
         modeStore = UserDefaultsLocationSyncModeStore()
 #endif
 
         let device = DeviceHomeModel(
             discovery: discovery,
-            geoClient: FmoGeoWebSocketClient(),
+            geoClient: geoClient,
             locationProvider: CoreLocationProvider(),
             endpointStore: endpointStore
         )
@@ -103,5 +114,14 @@ private actor UITestLocationSyncModeStore: LocationSyncModeStoring {
 
     func load() -> LocationSyncMode { mode }
     func save(_ mode: LocationSyncMode) { self.mode = mode }
+}
+
+private actor UITestGeoClient: FmoGeoClient {
+    func connect(to endpoint: FmoDeviceEndpoint) {}
+    func getCoordinate() throws -> GeoCoordinate {
+        try GeoCoordinate(latitude: 31.2304, longitude: 121.4737)
+    }
+    func setCoordinate(_ coordinate: GeoCoordinate) {}
+    func disconnect() {}
 }
 #endif

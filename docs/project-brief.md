@@ -12,10 +12,10 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 当前状态
 
-- **阶段：** 0.2 可靠定位开发中
-- **已完成：** 0.1 局域网闭环；0.2 已完成三种定位模式、后台位置事件、自动同步协调器、可取消退避、位置自动化 UI、App 生命周期恢复及官方 Web 入口
-- **进行中：** 真实 iPhone + FMO 的后台、锁屏、离网恢复、停止及系统终止恢复闭环
-- **首要验收设备：** 普通 Wi-Fi 或便携路由器中的真实 iPhone + FMO 盒子
+- **阶段：** 0.3 设备仪表盘基础开发
+- **已完成：** 0.1 局域网闭环；0.2 可靠定位真机闭环；0.3 最终首页/锁屏 HTML 原型经用户确认
+- **进行中：** 已实现共享 `DashboardSnapshot`、Dashboard Actor、GEO 派生 Maidenhead 与首页基础投影；ActivityKit 尚未开始
+- **字段门槛：** 没有公开正式来源的设备内部字段逐项标记为 `Deferred — external contract`，不阻塞基础开发，也不使用模拟或替代数据
 
 ## 最近变更
 
@@ -43,6 +43,11 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 | 2026-08-04 | 完成 0.2 定位策略、iOS 26 后台会话、授权映射、模式存储与工程配置 | `docs/architecture/modules/location-sync.md` |
 | 2026-08-04 | 完成自动同步协调器、网络门控、离网恢复和可取消指数退避 | `docs/architecture/modules/location-sync.md` |
 | 2026-08-04 | 接入位置自动化状态页、启动恢复、共享稳定端点与官方管理/QSO 系统浏览器入口 | `docs/plans/0005-milestone-0.2-reliable-location.md` |
+| 2026-08-04 | 真实 iPhone + FMO 完成 0.2 后台、锁屏、离网恢复、停止与系统终止恢复验收 | `docs/plans/0005-milestone-0.2-reliable-location.md` |
+| 2026-08-04 | 将首页设备仪表盘与锁屏实时活动纳入 0.3，先进入文档与原型评审 | `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` |
+| 2026-08-04 | 收敛语音事件为图标化“最近活动”，并补齐收藏呼号与公共服务器的产品、技术和原型闭环 | `docs/spec/product-spec.md` |
+| 2026-08-04 | 用户确认最终仪表盘原型；0.3 调整为先实现共享基础与 GEO 字段，其他设备状态等待公开接口 | `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` |
+| 2026-08-04 | 完成 0.3 首个原生切片：共享 Dashboard 快照、Maidenhead 派生、断线过期与首页真实字段投影 | `docs/architecture/modules/dashboard.md` |
 
 ## 领域术语
 
@@ -62,7 +67,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 - 使用者必须自行具备合规的呼号、证书与 APRS 凭据；App 不代替资质认证。
 - 设备私钥不得离开 FMO 盒子，App 不提取、不备份、不模拟。
 - APRS PASSCODE 和远控 SECRET 只保存在 Keychain，不进入日志或云端同步。
-- `VOCAL` 代表语音活跃事件，不等于语音内容。
+- `VOCAL` 只代表某呼号近期触发过语音活动，不等于实时通联、当前说话人或语音内容。
 - iOS 后台定位不能承诺固定分钟级调度，只能基于系统位置更新做节流。
 - 未公开 API 的盒子设置通过官方 `fmo.local` Web UI 打开，不使用 DOM 注入或抓包模拟。
 - FMO 连接 iPhone 自身个人热点的反向访问能力必须实机验证，在验证前不作为保证场景。
@@ -76,7 +81,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 本轮开发入口
 
-1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.2 范围。
-2. 阅读 `docs/spec/product-spec.md` 的 SPEC-004、SPEC-005。
+1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.3 范围。
+2. 阅读 `docs/spec/product-spec.md` 的 SPEC-014；评审收藏与事件时同时读取 SPEC-006、SPEC-007。
 3. 继续遵循 `docs/design/ui-design-system.md` 与 `docs/design/prototype-implementation-guide.md`。
-4. 按 `docs/plans/0005-milestone-0.2-reliable-location.md` 在真机完成后台、锁屏、离网恢复、停止和系统终止恢复测试。
+4. 按 `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` 先实施共享模型、GEO 支持字段和局部降级；外部契约字段保持延期，接口公开后再逐项接入。

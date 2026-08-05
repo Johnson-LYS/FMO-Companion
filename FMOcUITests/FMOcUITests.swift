@@ -71,6 +71,24 @@ final class FMOcUITests: XCTestCase {
     }
 
     @MainActor
+    func testConnectedDashboardUsesGeoDerivedMaidenheadWithoutDeferredFixtures() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "dashboard-connected"
+        app.launch()
+
+        let deviceRow = app.buttons["device-row-fmo.local:80"]
+        XCTAssertTrue(deviceRow.waitForExistence(timeout: 5))
+        deviceRow.tap()
+
+        XCTAssertTrue(app.staticTexts["FMO 已连接"].waitForExistence(timeout: 2))
+        let maidenhead = app.descendants(matching: .any)["dashboard-maidenhead-value"]
+        XCTAssertTrue(maidenhead.waitForExistence(timeout: 2))
+        XCTAssertTrue(maidenhead.label.contains("PM01rf"))
+        XCTAssertFalse(app.staticTexts["示例华东服务器"].exists)
+        XCTAssertFalse(app.staticTexts["BI8SYN"].exists)
+    }
+
+    @MainActor
     func testLocationAutomationExplainsAutomaticModeBeforeEnabling() throws {
         let app = XCUIApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "saved-device"

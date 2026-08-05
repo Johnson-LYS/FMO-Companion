@@ -189,6 +189,8 @@ struct DeviceHomeView: View {
             }
 
             if model.isConnected {
+                DeviceDashboardSummaryView(snapshot: model.dashboardSnapshot)
+
                 Button("断开连接") {
                     run { await model.disconnect() }
                 }
@@ -442,7 +444,7 @@ struct DeviceHomeView: View {
         case .discovering: "系统可能会询问是否允许访问本地网络。"
         case .found: "连接后会先读取盒子当前坐标。"
         case .connecting: "正在连接 \(model.selectedEndpoint?.displayAddress ?? "FMO")。"
-        case .connected: "可以读取手机位置，并由你主动同步到盒子。"
+        case .connected: "已通过 GEO 接口连接 \(model.selectedEndpoint?.displayAddress ?? "FMO")。"
         case .locating: "位置只用于本次同步，不会上传到分析服务。"
         case .syncing: "等待盒子确认后会再次读取坐标。"
         case .success: "FMO 已更新为当前 iPhone 位置。"

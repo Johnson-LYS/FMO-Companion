@@ -1,0 +1,90 @@
+import Foundation
+import Testing
+@testable import FMOc
+
+struct DashboardSnapshotTests {
+    @Test
+    func derivesSixCharacterMaidenheadFromGeoCoordinate() throws {
+        let coordinate = try GeoCoordinate(latitude: 31.2304, longitude: 121.4737)
+
+        #expect(MaidenheadLocator.sixCharacterGrid(for: coordinate) == "PM01rf")
+    }
+
+    @Test
+    func handlesMaidenheadCoordinateBoundaries() throws {
+        let origin = try GeoCoordinate(latitude: 0, longitude: 0)
+        let northeastLimit = try GeoCoordinate(latitude: 90, longitude: 180)
+
+        #expect(MaidenheadLocator.sixCharacterGrid(for: origin) == "JJ00aa")
+        #expect(MaidenheadLocator.sixCharacterGrid(for: northeastLimit) == "RR99xx")
+    }
+
+    @Test
+    func emptySnapshotKeepsExternalContractFieldsUnsupported() {
+        let snapshot = DashboardSnapshot.empty()
+
+        #expect(snapshot.geoLink == .disconnected)
+        #expect(snapshot.maidenhead == .unknown)
+        #expect(snapshot.callsign == .unsupported)
+        #expect(snapshot.currentServerName == .unsupported)
+        #expect(snapshot.radioFrequencies == .unsupported)
+        #expect(snapshot.latestEvent == .unsupported)
+    }
+
+    @Test
+    func storeMakesGeoDerivedValueStaleAfterDisconnect() async throws {
+        let date = Date(timeIntervalSince1970: 1_754_284_800)
+        let store = DashboardStore(dateProvider: FixedDashboardDateProvider(date: date))
+        let coordinate = try GeoCoordinate(latitude: 31.2304, longitude: 121.4737)
+
+        _ = await store.beginConnection()
+        let connected = await store.recordGeoCoordinate(coordinate)
+        let disconnected = await store.recordGeoDisconnection()
+
+        #expect(connected.geoLink == .connected)
+        #expect(connected.maidenhead.value == "PM01rf")
+        #expect(disconnected.geoLink == .disconnected)
+        #expect(disconnected.maidenhead == .stale(
+            DashboardObservation(
+                value: "PM01rf",
+                source: .geoCoordinate,
+                observedAt: date,
+                confidence: .derived
+            ),
+            staleAt: date
+        ))
+    }
+
+    @Test
+    func beginningAnotherConnectionDoesNotReusePreviousDeviceState() async throws {
+        let date = Date(timeIntervalSince1970: 1_754_284_800)
+        let store = DashboardStore(dateProvider: FixedDashboardDateProvider(date: date))
+        let coordinate = try GeoCoordinate(latitude: 31.2304, longitude: 121.4737)
+
+        _ = await store.recordGeoCoordinate(coordinate)
+        let reconnecting = await store.beginConnection()
+
+        #expect(reconnecting.geoLink == .connecting)
+        #expect(reconnecting.maidenhead == .unknown)
+        #expect(reconnecting.currentServerName == .unsupported)
+    }
+
+    @Test
+    func snapshotIsCodableAndRemainsSmallEnoughForFutureActivityProjection() async throws {
+        let store = DashboardStore()
+        let coordinate = try GeoCoordinate(latitude: 31.2304, longitude: 121.4737)
+        let snapshot = await store.recordGeoCoordinate(coordinate)
+
+        let data = try JSONEncoder().encode(snapshot)
+        let decoded = try JSONDecoder().decode(DashboardSnapshot.self, from: data)
+
+        #expect(decoded == snapshot)
+        #expect(data.count < 4_096)
+    }
+}
+
+private nonisolated struct FixedDashboardDateProvider: DashboardDateProviding {
+    let date: Date
+
+    func now() -> Date { date }
+}

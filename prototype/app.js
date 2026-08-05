@@ -7,6 +7,10 @@
     detail: null,
     detailHistory: [],
     discoveryTimer: null,
+    dashboardTimer: null,
+    dashboardEventIndex: 0,
+    liveActivityOpen: false,
+    favoriteIds: new Set(),
     toastTimer: null,
   };
 
@@ -16,6 +20,13 @@
     qso: "QSO",
     settings: "设置",
   };
+
+  const dashboardEvents = [
+    { kind: "voice", type: "VOCAL", title: "BH4XYZ-15", time: "18 km · OM20xx · 刚刚" },
+    { type: "CQ", title: "BH4XYZ 发起 CQ", time: "刚刚 · 已验证" },
+    { type: "ON", title: "BD7ABC 加入服务器", time: "28 秒前 · 已验证" },
+    { type: "ST", title: "服务器状态已更新", time: "1 分钟前 · 已验证" },
+  ];
 
   const elements = {
     phone: document.querySelector("#phoneFrame"),
@@ -28,6 +39,10 @@
     heroState: document.querySelector("#heroState"),
     heroTitle: document.querySelector("#heroTitle"),
     heroDescription: document.querySelector("#heroDescription"),
+    dashboardPanel: document.querySelector("#dashboardPanel"),
+    dashboardEventType: document.querySelector("#dashboardEventType"),
+    dashboardEventTitle: document.querySelector("#dashboardEventTitle"),
+    dashboardEventTime: document.querySelector("#dashboardEventTime"),
     discoverButton: document.querySelector("#discoverButton"),
     deviceEmpty: document.querySelector("#deviceEmpty"),
     discoveredDevice: document.querySelector("#discoveredDevice"),
@@ -40,6 +55,17 @@
     rebootModal: document.querySelector("#rebootModal"),
     webPreviewModal: document.querySelector("#webPreviewModal"),
     adminConfirmModal: document.querySelector("#adminConfirmModal"),
+    liveActivityPreview: document.querySelector("#liveActivityPreview"),
+    lockStatusDot: document.querySelector("#lockStatusDot"),
+    lockUpdateState: document.querySelector("#lockUpdateState"),
+    lockCallsign: document.querySelector("#lockCallsign"),
+    lockConnectionLabel: document.querySelector("#lockConnectionLabel"),
+    lockEventRow: document.querySelector("#lockEventRow"),
+    lockEventType: document.querySelector("#lockEventType"),
+    lockEventTitle: document.querySelector("#lockEventTitle"),
+    lockEventTime: document.querySelector("#lockEventTime"),
+    favoriteCount: document.querySelector("#favoriteCount"),
+    favoriteEmpty: document.querySelector("#favoriteEmpty"),
     diagnosticSummary: document.querySelector("#diagnosticSummary"),
     toast: document.querySelector("#toast"),
   };
@@ -92,9 +118,115 @@
     elements.headerStatus.classList.toggle("is-error", kind === "error");
   }
 
+  function renderDashboardEvent(eventData) {
+    const isVoice = eventData.kind === "voice";
+    elements.dashboardEventType.classList.toggle("is-voice", isVoice);
+    elements.dashboardEventType.textContent = isVoice ? "" : eventData.type;
+    elements.dashboardEventType.setAttribute("aria-label", isVoice ? "最近检测到语音活动" : eventData.type);
+    elements.dashboardEventTitle.textContent = eventData.title;
+    elements.dashboardEventTime.textContent = eventData.time;
+    elements.lockEventType.classList.toggle("is-voice", isVoice);
+    elements.lockEventType.textContent = isVoice ? "" : eventData.type;
+    elements.lockEventType.setAttribute("aria-label", isVoice ? "最近检测到语音活动" : eventData.type);
+    elements.lockEventTitle.textContent = eventData.title;
+    elements.lockEventTime.textContent = eventData.time;
+  }
+
+  function setDirectoryView(view) {
+    document.querySelectorAll("[data-directory-panel]").forEach((panel) => {
+      panel.hidden = panel.dataset.directoryPanel !== view;
+    });
+    document.querySelectorAll("[data-directory-view]").forEach((button) => {
+      button.classList.toggle("is-selected", button.dataset.directoryView === view);
+    });
+  }
+
+  function renderFavoriteState() {
+    document.querySelectorAll("[data-favorite-id]").forEach((button) => {
+      const isFavorite = state.favoriteIds.has(button.dataset.favoriteId);
+      const kind = button.dataset.favoriteId.startsWith("server:") ? "服务器" : "呼号";
+      button.classList.toggle("is-selected", isFavorite);
+      button.setAttribute("aria-pressed", String(isFavorite));
+      button.setAttribute("aria-label", `${isFavorite ? "取消收藏" : "收藏"}${kind} ${button.dataset.favoriteLabel}`);
+      button.textContent = isFavorite ? "★" : "☆";
+    });
+    document.querySelectorAll("[data-favorite-copy]").forEach((row) => {
+      row.hidden = !state.favoriteIds.has(row.dataset.favoriteCopy);
+    });
+    elements.favoriteCount.textContent = String(state.favoriteIds.size);
+    elements.favoriteEmpty.hidden = state.favoriteIds.size > 0;
+  }
+
+  function loadFavoriteState() {
+    const fallback = ["call:BH4XYZ", "server:123"];
+    const knownIds = new Set([...document.querySelectorAll("[data-favorite-id]")].map((button) => button.dataset.favoriteId));
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("fmo-prototype-favorites"));
+      state.favoriteIds = new Set((Array.isArray(saved) ? saved : fallback).filter((id) => knownIds.has(id)));
+    } catch {
+      state.favoriteIds = new Set(fallback);
+    }
+    renderFavoriteState();
+  }
+
+  function toggleFavorite(button) {
+    const id = button.dataset.favoriteId;
+    const willFavorite = !state.favoriteIds.has(id);
+    if (willFavorite) state.favoriteIds.add(id);
+    else state.favoriteIds.delete(id);
+    try {
+      window.localStorage.setItem("fmo-prototype-favorites", JSON.stringify([...state.favoriteIds]));
+    } catch {
+      // 私密浏览或受限环境仍允许当前会话内切换收藏状态。
+    }
+    renderFavoriteState();
+    showToast(`${willFavorite ? "已收藏" : "已取消收藏"}：${button.dataset.favoriteLabel}`, willFavorite ? "★" : "☆");
+  }
+
+  function stopDashboardTicker() {
+    window.clearInterval(state.dashboardTimer);
+    state.dashboardTimer = null;
+  }
+
+  function startDashboardTicker() {
+    stopDashboardTicker();
+    renderDashboardEvent(dashboardEvents[state.dashboardEventIndex]);
+    state.dashboardTimer = window.setInterval(() => {
+      state.dashboardEventIndex = (state.dashboardEventIndex + 1) % dashboardEvents.length;
+      renderDashboardEvent(dashboardEvents[state.dashboardEventIndex]);
+    }, 3800);
+  }
+
+  function updateLiveActivityFreshness(isConnected) {
+    elements.lockStatusDot.classList.toggle("is-stale", !isConnected);
+    elements.lockUpdateState.textContent = isConnected ? "刚刚更新" : "最后更新 2 分钟前";
+    elements.lockConnectionLabel.textContent = isConnected ? "设备已连接" : "连接已断开 · 显示最后状态";
+  }
+
+  function openLiveActivity() {
+    closeAllModals();
+    state.liveActivityOpen = true;
+    updateLiveActivityFreshness(state.connection === "connected");
+    window.clearTimeout(elements.liveActivityPreview._hideTimer);
+    elements.liveActivityPreview.hidden = false;
+    requestAnimationFrame(() => elements.liveActivityPreview.classList.add("is-visible"));
+    elements.liveActivityPreview.querySelector(".lock-close")?.focus();
+  }
+
+  function closeLiveActivity() {
+    if (elements.liveActivityPreview.hidden) return;
+    state.liveActivityOpen = false;
+    window.clearTimeout(elements.liveActivityPreview._hideTimer);
+    elements.liveActivityPreview.classList.remove("is-visible");
+    elements.liveActivityPreview._hideTimer = window.setTimeout(() => { elements.liveActivityPreview.hidden = true; }, 220);
+  }
+
   function setConnectionState(nextState) {
     state.connection = nextState;
     elements.hero.classList.remove("is-searching", "is-connected", "is-error");
+    elements.dashboardPanel.hidden = true;
+    stopDashboardTicker();
+    updateLiveActivityFreshness(nextState === "connected");
 
     if (nextState === "searching") {
       elements.discoverButton.dataset.action = "discover";
@@ -127,15 +259,17 @@
     if (nextState === "connected") {
       elements.hero.classList.add("is-connected");
       elements.heroState.textContent = "已连接";
-      elements.heroTitle.textContent = "FMO-7C2A 已准备好";
-      elements.heroDescription.textContent = "GEO WebSocket 响应正常。你可以读取盒子坐标，并由你主动同步 iPhone 位置。";
-      elements.discoverButton.querySelector("span:first-child").textContent = "查看诊断";
-      elements.discoverButton.dataset.action = "open-diagnostics";
+      elements.heroTitle.textContent = "BI8SYN";
+      elements.heroDescription.textContent = "设备状态刚刚更新";
+      elements.dashboardPanel.hidden = false;
+      elements.discoverButton.querySelector("span:first-child").textContent = "查看锁屏仪表盘";
+      elements.discoverButton.dataset.action = "open-live-activity";
       elements.deviceEmpty.hidden = true;
       elements.discoveredDevice.hidden = false;
       elements.coordinateCard.hidden = false;
       updateHeaderStatus("已连接", "connected");
       setDiagnosticState("connected");
+      startDashboardTicker();
       return;
     }
 
@@ -416,6 +550,10 @@
 
     const inlineChoice = event.target.closest(".inline-tabs button, .failure-chips button");
     if (inlineChoice) {
+      if (inlineChoice.dataset.directoryView) {
+        setDirectoryView(inlineChoice.dataset.directoryView);
+        return;
+      }
       inlineChoice.parentElement.querySelectorAll("button").forEach((item) => item.classList.toggle("is-selected", item === inlineChoice));
       showToast(`已切换：${inlineChoice.textContent.trim()}`, "◇");
       return;
@@ -459,6 +597,10 @@
       await syncCoordinate();
     } else if (action === "open-diagnostics") {
       showModal(elements.diagnosticsModal);
+    } else if (action === "open-live-activity") {
+      openLiveActivity();
+    } else if (action === "close-live-activity") {
+      closeLiveActivity();
     } else if (action === "open-reboot") {
       showModal(elements.rebootModal);
     } else if (action === "confirm-reboot") {
@@ -475,6 +617,10 @@
       await simulateReconnect(actionTarget);
     } else if (action === "open-web-preview") {
       openWebPreview(actionTarget.dataset.portal);
+    } else if (action === "toggle-item-favorite") {
+      toggleFavorite(actionTarget);
+    } else if (action === "show-directory-item") {
+      showToast(`已选择：${actionTarget.dataset.itemLabel}`, "›");
     } else if (action === "toggle-favorite") {
       actionTarget.classList.toggle("is-selected");
       actionTarget.textContent = actionTarget.classList.contains("is-selected") ? "显示全部" : "仅看收藏";
@@ -513,13 +659,24 @@
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-      const visibleModal = document.querySelector(".modal-backdrop.is-visible");
-      if (visibleModal) hideModal(visibleModal);
-      else if (state.detail) navigateBack();
+      if (state.liveActivityOpen) closeLiveActivity();
+      else {
+        const visibleModal = document.querySelector(".modal-backdrop.is-visible");
+        if (visibleModal) hideModal(visibleModal);
+        else if (state.detail) navigateBack();
+      }
     }
   });
 
   document.addEventListener("input", (event) => {
+    if (event.target.id === "lockCallsignToggle") {
+      elements.lockCallsign.textContent = event.target.checked ? "BI8SYN" : "我的 FMO";
+      return;
+    }
+    if (event.target.id === "lockEventToggle") {
+      elements.lockEventRow.hidden = !event.target.checked;
+      return;
+    }
     const range = event.target.closest("input[type='range'][data-output]");
     if (!range) return;
     const output = document.querySelector(`#${range.dataset.output}`);
@@ -532,5 +689,7 @@
     });
   });
 
+  loadFavoriteState();
+  setDirectoryView("stations");
   setConnectionState("idle");
 })();

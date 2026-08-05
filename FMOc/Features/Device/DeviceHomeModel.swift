@@ -31,6 +31,7 @@ final class DeviceHomeModel {
     private let geoClient: any FmoGeoClient
     private let locationProvider: any PhoneLocationProviding
     private let endpointStore: any FmoEndpointStoring
+    private let dashboardStore: DashboardStore
 
     var phase: Phase = .idle
     var endpoints: [FmoDeviceEndpoint] = []
@@ -39,6 +40,7 @@ final class DeviceHomeModel {
     var phoneLocation: PhoneLocationSample?
     var issue: Issue?
     var lastOperationText: String?
+    var dashboardSnapshot = DashboardSnapshot.empty()
     var manualHost = "fmo.local"
     var manualPort = ""
 
@@ -46,12 +48,14 @@ final class DeviceHomeModel {
         discovery: any FmoDeviceDiscovering,
         geoClient: any FmoGeoClient,
         locationProvider: any PhoneLocationProviding,
-        endpointStore: any FmoEndpointStoring
+        endpointStore: any FmoEndpointStoring,
+        dashboardStore: DashboardStore = DashboardStore()
     ) {
         self.discovery = discovery
         self.geoClient = geoClient
         self.locationProvider = locationProvider
         self.endpointStore = endpointStore
+        self.dashboardStore = dashboardStore
     }
 
     static func live() -> DeviceHomeModel {
@@ -122,15 +126,19 @@ final class DeviceHomeModel {
         issue = nil
         selectedEndpoint = endpoint
         phase = .connecting
+        dashboardSnapshot = await dashboardStore.beginConnection()
 
         do {
             try await geoClient.connect(to: endpoint)
-            deviceCoordinate = try await geoClient.getCoordinate()
+            let coordinate = try await geoClient.getCoordinate()
+            deviceCoordinate = coordinate
+            dashboardSnapshot = await dashboardStore.recordGeoCoordinate(coordinate)
             await endpointStore.save(endpoint)
             phase = .connected
             lastOperationText = "已读取 FMO 坐标"
         } catch {
             await geoClient.disconnect()
+            dashboardSnapshot = await dashboardStore.recordGeoDisconnection()
             present(error)
         }
     }
@@ -158,7 +166,9 @@ final class DeviceHomeModel {
     func refreshDeviceCoordinate() async {
         guard isConnected else { return }
         do {
-            deviceCoordinate = try await geoClient.getCoordinate()
+            let coordinate = try await geoClient.getCoordinate()
+            deviceCoordinate = coordinate
+            dashboardSnapshot = await dashboardStore.recordGeoCoordinate(coordinate)
             phase = .connected
             lastOperationText = "FMO 坐标已刷新"
         } catch {
@@ -191,7 +201,9 @@ final class DeviceHomeModel {
         phase = .syncing
         do {
             try await geoClient.setCoordinate(coordinate)
-            deviceCoordinate = try await geoClient.getCoordinate()
+            let confirmedCoordinate = try await geoClient.getCoordinate()
+            deviceCoordinate = confirmedCoordinate
+            dashboardSnapshot = await dashboardStore.recordGeoCoordinate(confirmedCoordinate)
             phase = .success
             lastOperationText = "坐标已同步，FMO 已回读确认"
         } catch {
@@ -206,6 +218,7 @@ final class DeviceHomeModel {
         selectedEndpoint = nil
         lastOperationText = nil
         issue = nil
+        dashboardSnapshot = await dashboardStore.recordGeoDisconnection()
         phase = endpoints.isEmpty ? .idle : .found
     }
 
@@ -219,6 +232,7 @@ final class DeviceHomeModel {
             selectedEndpoint = nil
             lastOperationText = nil
             issue = nil
+            dashboardSnapshot = await dashboardStore.reset()
         }
 
         endpoints.removeAll { $0.id == endpoint.id }
@@ -258,6 +272,7 @@ final class DeviceHomeModel {
             await geoClient.disconnect()
             deviceCoordinate = nil
             lastOperationText = nil
+            dashboardSnapshot = await dashboardStore.recordGeoDisconnection()
         }
         present(error, keepConnection: !connectionWasLost)
     }

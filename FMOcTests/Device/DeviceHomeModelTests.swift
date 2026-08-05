@@ -25,6 +25,9 @@ struct DeviceHomeModelTests {
         await model.connect(to: endpoint)
         #expect(model.phase == .connected)
         #expect(model.deviceCoordinate == deviceCoordinate)
+        #expect(model.dashboardSnapshot.geoLink == .connected)
+        #expect(model.dashboardSnapshot.maidenhead.value == "PM00aa")
+        #expect(model.dashboardSnapshot.currentServerName == .unsupported)
 
         await model.locatePhone()
         #expect(model.phoneLocation?.coordinate == phoneCoordinate)
@@ -33,6 +36,27 @@ struct DeviceHomeModelTests {
         #expect(model.phase == .success)
         #expect(await geo.lastSetCoordinate() == phoneCoordinate)
         #expect(await store.load() == endpoint)
+    }
+
+    @Test
+    func keepsLastDerivedGridAsStaleAfterDisconnect() async throws {
+        let endpoint = try FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+        let model = DeviceHomeModel(
+            discovery: FakeDiscovery(endpoint: endpoint),
+            geoClient: FakeGeoClient(coordinate: try GeoCoordinate(latitude: 31.2304, longitude: 121.4737)),
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: MemoryEndpointStore()
+        )
+
+        await model.connect(to: endpoint)
+        await model.disconnect()
+
+        #expect(model.dashboardSnapshot.geoLink == .disconnected)
+        #expect(model.dashboardSnapshot.maidenhead.value == "PM01rf")
+        guard case .stale = model.dashboardSnapshot.maidenhead else {
+            Issue.record("断开后应保留带过期状态的最后可信网格")
+            return
+        }
     }
 
     @Test
