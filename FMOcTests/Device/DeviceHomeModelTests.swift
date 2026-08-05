@@ -10,24 +10,29 @@ struct DeviceHomeModelTests {
         let deviceCoordinate = try GeoCoordinate(latitude: 30, longitude: 120)
         let phoneCoordinate = try GeoCoordinate(latitude: 31, longitude: 121)
         let geo = FakeGeoClient(coordinate: deviceCoordinate)
+        let status = FakeLocalStatusProvider()
         let store = MemoryEndpointStore()
         let model = DeviceHomeModel(
             discovery: FakeDiscovery(endpoint: endpoint),
             geoClient: geo,
+            localStatusProvider: status,
             locationProvider: FakeLocationProvider(coordinate: phoneCoordinate),
             endpointStore: store
         )
 
-        await model.discover()
-        #expect(model.phase == .found)
-        #expect(model.endpoints == [endpoint])
+        model.startDiscovery()
+        await model.waitForDiscovery()
+        for _ in 0..<100 where model.dashboardSnapshot.callsign.currentValue == nil {
+            await Task.yield()
+        }
 
-        await model.connect(to: endpoint)
         #expect(model.phase == .connected)
+        #expect(model.endpoints == [endpoint])
         #expect(model.deviceCoordinate == deviceCoordinate)
         #expect(model.dashboardSnapshot.geoLink == .connected)
         #expect(model.dashboardSnapshot.maidenhead.value == "PM00aa")
-        #expect(model.dashboardSnapshot.currentServerName == .unsupported)
+        #expect(model.dashboardSnapshot.callsign.currentValue == "BG0TST")
+        #expect(model.dashboardSnapshot.currentServerName.currentValue == "测试服务器")
 
         await model.locatePhone()
         #expect(model.phoneLocation?.coordinate == phoneCoordinate)
@@ -83,7 +88,8 @@ struct DeviceHomeModelTests {
             endpointStore: MemoryEndpointStore()
         )
 
-        await model.discover()
+        model.startDiscovery()
+        await model.waitForDiscovery()
 
         #expect(model.phase == .failure)
         #expect(model.issue?.title == "本地网络访问已关闭")
@@ -148,11 +154,13 @@ struct DeviceHomeModelTests {
         )
 
         await model.restoreSavedEndpoint()
-        await model.discover()
+        model.startDiscovery()
+        await model.waitForDiscovery()
+        await model.waitForConnection()
 
         #expect(model.endpoints == [manual, nearby])
-        #expect(model.selectedEndpoint == manual)
-        #expect(await store.load() == manual)
+        #expect(model.selectedEndpoint == nearby)
+        #expect(await store.load() == nearby)
     }
 
     @Test
@@ -167,9 +175,95 @@ struct DeviceHomeModelTests {
         )
 
         await model.restoreSavedEndpoint()
-        await model.discover()
+        model.startDiscovery()
+        await model.waitForDiscovery()
+        await model.waitForConnection()
 
         #expect(model.endpoints == [manual])
+    }
+
+    @Test
+    func automaticConnectionConsumesOnlyFirstDiscoveredCandidate() async throws {
+        let first = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual, name: "FMO A")
+        let second = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual, name: "FMO B")
+        let geo = CountingFailingGeoClient()
+        let model = DeviceHomeModel(
+            discovery: MultipleDeviceDiscovery(endpoints: [first, second]),
+            geoClient: geo,
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: MemoryEndpointStore()
+        )
+
+        model.startDiscovery()
+        await model.waitForDiscovery()
+        await model.waitForConnection()
+
+        #expect(model.endpoints == [first, second])
+        #expect(model.selectedEndpoint == first)
+        #expect(model.phase == .failure)
+        #expect(await geo.connectedEndpoints() == [first])
+    }
+
+    @Test
+    func discoveryWhileConnectedOnlyAddsDevices() async throws {
+        let current = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual, name: "FMO A")
+        let nearby = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual, name: "FMO B")
+        let geo = CountingGeoClient(coordinate: try GeoCoordinate(latitude: 30, longitude: 120))
+        let model = DeviceHomeModel(
+            discovery: FakeDiscovery(endpoint: nearby),
+            geoClient: geo,
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: MemoryEndpointStore()
+        )
+
+        await model.connect(to: current)
+        model.startDiscovery()
+        await model.waitForDiscovery()
+
+        #expect(model.selectedEndpoint == current)
+        #expect(model.isConnected)
+        #expect(model.endpoints == [nearby])
+        #expect(await geo.connectedEndpoints() == [current])
+    }
+
+    @Test
+    func discoveryFailureDoesNotDowngradeAnExistingConnection() async throws {
+        let current = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual, name: "FMO A")
+        let model = DeviceHomeModel(
+            discovery: FailingDiscovery(error: .localNetworkDenied),
+            geoClient: FakeGeoClient(coordinate: try GeoCoordinate(latitude: 30, longitude: 120)),
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: MemoryEndpointStore()
+        )
+
+        await model.connect(to: current)
+        model.startDiscovery()
+        await model.waitForDiscovery()
+
+        #expect(model.isConnected)
+        #expect(model.selectedEndpoint == current)
+        #expect(model.issue == nil)
+    }
+
+    @Test
+    func selectingCurrentDeviceIsIdempotentAndSelectingAnotherSwitches() async throws {
+        let first = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual, name: "FMO A")
+        let second = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual, name: "FMO B")
+        let geo = CountingGeoClient(coordinate: try GeoCoordinate(latitude: 30, longitude: 120))
+        let model = DeviceHomeModel(
+            discovery: FakeDiscovery(endpoint: first),
+            geoClient: geo,
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: MemoryEndpointStore()
+        )
+
+        await model.connect(to: first)
+        await model.connect(to: first)
+        await model.connect(to: second)
+
+        #expect(model.selectedEndpoint == second)
+        #expect(model.isConnected)
+        #expect(await geo.connectedEndpoints() == [first, second])
     }
 
     @Test
@@ -194,6 +288,31 @@ struct DeviceHomeModelTests {
         #expect(await store.load() == nil)
         #expect(await geo.disconnectCallCount() == 1)
     }
+
+    @Test
+    func enrichesConnectedDashboardWithAuthorizedLocalStatus() async throws {
+        let endpoint = try FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+        let status = FakeLocalStatusProvider()
+        let model = DeviceHomeModel(
+            discovery: FakeDiscovery(endpoint: endpoint),
+            geoClient: FakeGeoClient(coordinate: try GeoCoordinate(latitude: 31.2304, longitude: 121.4737)),
+            localStatusProvider: status,
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: MemoryEndpointStore()
+        )
+
+        await model.connect(to: endpoint)
+
+        #expect(model.phase == .connected)
+        #expect(model.dashboardSnapshot.geoLink == .connected)
+        #expect(model.dashboardSnapshot.localStatusLink == .connected)
+        #expect(model.dashboardSnapshot.callsign.currentValue == "BG0TST")
+        #expect(model.dashboardSnapshot.currentServerName.currentValue == "测试服务器")
+        #expect(model.dashboardSnapshot.filterDistance.currentValue == .kilometers(500))
+        #expect(model.dashboardSnapshot.workingFrequencyMHz.currentValue == 438.5)
+        #expect(model.dashboardSnapshot.qsoLogCount.currentValue == 18)
+        #expect(await status.requestOrder() == ["callsign", "server", "filter", "frequency", "qso"])
+    }
 }
 
 private nonisolated struct FakeDiscovery: FmoDeviceDiscovering {
@@ -202,6 +321,19 @@ private nonisolated struct FakeDiscovery: FmoDeviceDiscovering {
     func discover(timeout: Duration) -> AsyncThrowingStream<FmoDeviceEndpoint, any Error> {
         AsyncThrowingStream { continuation in
             continuation.yield(endpoint)
+            continuation.finish()
+        }
+    }
+}
+
+private nonisolated struct MultipleDeviceDiscovery: FmoDeviceDiscovering {
+    let endpoints: [FmoDeviceEndpoint]
+
+    func discover(timeout: Duration) -> AsyncThrowingStream<FmoDeviceEndpoint, any Error> {
+        AsyncThrowingStream { continuation in
+            for endpoint in endpoints {
+                continuation.yield(endpoint)
+            }
             continuation.finish()
         }
     }
@@ -235,6 +367,64 @@ private actor FakeGeoClient: FmoGeoClient {
     func disconnect() { disconnectCalls += 1 }
     func lastSetCoordinate() -> GeoCoordinate? { setCoordinateValue }
     func disconnectCallCount() -> Int { disconnectCalls }
+}
+
+private actor CountingGeoClient: FmoGeoClient {
+    private let coordinate: GeoCoordinate
+    private var endpoints: [FmoDeviceEndpoint] = []
+
+    init(coordinate: GeoCoordinate) {
+        self.coordinate = coordinate
+    }
+
+    func connect(to endpoint: FmoDeviceEndpoint) {
+        endpoints.append(endpoint)
+    }
+    func getCoordinate() -> GeoCoordinate { coordinate }
+    func setCoordinate(_ coordinate: GeoCoordinate) {}
+    func disconnect() {}
+    func connectedEndpoints() -> [FmoDeviceEndpoint] { endpoints }
+}
+
+private actor CountingFailingGeoClient: FmoGeoClient {
+    private var endpoints: [FmoDeviceEndpoint] = []
+
+    func connect(to endpoint: FmoDeviceEndpoint) throws {
+        endpoints.append(endpoint)
+        throw FmoDeviceError.handshakeFailed
+    }
+    func getCoordinate() throws -> GeoCoordinate { throw FmoDeviceError.disconnected }
+    func setCoordinate(_ coordinate: GeoCoordinate) throws { throw FmoDeviceError.disconnected }
+    func disconnect() {}
+    func connectedEndpoints() -> [FmoDeviceEndpoint] { endpoints }
+}
+
+private actor FakeLocalStatusProvider: FmoLocalStatusProviding {
+    private var requests: [String] = []
+
+    func connect(to endpoint: FmoDeviceEndpoint) {}
+    func getCallsign() -> String {
+        requests.append("callsign")
+        return "BG0TST"
+    }
+    func getCurrentServer() -> FmoCurrentServer {
+        requests.append("server")
+        return FmoCurrentServer(uid: 42, name: "测试服务器")
+    }
+    func getServerFilter() -> FmoServerFilter {
+        requests.append("filter")
+        return .kilometers(500)
+    }
+    func getWorkingFrequencyMHz() -> Double {
+        requests.append("frequency")
+        return 438.5
+    }
+    func getQSOLogCount() -> Int {
+        requests.append("qso")
+        return 18
+    }
+    func disconnect() {}
+    func requestOrder() -> [String] { requests }
 }
 
 private actor FailingGeoClient: FmoGeoClient {

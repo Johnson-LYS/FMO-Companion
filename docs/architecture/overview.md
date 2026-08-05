@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-04
+last-reviewed: 2026-08-05
 ---
 
 # 架构总览
@@ -66,7 +66,7 @@ flowchart LR
 
 ### Dashboard
 
-负责把 GEO、未来正式设备状态和 APRS 等彼此独立的来源聚合为同一个类型化 `DashboardSnapshot`。每个字段保留来源、观测时间、可信度和可用性；首页与未来 ActivityKit 只做白名单投影。当前实现只接入 GEO 会话与 Maidenhead 派生，不把精确坐标写入 Dashboard，也不以 fixture 填充尚无公开接口的设备内部字段。
+负责把 GEO、ADR-0005 本地只读设备状态、本地讲话事件和未来 APRS 等彼此独立的来源聚合为同一个类型化 `DashboardSnapshot`。每个字段保留来源、观测时间、可信度和可用性；首页与未来 ActivityKit 只做白名单投影。精确坐标、未知响应字段与原始帧不进入 Dashboard。
 
 ### APRS
 

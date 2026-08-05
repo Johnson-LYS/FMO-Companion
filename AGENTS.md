@@ -16,12 +16,13 @@ This file is the repository entry point for AI-assisted development. `CLAUDE.md`
 FMO Companion is a native iOS companion app for FMO (NFM Over Internet) hardware. It uses only documented interfaces and user-authorized services:
 
 - Bonjour/mDNS and the documented local GEO WebSocket API.
+- The strictly allowlisted, user-authorized local read-only status API described by ADR-0005.
 - Public FMO V4 APRS frames and standard APRS-IS behavior.
 - The documented APRS remote-control format.
 - User-exported QSO SQLite databases and signature files.
 - A separately authenticated HTTPS API for the user's own FMO server.
 
-The app must not rely on packet sniffing, firmware reverse engineering, private-key extraction, undocumented MQTT audio frames, or impersonating an FMO device.
+The app must not perform runtime packet sniffing or rely on firmware reverse engineering, private-key extraction, undocumented audio frames, or impersonating an FMO device. The ADR-0005 status client is limited to sanitized, typed, read-only behavior observed in the official UI; it must never expose generic management commands, secrets, write operations, or `/audio`.
 
 ## Documentation Map
 

@@ -20,15 +20,17 @@ struct DashboardSnapshotTests {
     }
 
     @Test
-    func emptySnapshotKeepsExternalContractFieldsUnsupported() {
+    func emptySnapshotStartsAllIndependentSourcesDisconnectedAndUnknown() {
         let snapshot = DashboardSnapshot.empty()
 
         #expect(snapshot.geoLink == .disconnected)
+        #expect(snapshot.localStatusLink == .disconnected)
+        #expect(snapshot.localEventLink == .disconnected)
         #expect(snapshot.maidenhead == .unknown)
-        #expect(snapshot.callsign == .unsupported)
-        #expect(snapshot.currentServerName == .unsupported)
-        #expect(snapshot.radioFrequencies == .unsupported)
-        #expect(snapshot.latestEvent == .unsupported)
+        #expect(snapshot.callsign == .unknown)
+        #expect(snapshot.currentServerName == .unknown)
+        #expect(snapshot.workingFrequencyMHz == .unknown)
+        #expect(snapshot.currentSpeaker == .unknown)
     }
 
     @Test
@@ -66,7 +68,55 @@ struct DashboardSnapshotTests {
 
         #expect(reconnecting.geoLink == .connecting)
         #expect(reconnecting.maidenhead == .unknown)
-        #expect(reconnecting.currentServerName == .unsupported)
+        #expect(reconnecting.currentServerName == .unknown)
+    }
+
+    @Test
+    func recordsAuthorizedLocalStatusWithoutInventingMissingFields() async {
+        let date = Date(timeIntervalSince1970: 1_754_284_800)
+        let store = DashboardStore(dateProvider: FixedDashboardDateProvider(date: date))
+        let update = DashboardLocalStatusUpdate(
+            callsign: "BG0TST",
+            currentServerName: "测试服务器",
+            filterDistance: .kilometers(500),
+            workingFrequencyMHz: 438.5,
+            qsoLogCount: nil
+        )
+
+        _ = await store.beginLocalStatusConnection()
+        let snapshot = await store.recordLocalStatus(update)
+
+        #expect(snapshot.localStatusLink == .connected)
+        #expect(snapshot.callsign.currentValue == "BG0TST")
+        #expect(snapshot.currentServerName.currentValue == "测试服务器")
+        #expect(snapshot.filterDistance.currentValue == .kilometers(500))
+        #expect(snapshot.workingFrequencyMHz.currentValue == 438.5)
+        #expect(snapshot.qsoLogCount == .unknown)
+    }
+
+    @Test
+    func clearsCurrentSpeakerButKeepsRecentActivityStaleWhenEventStreamEnds() async {
+        let date = Date(timeIntervalSince1970: 1_754_284_800)
+        let store = DashboardStore(dateProvider: FixedDashboardDateProvider(date: date))
+        let speaking = FmoSpeakingState(
+            callsign: "BG1ABC",
+            grid: "OM20xx",
+            isSpeaking: true,
+            sequence: 1,
+            deviceUptimeMilliseconds: 10
+        )
+        let activity = FmoRecentLocalActivity(callsign: "BG1ABC", occurredAt: date.addingTimeInterval(-15))
+
+        _ = await store.recordLocalEvent(.history([activity]))
+        _ = await store.recordLocalEvent(.speaking(speaking))
+        let disconnected = await store.recordLocalEventDisconnection()
+
+        #expect(disconnected.localEventLink == .disconnected)
+        #expect(disconnected.currentSpeaker == .unknown)
+        guard case .stale = disconnected.recentLocalActivity else {
+            Issue.record("事件流断开后最近活动应保留为过期值")
+            return
+        }
     }
 
     @Test

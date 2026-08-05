@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2f1ed">
+  <title>FMO 仪表盘卡片设计</title>
+  <link rel="stylesheet" href="dashboard-card.css">
+</head>
+<body>
+  <!--
+    独立设计稿：只用于确认首页仪表盘卡片，不属于最终 App 的评审界面。
+    图标路径取自 Lucide Icons（ISC）；SwiftUI 实现应映射为语义一致的 SF Symbols。
+  -->
+  <svg class="icon-library" aria-hidden="true">
+    <symbol id="icon-antenna" viewBox="0 0 24 24">
+      <path d="M12 20v-8"></path><path d="m8.5 17 3.5 3 3.5-3"></path>
+      <path d="M8.2 9.2a5.4 5.4 0 0 1 7.6 0"></path><path d="M5.4 6.4a9.3 9.3 0 0 1 13.2 0"></path>
+      <circle cx="12" cy="12" r="1"></circle>
+    </symbol>
+    <symbol id="icon-server" viewBox="0 0 24 24">
+      <rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect>
+      <rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect>
+      <line x1="6" x2="6.01" y1="6" y2="6"></line><line x1="6" x2="6.01" y1="18" y2="18"></line>
+    </symbol>
+    <symbol id="icon-radar" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle>
+      <circle cx="12" cy="12" r="2"></circle><path d="m7.2 7.2 3.4 3.4"></path>
+    </symbol>
+    <symbol id="icon-map-pin" viewBox="0 0 24 24">
+      <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle>
+    </symbol>
+    <symbol id="icon-volume" viewBox="0 0 24 24">
+      <path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M18.5 5.5a9 9 0 0 1 0 13"></path>
+    </symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+    </symbol>
+  </svg>
+
+  <main class="design-page">
+    <section class="preview-column" aria-labelledby="page-title">
+      <header class="preview-heading">
+        <p>FMO COMPANION · 0.3</p>
+        <h1 id="page-title">设备仪表盘</h1>
+      </header>
+
+      <article class="dashboard-card" id="dashboard-card" aria-label="已连接设备仪表盘">
+        <div class="summary-grid">
+          <!-- 区域 1：我的 FMO。分组由视觉层级表达，不显示冗余标题。 -->
+          <section class="fmo-region" aria-label="我的 FMO">
+            <header class="fmo-identity">
+              <div class="identity-line">
+                <strong id="callsign">BI8SYN</strong>
+              </div>
+              <div class="freshness" id="freshness-wrap" aria-label="数据刚刚更新">
+                <span class="live-pip" aria-hidden="true"></span>
+                <span id="freshness">刚刚</span>
+              </div>
+              <span class="sr-only" id="connection-text">FMO 已连接</span>
+            </header>
+
+            <div class="fmo-facts" id="fmo-facts">
+              <div class="fact" id="grid-fact" aria-label="FMO 位置：梅登黑德网格 OM20xx">
+                <svg class="icon" aria-hidden="true"><use href="#icon-map-pin"></use></svg>
+                <strong id="grid-locator">OM20xx</strong>
+              </div>
+              <div class="fact" id="filter-fact" aria-label="服务器过滤范围：500 千米">
+                <svg class="icon" aria-hidden="true"><use href="#icon-radar"></use></svg>
+                <strong id="filter-distance">500 km</strong>
+              </div>
+            </div>
+          </section>
+
+          <div class="relay-activity-capsule" id="relay-activity-capsule">
+            <!-- 区域 2：服务器。UID 仅供内部关联；管理员没有可靠来源时整行隐藏。 -->
+            <section class="server-region" id="server-region" aria-label="已连接服务器">
+              <div class="region-copy">
+                <strong id="server-name">安吉 FMO 中继</strong>
+                <small id="server-admin" hidden>管理员 BG5ESN</small>
+              </div>
+            </section>
+
+            <!-- 区域 3：单行事件窗口。正式 App 由真实事件驱动，当前讲话优先并固定。 -->
+            <section class="event-region" id="event-region" aria-live="polite" aria-label="动态事件">
+              <span class="event-icon" id="event-icon" aria-hidden="true">
+                <svg class="icon"><use id="event-icon-use" href="#icon-volume"></use></svg>
+              </span>
+              <div class="event-copy" id="event-copy">
+                <strong id="event-title">BH4XYZ-7</strong>
+                <small id="event-meta">OM92xx · 正在讲话</small>
+              </div>
+              <span class="voice-meter" id="voice-meter" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            </section>
+          </div>
+        </div>
+
+        <div class="offline-state" id="offline-state" hidden>
+          <span><svg class="icon"><use href="#icon-clock"></use></svg></span>
+          <div><strong>等待 FMO</strong><small>网络恢复后自动重连</small></div>
+        </div>
+      </article>
+    </section>
+
+    <aside class="state-panel" aria-label="设计预览状态">
+      <span class="panel-label">预览状态</span>
+      <div class="segmented-control" role="group" aria-label="切换仪表盘状态">
+        <button type="button" data-state="speaking" aria-pressed="true">讲话</button>
+        <button type="button" data-state="events" aria-pressed="false">事件</button>
+        <button type="button" data-state="partial" aria-pressed="false">缺省</button>
+        <button type="button" data-state="offline" aria-pressed="false">离线</button>
+      </div>
+      <p id="state-note">当前讲话优先固定在事件窗口，不与普通事件轮播。</p>
+    </aside>
+  </main>
+
+  <script src="dashboard-card.js"></script>
+</body>
+</html>

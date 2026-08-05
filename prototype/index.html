@@ -7,7 +7,7 @@
   <link rel="icon" href="data:,">
   <title>FMO Companion · 交互原型</title>
   <meta name="description" content="FMO Companion iOS 应用的交互式 HTML 原型与 UI 设计验证稿。">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260805">
 </head>
 <body>
   <div class="prototype-shell">
@@ -41,27 +41,23 @@
               <h3 id="heroTitle">让 iPhone 找到你的 FMO</h3>
               <p id="heroDescription">确保手机与盒子位于同一 Wi-Fi。自动发现失败时，也可以手动输入地址。</p>
               <section class="dashboard-panel" id="dashboardPanel" aria-label="FMO 设备仪表盘" hidden>
-                <div class="dashboard-server">
-                  <div class="dashboard-server-name"><span>当前服务器</span><strong>安吉 FMO 中继</strong><small>管理员 BG5ESN</small></div>
-                  <div class="dashboard-server-health">
-                    <div><span>在线 / 最大</span><strong>24 / 37</strong></div>
-                    <div><span>延迟</span><strong>42 ms</strong></div>
+                <div class="dashboard-facts">
+                  <div aria-label="梅登黑德网格 OM20xx">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <strong>OM20xx</strong>
+                  </div>
+                  <div aria-label="过滤距离 500 公里">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle><path d="m7.2 7.2 3.4 3.4"></path></svg>
+                    <strong>500 km</strong>
                   </div>
                 </div>
-                <div class="dashboard-radio" aria-label="收发频率">
-                  <div><span>TX</span><strong>438.5000</strong><small>MHz</small></div>
-                  <i aria-hidden="true">⇄</i>
-                  <div><span>RX</span><strong>433.5000</strong><small>MHz</small></div>
-                </div>
-                <div class="dashboard-local-stats">
-                  <div><span>过滤距离</span><strong>500 km</strong></div>
-                  <div><span>梅登黑德</span><strong>OM20xx</strong></div>
-                  <div><span>通联数量</span><strong>18</strong></div>
-                </div>
-                <div class="dashboard-event" aria-live="polite">
-                  <span class="dashboard-event-kind is-voice" id="dashboardEventType" aria-label="最近检测到语音活动"></span>
-                  <div><strong id="dashboardEventTitle">BH4XYZ-15</strong><small id="dashboardEventTime">18 km · OM20xx · 刚刚</small></div>
-                  <span class="event-pulse" aria-hidden="true"></span>
+                <div class="dashboard-relay-capsule">
+                  <div class="dashboard-server-name" aria-label="当前服务器 安吉 FMO 中继"><strong>安吉 FMO 中继</strong></div>
+                  <div class="dashboard-event" aria-live="polite">
+                    <span class="dashboard-event-kind is-voice" id="dashboardEventType" aria-label="当前讲话"></span>
+                    <div><strong id="dashboardEventTitle">BH4XYZ-15</strong><small id="dashboardEventTime">OM20xx · 刚刚</small></div>
+                    <span class="event-pulse" id="dashboardEventPulse" aria-hidden="true"></span>
+                  </div>
                 </div>
               </section>
               <button class="primary-button hero-action" id="discoverButton" type="button" data-action="discover">
@@ -72,7 +68,10 @@
 
             <div class="section-heading">
               <div><span class="eyebrow">LOCAL NETWORK</span><h3>附近设备</h3></div>
-              <button class="text-button" type="button" data-action="open-manual">手动输入</button>
+              <div class="section-heading-actions">
+                <button class="text-button" id="listScanButton" type="button" data-action="discover">扫描</button>
+                <button class="text-button" type="button" data-action="open-manual">手动输入</button>
+              </div>
             </div>
 
             <div class="device-list" id="deviceList" aria-live="polite">
@@ -81,10 +80,15 @@
                 <strong>尚未开始搜索</strong>
                 <p>发现窗口最长 10 秒，结果会显示在这里。</p>
               </div>
-              <button class="device-row" id="discoveredDevice" type="button" data-action="connect" hidden>
+              <button class="device-row" id="discoveredDevice" type="button" data-action="connect" data-device-label="FMO-7C2A" hidden>
                 <span class="device-mark">FM</span>
                 <span class="device-copy"><strong>FMO-7C2A</strong><small>fmo.local · 示例设备</small></span>
-                <span class="device-meta"><b>优</b><small>局域网</small></span>
+                <span class="device-meta"><b>可用</b><small>局域网</small></span>
+              </button>
+              <button class="device-row" id="alternateDevice" type="button" data-action="connect" data-device-label="FMO-91B4" hidden>
+                <span class="device-mark">FM</span>
+                <span class="device-copy"><strong>FMO-91B4</strong><small>fmo-91b4.local · 示例设备</small></span>
+                <span class="device-meta"><b>可用</b><small>局域网</small></span>
               </button>
             </div>
 
@@ -438,8 +442,8 @@
             <div class="section-heading top-heading"><div><span class="eyebrow">LIVE ACTIVITY</span><h3>锁屏仪表盘</h3></div></div>
             <button class="live-activity-preview-card" type="button" data-action="open-live-activity">
               <div class="live-preview-heading"><span><i></i> FMO Companion</span><b>刚刚更新</b></div>
-              <div class="live-preview-main"><div><strong>BI8SYN</strong><small>安吉 FMO 中继 · 24 / 37 在线</small></div><span>42<small>ms</small></span></div>
-              <div class="live-preview-event"><b class="is-voice" aria-label="最近检测到语音活动"></b><span>BH4XYZ-15</span><small>18 km · 刚刚</small></div>
+              <div class="live-preview-main"><div><strong>BI8SYN</strong><small>安吉 FMO 中继</small></div><span>438.500<small>MHz</small></span></div>
+              <div class="live-preview-event"><b class="is-voice" aria-label="当前讲话"></b><span>BH4XYZ-15</span><small>OM20xx · 刚刚</small></div>
               <span class="live-preview-action">查看锁屏预览</span>
             </button>
             <div class="detail-card option-list live-privacy-options">
@@ -482,9 +486,8 @@
             <div class="activity-main">
               <div><strong id="lockCallsign">BI8SYN</strong><small id="lockConnectionLabel">设备已连接</small></div>
             </div>
-            <div class="activity-server-cluster"><div><span>当前服务器</span><strong>安吉 FMO 中继</strong></div><div><span>在线 / 最大</span><strong>24 / 37</strong></div><div><span>延迟</span><strong>42 ms</strong></div></div>
-            <div class="activity-radio"><span>TX 438.500</span><i>⇄</i><span>RX 433.500 MHz</span></div>
-            <div class="activity-event" id="lockEventRow"><b class="is-voice" id="lockEventType" aria-label="最近检测到语音活动"></b><span><strong id="lockEventTitle">BH4XYZ-15</strong><small id="lockEventTime">18 km · OM20xx · 刚刚</small></span></div>
+            <div class="activity-server-cluster"><div><span>当前服务器</span><strong>安吉 FMO 中继</strong></div><div><span>工作频率</span><strong>438.500 MHz</strong></div></div>
+            <div class="activity-event" id="lockEventRow"><b class="is-voice" id="lockEventType" aria-label="当前讲话"></b><span><strong id="lockEventTitle">BH4XYZ-15</strong><small id="lockEventTime">OM20xx · 刚刚</small></span></div>
           </article>
           <p class="lock-hint">向上轻扫以解锁</p>
           <button class="lock-close" type="button" data-action="close-live-activity">结束锁屏仪表盘</button>
@@ -574,6 +577,6 @@
       </div>
     </main>
   </div>
-  <script src="app.js"></script>
+  <script src="app.js?v=20260805"></script>
 </body>
 </html>

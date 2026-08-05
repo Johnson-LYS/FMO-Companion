@@ -12,7 +12,7 @@ final class FMOcUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.navigationBars["首页"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["发现附近的 FMO"].exists)
+        XCTAssertTrue(app.buttons["device-discovery-toggle"].exists)
         XCTAssertTrue(app.buttons["首页"].exists)
         XCTAssertTrue(app.buttons["FMO 网络"].exists)
         XCTAssertTrue(app.buttons["QSO"].exists)
@@ -39,8 +39,6 @@ final class FMOcUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "local-network-denied"
         app.launch()
-
-        app.buttons["发现附近的 FMO"].tap()
 
         let alert = app.alerts["本地网络访问已关闭"]
         XCTAssertTrue(alert.waitForExistence(timeout: 2))
@@ -80,12 +78,38 @@ final class FMOcUITests: XCTestCase {
         XCTAssertTrue(deviceRow.waitForExistence(timeout: 5))
         deviceRow.tap()
 
-        XCTAssertTrue(app.staticTexts["FMO 已连接"].waitForExistence(timeout: 2))
+        let callsign = app.descendants(matching: .any)["dashboard-callsign"]
+        XCTAssertTrue(callsign.waitForExistence(timeout: 10))
+        XCTAssertTrue(callsign.label.contains("BG0TST"))
+        let server = app.descendants(matching: .any)["dashboard-server-name"]
+        XCTAssertTrue(server.waitForExistence(timeout: 2))
+        XCTAssertTrue(server.label.contains("测试服务器"))
         let maidenhead = app.descendants(matching: .any)["dashboard-maidenhead-value"]
         XCTAssertTrue(maidenhead.waitForExistence(timeout: 2))
-        XCTAssertTrue(maidenhead.label.contains("PM01rf"))
+        XCTAssertEqual(maidenhead.value as? String, "PM01rf")
+        XCTAssertFalse(app.staticTexts["438.500"].exists)
+        XCTAssertFalse(app.buttons["断开连接"].exists)
         XCTAssertFalse(app.staticTexts["示例华东服务器"].exists)
         XCTAssertFalse(app.staticTexts["BI8SYN"].exists)
+        XCTAssertFalse(app.staticTexts["GEO 会话"].exists)
+        XCTAssertFalse(app.staticTexts["公开局域网接口"].exists)
+        XCTAssertFalse(app.staticTexts["由 FMO 坐标换算"].exists)
+    }
+
+    @MainActor
+    func testLaunchAutomaticallyConnectsFirstDiscoveredDevice() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "automatic-connection"
+        app.launch()
+
+        let maidenhead = app.descendants(matching: .any)["dashboard-maidenhead-value"]
+        XCTAssertTrue(maidenhead.waitForExistence(timeout: 10))
+        XCTAssertEqual(maidenhead.value as? String, "PM01rf")
+
+        let deviceRow = app.buttons["device-row-fmo.local:80"]
+        XCTAssertTrue(deviceRow.exists)
+        XCTAssertTrue(deviceRow.isSelected)
+        XCTAssertFalse(app.buttons["断开连接"].exists)
     }
 
     @MainActor

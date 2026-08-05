@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-04
+last-reviewed: 2026-08-05
 ---
 
 # 项目简报
@@ -13,9 +13,9 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 ## 当前状态
 
 - **阶段：** 0.3 设备仪表盘基础开发
-- **已完成：** 0.1 局域网闭环；0.2 可靠定位真机闭环；0.3 最终首页/锁屏 HTML 原型经用户确认
-- **进行中：** 已实现共享 `DashboardSnapshot`、Dashboard Actor、GEO 派生 Maidenhead 与首页基础投影；ActivityKit 尚未开始
-- **字段门槛：** 没有公开正式来源的设备内部字段逐项标记为 `Deferred — external contract`，不阻塞基础开发，也不使用模拟或替代数据
+- **已完成：** 0.1 原局域网闭环；0.2 可靠定位真机闭环；0.3 首页卡内容模型、视觉结构与正式 SwiftUI 投影
+- **进行中：** 0.1 连接 UX 修订已实现（启动自动扫描、首台仅尝试一次、失败不顺延、列表切换、无主动断开），待真实 FMO 回归；0.3 已实现共享 `DashboardSnapshot`、GEO 派生 Maidenhead、ADR-0005 本地只读状态客户端、讲话事件流与定稿首页卡，ActivityKit 尚未开始
+- **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
 
 ## 最近变更
 
@@ -37,6 +37,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 | 2026-08-03 | 完成 Wi-Fi、主机端口、HTTP 与 GEO WebSocket 四步实时连接诊断 | `docs/architecture/modules/device-connectivity.md` |
 | 2026-08-03 | 补齐权限拒绝的系统设置恢复入口与异常断线状态收敛覆盖 | `docs/architecture/modules/device-connectivity.md` |
 | 2026-08-04 | 修正发现覆盖手动设备、补齐设备移除，并区分首页会话与独立诊断结果 | `docs/architecture/modules/device-connectivity.md` |
+| 2026-08-05 | 确认启动自动扫描、首台仅自动尝试一次、失败不顺延、列表手动切换，并移除首页主动断开入口；实现待补 | `docs/spec/product-spec.md` |
 | 2026-08-04 | 设备删除改为系统原生左滑，并固化为所有可删除列表的 UI 规范 | `docs/design/ui-design-system.md` |
 | 2026-08-04 | Johnson iPhone 13 Pro + 真实 FMO 完成 0.1 全流程真机验收 | `docs/plans/0002-milestone-0.1-local-connection.md` |
 | 2026-08-04 | 冻结 0.2 模式阈值、离网恢复与系统浏览器契约并启动开发 | `docs/plans/0005-milestone-0.2-reliable-location.md` |
@@ -48,6 +49,11 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 | 2026-08-04 | 收敛语音事件为图标化“最近活动”，并补齐收藏呼号与公共服务器的产品、技术和原型闭环 | `docs/spec/product-spec.md` |
 | 2026-08-04 | 用户确认最终仪表盘原型；0.3 调整为先实现共享基础与 GEO 字段，其他设备状态等待公开接口 | `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` |
 | 2026-08-04 | 完成 0.3 首个原生切片：共享 Dashboard 快照、Maidenhead 派生、断线过期与首页真实字段投影 | `docs/architecture/modules/dashboard.md` |
+| 2026-08-05 | 分析用户本人设备后台 WebSocket：确认呼号、当前服务器、过滤枚举、单频率、QSO 日志数与本地讲话事件；原始敏感抓包不入库 | `docs/references/fmo-open-capabilities.md` |
+| 2026-08-05 | 0.3 原型收敛为已观察字段语义，隐藏延迟、管理员与在线人数，并记录接口授权门槛和待补样本 | `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` |
+| 2026-08-05 | 接受 ADR-0005 并实现严格白名单的本地只读状态/事件客户端；首页改为数据与图标优先，不显示实现解释文案 | `docs/adr/0005-user-authorized-local-read-only-status.md` |
+| 2026-08-05 | 用户提供 IP 的脱敏真机探测确认 `/ws` 五个白名单路由；`/events` 握手成功但等待实际事件样本 | `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` |
+| 2026-08-05 | 完成定稿三段式原生仪表盘，以及启动扫描、首台一次性自动连接、列表切换和无主动断开的连接 UX | `docs/architecture/modules/dashboard.md`、`docs/architecture/modules/device-connectivity.md` |
 
 ## 领域术语
 
@@ -69,7 +75,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 - APRS PASSCODE 和远控 SECRET 只保存在 Keychain，不进入日志或云端同步。
 - `VOCAL` 只代表某呼号近期触发过语音活动，不等于实时通联、当前说话人或语音内容。
 - iOS 后台定位不能承诺固定分钟级调度，只能基于系统位置更新做节流。
-- 未公开 API 的盒子设置通过官方 `fmo.local` Web UI 打开，不使用 DOM 注入或抓包模拟。
+- 盒子设置仍通过官方 `fmo.local` Web UI 打开；ADR-0005 只允许类型化只读状态，不使用 DOM 注入、不提供通用命令代理。
 - FMO 连接 iPhone 自身个人热点的反向访问能力必须实机验证，在验证前不作为保证场景。
 
 ## 关键决策
@@ -78,10 +84,11 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 - [ADR-0002：采用 Loom 文档驱动的 Agent 工作流](adr/0002-loom-document-driven-development.md)
 - [ADR-0003：最低部署版本采用 iOS 26](adr/0003-ios-26-minimum-deployment.md)
 - [ADR-0004：采用 Swift 6 严格并发](adr/0004-swift-6-strict-concurrency.md)
+- [ADR-0005：采用用户授权的本地只读状态接口](adr/0005-user-authorized-local-read-only-status.md)
 
 ## 本轮开发入口
 
 1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.3 范围。
 2. 阅读 `docs/spec/product-spec.md` 的 SPEC-014；评审收藏与事件时同时读取 SPEC-006、SPEC-007。
 3. 继续遵循 `docs/design/ui-design-system.md` 与 `docs/design/prototype-implementation-guide.md`。
-4. 按 `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` 先实施共享模型、GEO 支持字段和局部降级；外部契约字段保持延期，接口公开后再逐项接入。
+4. 按 `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` 继续完成真机状态验收与 ActivityKit；严格遵守 ADR-0005 白名单。

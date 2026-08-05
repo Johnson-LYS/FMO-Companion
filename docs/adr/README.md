@@ -1,3 +1,7 @@
+---
+last-reviewed: 2026-08-05
+---
+
 # 架构决策记录
 
 | 编号 | 标题 | 状态 | 日期 |
@@ -6,6 +10,7 @@
 | 0002 | [采用 Loom 文档驱动的 Agent 工作流](0002-loom-document-driven-development.md) | Accepted | 2026-08-03 |
 | 0003 | [最低部署版本采用 iOS 26](0003-ios-26-minimum-deployment.md) | Accepted | 2026-08-03 |
 | 0004 | [采用 Swift 6 严格并发](0004-swift-6-strict-concurrency.md) | Accepted | 2026-08-03 |
+| 0005 | [采用用户授权的本地只读状态接口](0005-user-authorized-local-read-only-status.md) | Accepted | 2026-08-05 |
 
 ## 规则
 

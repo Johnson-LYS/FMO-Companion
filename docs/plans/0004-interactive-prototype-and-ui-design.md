@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-03
+last-reviewed: 2026-08-05
 status: complete
 ---
 
@@ -14,7 +14,7 @@ status: complete
 - `prototype/`：无需构建依赖的交互式 HTML 原型。
 - `docs/design/ui-design-system.md`：色彩、排版、组件、状态、可访问性与 SwiftUI 映射规范。
 - 0.1 核心闭环：权限说明、发现、手动回退、连接、读取/同步坐标、诊断。
-- 全路线图原型：SPEC-001 至 SPEC-013 均有可点击入口、代表性状态和评审路径。
+- 全路线图原型：SPEC-001 至 SPEC-014 均有可点击入口、代表性状态和评审路径。
 - `docs/design/prototype-coverage-matrix.md`：规格、原型入口和正式开发重点的映射。
 - `docs/design/prototype-implementation-guide.md`：供后续 AI 将原型安全转换为 SwiftUI 的实现规则。
 
@@ -41,7 +41,7 @@ status: complete
 - [x] 交互原型可在本地浏览器打开。
 - [x] 0.1 主流程和主要失败状态可演示。
 - [x] 后续路线图的信息架构可点击查看。
-- [x] SPEC-001 至 SPEC-013 均映射到代表性原型流程。
+- [x] SPEC-001 至 SPEC-014 均映射到代表性原型流程。
 - [x] 可见原型移除评审层，四标签导航通过简化评审。
 - [x] AI 实现指南记录导航归属、状态机、模拟替换和安全约束。
 - [x] 持续边界与明确排除能力在原型中可查看。

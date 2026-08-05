@@ -2,7 +2,8 @@ import Foundation
 
 nonisolated enum DashboardFieldSource: String, Codable, Equatable, Sendable {
     case geoCoordinate
-    case deviceStatus
+    case localDeviceStatus
+    case localEventStream
     case aprs
 }
 
@@ -36,6 +37,11 @@ where Value: Codable & Equatable & Sendable {
             nil
         }
     }
+
+    var currentValue: Value? {
+        guard case .available(let observation) = self else { return nil }
+        return observation.value
+    }
 }
 
 nonisolated enum DashboardLinkState: String, Codable, Equatable, Sendable {
@@ -44,58 +50,67 @@ nonisolated enum DashboardLinkState: String, Codable, Equatable, Sendable {
     case connected
 }
 
-nonisolated struct DashboardRadioFrequencies: Codable, Equatable, Sendable {
-    let transmitMHz: Double
-    let receiveMHz: Double
+nonisolated enum DashboardFilterDistance: Codable, Equatable, Sendable {
+    case disabled
+    case kilometers(Int)
 }
 
-nonisolated struct DashboardServerOccupancy: Codable, Equatable, Sendable {
-    let online: Int
-    let maximum: Int
+nonisolated struct DashboardSpeaker: Codable, Equatable, Sendable {
+    let callsign: String
+    let grid: String?
 }
 
-nonisolated struct DashboardEvent: Codable, Equatable, Sendable {
-    enum Kind: String, Codable, Equatable, Sendable {
-        case voiceActivity
-        case cq
-        case online
-        case station
+nonisolated struct DashboardLocalActivity: Codable, Equatable, Sendable {
+    let callsign: String
+    let occurredAt: Date
+}
+
+nonisolated struct DashboardLocalStatusUpdate: Equatable, Sendable {
+    var callsign: String? = nil
+    var currentServerName: String? = nil
+    var filterDistance: DashboardFilterDistance? = nil
+    var workingFrequencyMHz: Double? = nil
+    var qsoLogCount: Int? = nil
+
+    var availableFieldCount: Int {
+        [
+            callsign != nil,
+            currentServerName != nil,
+            filterDistance != nil,
+            workingFrequencyMHz != nil,
+            qsoLogCount != nil
+        ].count(where: { $0 })
     }
-
-    let kind: Kind
-    let callsign: String?
-    let summary: String?
-    let observedAt: Date
 }
 
 nonisolated struct DashboardSnapshot: Codable, Equatable, Sendable {
     var generatedAt: Date
     var geoLink: DashboardLinkState
+    var localStatusLink: DashboardLinkState
+    var localEventLink: DashboardLinkState
     var callsign: DashboardField<String>
     var currentServerName: DashboardField<String>
-    var filterDistanceKilometers: DashboardField<Int>
+    var filterDistance: DashboardField<DashboardFilterDistance>
     var maidenhead: DashboardField<String>
-    var liveQSOCount: DashboardField<Int>
-    var radioFrequencies: DashboardField<DashboardRadioFrequencies>
-    var serverLatencyMilliseconds: DashboardField<Int>
-    var serverAdministratorCallsign: DashboardField<String>
-    var serverOccupancy: DashboardField<DashboardServerOccupancy>
-    var latestEvent: DashboardField<DashboardEvent>
+    var qsoLogCount: DashboardField<Int>
+    var workingFrequencyMHz: DashboardField<Double>
+    var currentSpeaker: DashboardField<DashboardSpeaker>
+    var recentLocalActivity: DashboardField<DashboardLocalActivity>
 
     static func empty(generatedAt: Date = .distantPast) -> DashboardSnapshot {
         DashboardSnapshot(
             generatedAt: generatedAt,
             geoLink: .disconnected,
-            callsign: .unsupported,
-            currentServerName: .unsupported,
-            filterDistanceKilometers: .unsupported,
+            localStatusLink: .disconnected,
+            localEventLink: .disconnected,
+            callsign: .unknown,
+            currentServerName: .unknown,
+            filterDistance: .unknown,
             maidenhead: .unknown,
-            liveQSOCount: .unsupported,
-            radioFrequencies: .unsupported,
-            serverLatencyMilliseconds: .unsupported,
-            serverAdministratorCallsign: .unsupported,
-            serverOccupancy: .unsupported,
-            latestEvent: .unsupported
+            qsoLogCount: .unknown,
+            workingFrequencyMHz: .unknown,
+            currentSpeaker: .unknown,
+            recentLocalActivity: .unknown
         )
     }
 }

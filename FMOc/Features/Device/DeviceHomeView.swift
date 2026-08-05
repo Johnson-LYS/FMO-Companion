@@ -38,8 +38,11 @@ struct DeviceHomeView: View {
         .scrollContentBackground(.hidden)
         .background(Color(uiColor: .systemGroupedBackground))
         .navigationTitle("首页")
-        .task { await model.restoreSavedEndpoint() }
-        .onDisappear { actionTask?.cancel() }
+        .task { await model.start() }
+        .onDisappear {
+            actionTask?.cancel()
+            model.stopDiscovery()
+        }
         .sheet(isPresented: $showsManualAddress) {
             manualAddressSheet
                 .presentationDetents([.medium])
@@ -166,10 +169,12 @@ struct DeviceHomeView: View {
     private var statusCard: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(alignment: .top) {
-                Image(systemName: statusSymbol)
-                    .font(.title2.weight(.semibold))
-                    .frame(width: 48, height: 48)
-                    .background(.white.opacity(0.72), in: .circle)
+                if !model.isConnected {
+                    Image(systemName: statusSymbol)
+                        .font(.title2.weight(.semibold))
+                        .frame(width: 48, height: 48)
+                        .background(.white.opacity(0.72), in: .circle)
+                }
 
                 Spacer()
 
@@ -180,28 +185,16 @@ struct DeviceHomeView: View {
                     .background(.white.opacity(0.72), in: .capsule)
             }
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text(statusTitle)
-                    .font(.title2.bold())
-                Text(statusMessage)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-
             if model.isConnected {
                 DeviceDashboardSummaryView(snapshot: model.dashboardSnapshot)
-
-                Button("断开连接") {
-                    run { await model.disconnect() }
-                }
-                .buttonStyle(.bordered)
-                .tint(.primary)
             } else {
-                Button(model.phase == .discovering ? "正在发现…" : "发现附近的 FMO") {
-                    run { await model.discover() }
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(statusTitle)
+                        .font(.title2.bold())
+                    Text(statusMessage)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
-                .buttonStyle(BrandPrimaryButtonStyle())
-                .disabled(model.isBusy)
             }
         }
         .padding(20)
@@ -251,6 +244,15 @@ struct DeviceHomeView: View {
                 Text("设备")
                     .font(.title3.weight(.semibold))
                 Spacer()
+                Button(model.isDiscovering ? "停止" : "扫描") {
+                    if model.isDiscovering {
+                        model.stopDiscovery()
+                    } else {
+                        model.startDiscovery()
+                    }
+                }
+                .textCase(nil)
+                .accessibilityIdentifier("device-discovery-toggle")
                 Button("手动地址") { showsManualAddress = true }
                     .textCase(nil)
             }
@@ -424,7 +426,7 @@ struct DeviceHomeView: View {
         )
     }
 
-    private var statusTitle: String {
+    private var statusTitle: LocalizedStringKey {
         switch model.phase {
         case .idle: "连接你的 FMO"
         case .discovering: "正在查找附近设备"
@@ -438,7 +440,7 @@ struct DeviceHomeView: View {
         }
     }
 
-    private var statusMessage: String {
+    private var statusMessage: LocalizedStringKey {
         switch model.phase {
         case .idle: "在同一 Wi-Fi 中自动发现，或手动输入 fmo.local。"
         case .discovering: "系统可能会询问是否允许访问本地网络。"
@@ -452,8 +454,11 @@ struct DeviceHomeView: View {
         }
     }
 
-    private var statusBadge: String {
-        switch model.phase {
+    private var statusBadge: LocalizedStringKey {
+        if model.isDiscovering, !model.isConnected {
+            return "扫描中"
+        }
+        return switch model.phase {
         case .connected, .locating, .syncing, .success: "已连接"
         case .discovering, .connecting: "进行中"
         case .failure: "需处理"

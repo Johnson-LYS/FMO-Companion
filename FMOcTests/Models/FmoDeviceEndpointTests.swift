@@ -7,6 +7,7 @@ struct FmoDeviceEndpointTests {
     func buildsWebSocketURLWithResolvedPort() throws {
         let endpoint = try FmoDeviceEndpoint(host: "192.0.2.10", port: 8080, source: .manual)
         #expect(try endpoint.webSocketURL.absoluteString == "ws://192.0.2.10:8080/ws")
+        #expect(try endpoint.eventWebSocketURL.absoluteString == "ws://192.0.2.10:8080/events")
     }
 
     @Test
@@ -43,7 +44,7 @@ struct FmoDeviceEndpointTests {
     @Test
     func usesStableHostnameForBonjourEndpoint() throws {
         let endpoint = try FmoDeviceEndpoint(
-            host: "192.168.8.174%en0",
+            host: "192.0.2.174%en0",
             port: 80,
             source: .bonjour,
             name: "FMO"
@@ -77,7 +78,7 @@ struct FmoDeviceEndpointTests {
     @Test
     func migratesPreviouslyPersistedBonjourIP() throws {
         let legacy = Data(
-            #"{"host":"192.168.8.174%en0","port":80,"source":"bonjour","name":"FMO"}"#.utf8
+            #"{"host":"192.0.2.174%en0","port":80,"source":"bonjour","name":"FMO"}"#.utf8
         )
 
         let endpoint = try JSONDecoder().decode(FmoDeviceEndpoint.self, from: legacy)

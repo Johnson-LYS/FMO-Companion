@@ -59,15 +59,11 @@ nonisolated struct FmoDeviceEndpoint: Codable, Hashable, Identifiable, Sendable 
     }
 
     var webSocketURL: URL {
-        get throws {
-            var components = URLComponents()
-            components.scheme = "ws"
-            components.host = host
-            components.port = port
-            components.path = "/ws"
-            guard let url = components.url else { throw ValidationError.unsupportedAddress }
-            return url
-        }
+        get throws { try localWebSocketURL(path: "/ws") }
+    }
+
+    var eventWebSocketURL: URL {
+        get throws { try localWebSocketURL(path: "/events") }
     }
 
     func officialWebURL(for page: FmoOfficialPage) throws -> URL {
@@ -82,6 +78,16 @@ nonisolated struct FmoDeviceEndpoint: Codable, Hashable, Identifiable, Sendable 
 
     var displayName: String { name ?? host }
     var displayAddress: String { port.map { "\(host):\($0)" } ?? host }
+
+    private func localWebSocketURL(path: String) throws -> URL {
+        var components = URLComponents()
+        components.scheme = "ws"
+        components.host = host
+        components.port = port
+        components.path = path
+        guard let url = components.url else { throw ValidationError.unsupportedAddress }
+        return url
+    }
 }
 
 nonisolated enum FmoOfficialPage: String, CaseIterable, Sendable {

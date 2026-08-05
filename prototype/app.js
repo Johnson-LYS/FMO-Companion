@@ -7,6 +7,8 @@
     detail: null,
     detailHistory: [],
     discoveryTimer: null,
+    discoveryActive: false,
+    currentDeviceLabel: null,
     dashboardTimer: null,
     dashboardEventIndex: 0,
     liveActivityOpen: false,
@@ -22,10 +24,9 @@
   };
 
   const dashboardEvents = [
-    { kind: "voice", type: "VOCAL", title: "BH4XYZ-15", time: "18 km · OM20xx · 刚刚" },
-    { type: "CQ", title: "BH4XYZ 发起 CQ", time: "刚刚 · 已验证" },
-    { type: "ON", title: "BD7ABC 加入服务器", time: "28 秒前 · 已验证" },
-    { type: "ST", title: "服务器状态已更新", time: "1 分钟前 · 已验证" },
+    { kind: "speaking", title: "BH4XYZ-15", time: "OM20xx · 刚刚" },
+    { kind: "history", title: "BD7ABC", time: "最近活动 · 28 秒前" },
+    { kind: "history", title: "BG0AAA", time: "最近活动 · 1 分钟前" },
   ];
 
   const elements = {
@@ -43,9 +44,12 @@
     dashboardEventType: document.querySelector("#dashboardEventType"),
     dashboardEventTitle: document.querySelector("#dashboardEventTitle"),
     dashboardEventTime: document.querySelector("#dashboardEventTime"),
+    dashboardEventPulse: document.querySelector("#dashboardEventPulse"),
     discoverButton: document.querySelector("#discoverButton"),
+    listScanButton: document.querySelector("#listScanButton"),
     deviceEmpty: document.querySelector("#deviceEmpty"),
     discoveredDevice: document.querySelector("#discoveredDevice"),
+    alternateDevice: document.querySelector("#alternateDevice"),
     coordinateCard: document.querySelector("#coordinateCard"),
     syncButton: document.querySelector("#syncButton"),
     deviceCoordinate: document.querySelector("#deviceCoordinate"),
@@ -119,15 +123,16 @@
   }
 
   function renderDashboardEvent(eventData) {
-    const isVoice = eventData.kind === "voice";
-    elements.dashboardEventType.classList.toggle("is-voice", isVoice);
-    elements.dashboardEventType.textContent = isVoice ? "" : eventData.type;
-    elements.dashboardEventType.setAttribute("aria-label", isVoice ? "最近检测到语音活动" : eventData.type);
+    const isSpeaking = eventData.kind === "speaking";
+    elements.dashboardEventType.classList.toggle("is-voice", isSpeaking);
+    elements.dashboardEventType.textContent = isSpeaking ? "" : "◷";
+    elements.dashboardEventType.setAttribute("aria-label", isSpeaking ? "当前讲话" : "最近讲话活动");
     elements.dashboardEventTitle.textContent = eventData.title;
     elements.dashboardEventTime.textContent = eventData.time;
-    elements.lockEventType.classList.toggle("is-voice", isVoice);
-    elements.lockEventType.textContent = isVoice ? "" : eventData.type;
-    elements.lockEventType.setAttribute("aria-label", isVoice ? "最近检测到语音活动" : eventData.type);
+    elements.dashboardEventPulse.hidden = !isSpeaking;
+    elements.lockEventType.classList.toggle("is-voice", isSpeaking);
+    elements.lockEventType.textContent = isSpeaking ? "" : "◷";
+    elements.lockEventType.setAttribute("aria-label", isSpeaking ? "当前讲话" : "最近讲话活动");
     elements.lockEventTitle.textContent = eventData.title;
     elements.lockEventTime.textContent = eventData.time;
   }
@@ -224,9 +229,11 @@
   function setConnectionState(nextState) {
     state.connection = nextState;
     elements.hero.classList.remove("is-searching", "is-connected", "is-error");
+    elements.heroDescription.hidden = false;
     elements.dashboardPanel.hidden = true;
     stopDashboardTicker();
     updateLiveActivityFreshness(nextState === "connected");
+    elements.discoverButton.hidden = false;
 
     if (nextState === "searching") {
       elements.discoverButton.dataset.action = "discover";
@@ -239,6 +246,7 @@
       elements.deviceEmpty.querySelector("strong").textContent = "正在发现 FMO…";
       elements.deviceEmpty.querySelector("p").textContent = "保持此页面打开，发现结果会自动出现。";
       elements.discoveredDevice.hidden = true;
+      elements.alternateDevice.hidden = true;
       elements.coordinateCard.hidden = true;
       updateHeaderStatus("发现中");
       return;
@@ -247,26 +255,28 @@
     if (nextState === "found") {
       elements.discoverButton.dataset.action = "discover";
       elements.heroState.textContent = "发现 1 台设备";
-      elements.heroTitle.textContent = "选择设备建立连接";
-      elements.heroDescription.textContent = "已发现示例设备 FMO-7C2A，点击列表即可开始 GEO WebSocket 握手。";
+      elements.heroTitle.textContent = "正在自动连接";
+      elements.heroDescription.textContent = "已发现示例设备 FMO-7C2A，正在建立 GEO WebSocket。";
       elements.discoverButton.querySelector("span:first-child").textContent = "重新发现";
       elements.deviceEmpty.hidden = true;
       elements.discoveredDevice.hidden = false;
+      elements.alternateDevice.hidden = true;
       updateHeaderStatus("待连接");
       return;
     }
 
     if (nextState === "connected") {
       elements.hero.classList.add("is-connected");
-      elements.heroState.textContent = "已连接";
+      elements.heroState.textContent = "刚刚";
       elements.heroTitle.textContent = "BI8SYN";
-      elements.heroDescription.textContent = "设备状态刚刚更新";
+      elements.heroDescription.hidden = true;
       elements.dashboardPanel.hidden = false;
-      elements.discoverButton.querySelector("span:first-child").textContent = "查看锁屏仪表盘";
-      elements.discoverButton.dataset.action = "open-live-activity";
+      elements.discoverButton.hidden = true;
       elements.deviceEmpty.hidden = true;
       elements.discoveredDevice.hidden = false;
+      elements.alternateDevice.hidden = false;
       elements.coordinateCard.hidden = false;
+      updateDeviceRows();
       updateHeaderStatus("已连接", "connected");
       setDiagnosticState("connected");
       startDashboardTicker();
@@ -282,6 +292,7 @@
       elements.discoverButton.dataset.action = "open-diagnostics";
       elements.deviceEmpty.hidden = true;
       elements.discoveredDevice.hidden = false;
+      elements.alternateDevice.hidden = false;
       elements.coordinateCard.hidden = true;
       updateHeaderStatus("需处理", "error");
       setDiagnosticState("offline");
@@ -298,37 +309,75 @@
     elements.deviceEmpty.querySelector("strong").textContent = "尚未开始搜索";
     elements.deviceEmpty.querySelector("p").textContent = "发现窗口最长 10 秒，结果会显示在这里。";
     elements.discoveredDevice.hidden = true;
+    elements.alternateDevice.hidden = true;
     elements.coordinateCard.hidden = true;
     updateHeaderStatus("未连接");
     setDiagnosticState("idle");
   }
 
+  function setDiscoveryActive(isActive) {
+    state.discoveryActive = isActive;
+    elements.listScanButton.textContent = isActive ? "停止" : "扫描";
+  }
+
+  function updateDeviceRows() {
+    [elements.discoveredDevice, elements.alternateDevice].forEach((row) => {
+      const isCurrent = row.dataset.deviceLabel === state.currentDeviceLabel;
+      row.classList.toggle("is-current", isCurrent);
+      row.setAttribute("aria-current", isCurrent ? "true" : "false");
+      row.querySelector(".device-meta b").textContent = isCurrent ? "当前" : "可用";
+    });
+  }
+
   function startDiscovery() {
-    if (state.connection === "searching") {
+    if (state.discoveryActive) {
       window.clearTimeout(state.discoveryTimer);
-      setConnectionState("idle");
+      setDiscoveryActive(false);
+      if (state.connection === "searching") setConnectionState("idle");
       showToast("已停止设备发现", "—");
+      return;
+    }
+
+    setDiscoveryActive(true);
+    if (state.connection === "connected" || state.connection === "connecting") {
+      showToast("正在更新附近设备", "⌕");
+      state.discoveryTimer = window.setTimeout(() => {
+        setDiscoveryActive(false);
+        elements.discoveredDevice.hidden = false;
+        elements.alternateDevice.hidden = false;
+        showToast("扫描完成，当前连接保持不变", "✓");
+      }, 1350);
       return;
     }
 
     elements.deviceEmpty.hidden = false;
     setConnectionState("searching");
-    state.discoveryTimer = window.setTimeout(() => {
+    state.discoveryTimer = window.setTimeout(async () => {
+      setDiscoveryActive(false);
       setConnectionState("found");
-      showToast("发现 1 台示例设备");
+      showToast("发现首台 FMO，正在自动连接");
+      await connectDevice("FMO-7C2A", true);
     }, 1350);
   }
 
-  async function connectDevice(label = "FMO-7C2A") {
+  async function connectDevice(label = "FMO-7C2A", isAutomatic = false) {
+    if (state.connection === "connected" && state.currentDeviceLabel === label) {
+      showToast("当前设备已连接", "✓");
+      return;
+    }
+
+    const isSwitching = state.connection === "connected";
+    state.connection = "connecting";
     setActiveScreen("home");
-    elements.heroState.textContent = "正在连接";
-    elements.heroTitle.textContent = `正在连接 ${label}`;
+    elements.heroState.textContent = isSwitching ? "正在切换" : "正在连接";
+    elements.heroTitle.textContent = `${isSwitching ? "正在切换到" : "正在连接"} ${label}`;
     elements.heroDescription.textContent = "正在解析主机并建立 GEO WebSocket…";
     updateHeaderStatus("连接中");
     closeAllModals();
     await wait(800);
+    state.currentDeviceLabel = label;
     setConnectionState("connected");
-    showToast("连接成功，坐标已读取");
+    showToast(isAutomatic ? "已自动连接首台 FMO" : (isSwitching ? "设备切换成功" : "连接成功，坐标已读取"));
   }
 
   async function syncCoordinate() {
@@ -581,7 +630,7 @@
     } else if (action === "discover") {
       startDiscovery();
     } else if (action === "connect") {
-      await connectDevice();
+      await connectDevice(actionTarget.dataset.deviceLabel || "FMO-7C2A");
     } else if (action === "open-manual") {
       showModal(elements.manualModal);
     } else if (action === "manual-connect") {
@@ -692,4 +741,5 @@
   loadFavoriteState();
   setDirectoryView("stations");
   setConnectionState("idle");
+  startDiscovery();
 })();
