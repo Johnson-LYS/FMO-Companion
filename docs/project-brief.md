@@ -21,6 +21,9 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-06 | APRS 身份与“消息与远控”采用最多两层的关联 Sheet，移除重复 Hero 与实现文案，并固化产品化文案和轻量编辑原则 | `docs/design/ui-design-system.md`、`prototype/index.html` |
+| 2026-08-06 | 确认 0.4 只读身份继承规则，补齐 APRS 身份原型并建立 0007 实施计划草案 | `docs/plans/0007-milestone-0.4-fmo-aprs.md`、`prototype/index.html` |
+| 2026-08-06 | 冻结 0.4 为 APRS-IS `pass -1` 前台只读接收；公网消息/远控留到 0.6，局域网 WS 写操作继续由官方 Web UI 承担 | `docs/spec/technical-spec.md`、`docs/plans/0003-product-roadmap.md` |
 | 2026-08-06 | 用户确认 0.3 真机体验达到阶段目标；20 个单元测试套件、93 项测试通过，里程碑转为 Complete | `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` |
 | 2026-08-06 | 首页连接期间低频只读刷新当前服务器；事件动画收敛为“同人只换图标并渐灰、换人才整行切换” | `docs/architecture/modules/device-connectivity.md`、`docs/design/ui-design-system.md` |
 | 2026-08-06 | 收紧仪表盘网格/过滤距离辅助信息；事件窗口增加固定图标槽位、历史呼号降灰和实时相对时间刷新 | `docs/design/ui-design-system.md`、`docs/architecture/modules/dashboard.md` |
@@ -100,4 +103,4 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.4 范围。
 2. 阅读 `docs/spec/product-spec.md` 的 SPEC-006、SPEC-007；涉及仪表盘复用时回看 SPEC-014。
 3. 继续遵循 `docs/design/ui-design-system.md` 与 `docs/design/prototype-implementation-guide.md`。
-4. 先为 0.4 建立实施计划，冻结 APRS-IS 接入、FMO V4 解析、证书链/签名/CRL、地图/目录/事件与收藏的交付顺序；不得用 0.3 本地事件替代 0.4 APRS 可信事件。
+4. 按 `docs/plans/0007-milestone-0.4-fmo-aprs.md` 先完成原型确认、信任材料与确定性 CBOR checkpoint，再依序开发只读 APRS-IS、FMO V4 验证、聚合与原生 UI；不得用 0.3 本地事件替代 0.4 APRS 可信事件。

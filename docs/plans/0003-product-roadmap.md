@@ -10,7 +10,7 @@ status: active
 | 0.1 | 局域网闭环 | 发现、诊断、GEO 读写、手动定位 | Complete |
 | 0.2 | 可靠定位 | 低功耗/车载模式、重连、后台权限、官方 Web 后台入口 | Complete |
 | 0.3 | 设备仪表盘基础 | 共享快照、GEO/Maidenhead、局部降级与最终交互原型 | Complete |
-| 0.4 | FMO APRS | V4 解析、证书链、签名/CRL、地图、服务器目录、事件流 | Planned |
+| 0.4 | FMO APRS | V4 解析、证书链、签名/CRL、地图、服务器目录、事件流 | In Planning |
 | 0.6 | 通讯与远控 | APRS 短消息、ACK、NORMAL/STANDBY/REBOOT、Keychain | Planned |
 | 0.8 | QSO | SQLite 导入、查询、P-256 验签、ADIF 导出 | Planned |
 | 1.0 | 完整伴侣 | 自建服务器 API、APNs、小组件、快捷指令、可访问性 | Planned |
@@ -36,16 +36,17 @@ status: active
 
 ## 0.4 FMO APRS
 
+- 使用 APRS-IS `pass -1` 与服务器端过滤实现 App 活跃期间的只读接收；不要求 PASSCODE，不发送 APRS 帧，不承诺后台事件或通知。
 - CQ、OMCQ、VOCAL、ONLINE、BEACON、STATION、JOINT/EVENT。
 - 确定性 CBOR、CERT blob、Ed25519、timeSalt、CRL。
 - 地图、列表、搜索、收藏呼号/公共服务器、收藏事件过滤和数据年龄。
-- 后台通知架构需要在直接 APRS-IS 与自建推送服务间做 ADR。
+- 后台通知架构延期；未来恢复时需要在直接 APRS-IS 与自建推送服务间做 ADR。
 
 ## 0.6 通讯与远控
 
 - 标准 APRS 消息与 ACK。
 - 用户显式配置 PASSCODE。
-- NORMAL、STANDBY、REBOOT。
+- 通过 APRS-IS 公网发送 NORMAL、STANDBY、REBOOT；不复用未公开的局域网管理 WebSocket 写命令。
 - HMAC、Counter、Time Slot、Keychain 与危险操作二次确认。
 
 ## 0.8 QSO

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-05
+last-reviewed: 2026-08-06
 status: approved
 ---
 
@@ -25,10 +25,10 @@ status: approved
 | SPEC-004 后台位置 | 首页 → 位置自动化 | 主流程 | 三种模式、时间/距离阈值、授权、断线暂停与恢复 | 固定正式预设、Core Location 事件驱动、始终授权、退避与耗电测试 |
 | SPEC-005 官方 Web | 首页 → 打开官方页面 | 主流程 | 后台与 QSO 页面入口；原型浏览方式选择不进入正式 App | `SFSafariViewController`、稳定端点 URL 构造与不可达错误 |
 | SPEC-014 设备仪表盘 | 首页 → 连接 → 顶部仪表盘 | 主流程 | 大字号呼号、同一行设备选择按钮、六位梅登黑德、过滤距离、当前服务器、单行本地讲话/历史；频率与 QSO 数不进入首页卡 | ADR-0005 已批准并实现只读数据层；实时活动从 0.3 延期，已有 ActivityKit 探索实现仅作 checkpoint |
-| SPEC-006 地图与目录 | 网络 → 地图 / 台站与服务器目录 | 主流程 | 地图、搜索、呼号/服务器星标、收藏分组、数据年龄 | APRS 传输、稳定身份、搜索索引、收藏持久化与信任独立性 |
+| SPEC-006 地图与目录 | 网络 → 身份 Sheet / 地图 / 台站与服务器目录 | 主流程 | 原地编辑呼号与 App SSID、只读连接状态、地图、搜索、呼号/服务器星标、收藏分组、数据年龄 | APRS 传输、稳定身份、搜索索引、收藏持久化与信任独立性 |
 | SPEC-007 事件与通知 | 网络 → 完整事件流；设置 → 通知 | 主流程 | CQ、OMCQ、图标化 VOCAL、ONLINE、BEACON、STATION、JOINT/EVENT 和收藏过滤 | 事件解析、近期语音 TTL、通知架构 ADR、距离与收藏匹配 |
 | SPEC-008 身份验证 | FMO 网络 → 台站详情 → 验证详情 | 状态模型 | CERT、呼号、证书链、CRL、签名、timeSalt、哈希关系与异常分类 | 确定性 CBOR、Ed25519、CRL 更新、可信状态策略 |
-| SPEC-009 APRS 短消息 | FMO 网络 → 消息与通讯 | 主流程 | 呼号/SSID/Keychain、发送、等待 ACK、已 ACK | APRS-IS 会话、Keychain、消息去重、ACK 超时与重试 |
+| SPEC-009 APRS 短消息 | FMO 网络 → 身份 Sheet → 消息与远控 Sheet；消息与通讯 | 主流程 | 两层 Sheet、呼号/SSID/Keychain、发送、等待 ACK、已 ACK | APRS-IS 会话、Keychain、消息去重、ACK 超时与重试 |
 | SPEC-010 远程控制 | 首页 → 更多设备功能 → 远程控制 | 主流程 | Time Slot、Counter、HMAC 阶段、ACK、生物认证确认 | Counter 原子持久化、HMAC、LocalAuthentication、重放保护 |
 | SPEC-011 QSO | QSO → 导入 / 查询与详情 / ADIF 导出 | 主流程 | Schema、SHA-256、P-256、进度、查询、地图、APP_FMO 字段 | 安全文件访问、SQLite 只读、可取消索引、系统分享 |
 | SPEC-012 服务器运维 | 设置 → 管理员功能 → 管理员写操作 | 主流程 | HTTPS 状态、DNS/MQTT/EMQX/SAS、资源、广播、日志、二次确认 | 独立认证 API、脱敏、短时令牌、权限分级、告警阈值 |

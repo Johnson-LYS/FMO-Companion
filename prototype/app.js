@@ -61,6 +61,8 @@
     deviceCoordinate: document.querySelector("#deviceCoordinate"),
     onboardingModal: document.querySelector("#onboardingModal"),
     devicePickerModal: document.querySelector("#devicePickerModal"),
+    aprsIdentityModal: document.querySelector("#aprsIdentityModal"),
+    aprsCredentialsModal: document.querySelector("#aprsCredentialsModal"),
     devicePickerSummary: document.querySelector("#devicePickerSummary"),
     manualModal: document.querySelector("#manualModal"),
     diagnosticsModal: document.querySelector("#diagnosticsModal"),
@@ -469,10 +471,14 @@
     showToast("坐标已同步到示例设备");
   }
 
-  function showModal(modal) {
+  function showModal(modal, parentModal = null) {
     Array.from(document.querySelectorAll(".modal-backdrop"))
-      .filter((item) => item !== modal)
+      .filter((item) => item !== modal && item !== parentModal)
       .forEach(hideModal);
+    if (parentModal) {
+      parentModal.classList.add("has-stacked-sheet");
+      modal.dataset.parentModal = parentModal.id;
+    }
     window.clearTimeout(modal._hideTimer);
     modal.hidden = false;
     requestAnimationFrame(() => modal.classList.add("is-visible"));
@@ -484,8 +490,13 @@
 
   function hideModal(modal) {
     if (!modal || modal.hidden) return;
+    const parentModal = modal.dataset.parentModal
+      ? document.querySelector(`#${modal.dataset.parentModal}`)
+      : null;
     window.clearTimeout(modal._hideTimer);
     modal.classList.remove("is-visible");
+    parentModal?.classList.remove("has-stacked-sheet");
+    delete modal.dataset.parentModal;
     modal._hideTimer = window.setTimeout(() => { modal.hidden = true; }, 220);
   }
 
@@ -696,6 +707,7 @@
     if (action === "back") {
       navigateBack();
     } else if (action === "open-detail") {
+      closeAllModals();
       showDetail(actionTarget.dataset.target);
     } else if (action === "finish-onboarding") {
       hideModal(elements.onboardingModal);
@@ -706,6 +718,10 @@
       await connectDevice(actionTarget.dataset.deviceLabel || "FMO-7C2A");
     } else if (action === "open-device-picker") {
       showModal(elements.devicePickerModal);
+    } else if (action === "open-aprs-identity") {
+      showModal(elements.aprsIdentityModal);
+    } else if (action === "open-aprs-credentials") {
+      showModal(elements.aprsCredentialsModal, elements.aprsIdentityModal);
     } else if (action === "open-manual") {
       showModal(elements.manualModal);
     } else if (action === "manual-connect") {
@@ -754,8 +770,12 @@
     } else if (action === "confirm-admin-final") {
       hideModal(elements.adminConfirmModal);
       showToast("管理员认证演示完成，未执行操作", "⌑");
+    } else if (action === "save-aprs-identity") {
+      await simulateSimpleCheck(actionTarget, "正在保存…", "APRS 身份已保存");
+      hideModal(elements.aprsIdentityModal);
     } else if (action === "save-credentials") {
-      await simulateSimpleCheck(actionTarget, "正在保存到 Keychain…", "示例凭据已安全保存");
+      await simulateSimpleCheck(actionTarget, "正在保存…", "安全凭据已保存");
+      hideModal(elements.aprsCredentialsModal);
     } else if (action === "send-message") {
       await sendMessage();
     } else if (action === "simulate-command") {
@@ -779,7 +799,7 @@
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-      const visibleModal = document.querySelector(".modal-backdrop.is-visible");
+      const visibleModal = Array.from(document.querySelectorAll(".modal-backdrop.is-visible")).at(-1);
       if (visibleModal) hideModal(visibleModal);
       else if (state.detail) navigateBack();
     }

@@ -36,6 +36,7 @@ last-reviewed: 2026-08-06
 | `/ws` `qso/getList` | 日志总数与分页日志条目 | ADR-0005 只请求第 0 页 20 条且只解码 `count`；不是实时通联数 |
 | `/events` `qso/callsign` | 当前讲话状态、呼号、可选网格、连接内 `seq/ts` | ADR-0005 白名单；与 APRS `VOCAL` 分离 |
 | `/events` `qso/history` | 最近最多 20 条呼号与 `utcTime` | ADR-0005 白名单；不是完整 QSO 数据库或 0.4 APRS 事件流 |
+| `/ws` 配置与控制写操作 | 官方 Web UI 可在局域网内配置盒子，用户授权样本中观察到多种写入行为，但没有公开版本、鉴权或错误契约 | ADR-0005 明确排除；App 继续打开官方 Web UI，不实现、枚举或代理观察到的写命令 |
 | `/audio` | 存在独立 WebSocket 端点 | 明确排除；不分析、不实现 |
 
 握手样本未出现 Cookie、Authorization、TLS 或 WebSocket 子协议，而 `/ws` 同时存在读取 PASSCODE 的命令。若未来获准接入，必须使用只读命令与字段双重白名单，不得实现通用命令代理，不得请求、解码、保存或记录 PASSCODE，并为原始帧大小、畸形数据、未知字段和秘密字段丢弃建立测试。

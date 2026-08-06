@@ -115,6 +115,9 @@
             <div class="section-heading top-heading">
               <div><span class="eyebrow">FMO NETWORK</span><h3>网络态势</h3></div>
             </div>
+            <button class="network-session-bar" type="button" data-action="open-aprs-identity" aria-label="FMO 网络身份 BI8SYN-10，正在接收，点击编辑">
+              <span class="live-dot"></span><span><strong>BI8SYN-10</strong><small>正在接收</small></span><b>›</b>
+            </button>
             <div class="network-map" role="img" aria-label="示意地图，展示三个 APRS 台站">
               <div class="map-grid"></div>
               <span class="station-dot station-a"><i></i><b>BI8SYN</b></span>
@@ -155,9 +158,9 @@
             <div class="section-heading top-heading">
               <div><span class="eyebrow">APRS MESSAGES</span><h3>消息与身份</h3></div>
             </div>
-            <button class="identity-card" type="button" data-action="open-detail" data-target="aprs-setup">
+            <button class="identity-card" type="button" data-action="open-aprs-identity">
               <div class="identity-avatar">BI</div>
-              <div><strong>BI8SYN-10</strong><small>凭据将由 Keychain 保护</small></div>
+              <div><strong>BI8SYN-10</strong><small>网络身份已设置</small></div>
               <span class="identity-status">配置 ›</span>
             </button>
             <div class="message-preview">
@@ -346,18 +349,6 @@
             <p class="prototype-disclaimer">原型不会连接服务器或执行任何写操作。</p>
           </section>
 
-          <section class="screen detail-screen" data-detail="aprs-setup" data-title="APRS 凭据" aria-labelledby="screenTitle">
-            <div class="detail-hero dark-detail"><span class="detail-icon">◌</span><h3>配置自己的 APRS 身份</h3><p>PASSCODE 与远控 SECRET 只进入 Keychain，不写入日志或云端同步。</p></div>
-            <div class="detail-card form-card">
-              <label>呼号<input type="text" value="BI8SYN" autocomplete="off"></label>
-              <label>SSID<input type="number" value="10" min="0" max="15"></label>
-              <label>APRS PASSCODE<input type="password" placeholder="输入后仅保存到 Keychain" autocomplete="off"></label>
-              <label>远控 SECRET<input type="password" placeholder="输入后仅保存到 Keychain" autocomplete="off"></label>
-              <div class="keychain-note"><span>⌑</span><div><strong>将安全保存到 Keychain</strong><small>示例值不会离开当前原型页面</small></div></div>
-            </div>
-            <button class="primary-button full-width" type="button" data-action="save-credentials">保存示例配置</button>
-          </section>
-
           <section class="screen detail-screen" data-detail="conversation" data-title="APRS 消息" aria-labelledby="screenTitle">
             <div class="conversation-header"><span class="station-avatar alt">BH</span><div><strong>BH4XYZ</strong><small>标准 APRS 消息 · 在线</small></div><span class="trust-mark">✓</span></div>
             <div class="conversation-thread" id="conversationThread">
@@ -488,6 +479,41 @@
               </button>
             </div>
             <button class="manual-device-button" type="button" data-action="open-manual"><span>＋</span><span><strong>手动输入地址</strong><small>自动发现不可用时使用</small></span><b>›</b></button>
+          </section>
+        </div>
+
+        <div class="modal-backdrop" id="aprsIdentityModal" hidden>
+          <section class="bottom-sheet aprs-identity-sheet" role="dialog" aria-modal="true" aria-labelledby="aprsIdentityTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <h2 id="aprsIdentityTitle">APRS 身份</h2>
+            <p>用于在 FMO 网络中识别你</p>
+            <div class="detail-card form-card aprs-identity-form">
+              <label>呼号<input type="text" value="BI8SYN" autocomplete="off"></label>
+              <label>设备编号（SSID）<input type="number" value="10" min="0" max="15"></label>
+              <p class="field-note">SSID 用于区分同一呼号下的不同设备，可填写 0–15。</p>
+            </div>
+            <div class="sheet-actions">
+              <button class="secondary-button" type="button" data-action="close-modal">取消</button>
+              <button class="primary-button" type="button" data-action="save-aprs-identity">保存</button>
+            </div>
+            <button class="manual-device-button aprs-more-button" type="button" data-action="open-aprs-credentials"><span>⌑</span><span><strong>消息与远控</strong><small>发送消息或控制设备时配置</small></span><b>›</b></button>
+          </section>
+        </div>
+
+        <div class="modal-backdrop nested-modal" id="aprsCredentialsModal" hidden>
+          <section class="bottom-sheet aprs-credentials-sheet" role="dialog" aria-modal="true" aria-labelledby="aprsCredentialsTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <h2 id="aprsCredentialsTitle">消息与远控</h2>
+            <p>仅在发送消息或控制设备时使用</p>
+            <div class="detail-card form-card aprs-identity-form">
+              <label>APRS PASSCODE<input type="password" placeholder="输入后安全保存在本机" autocomplete="off"></label>
+              <label>远控 SECRET<input type="password" placeholder="输入后安全保存在本机" autocomplete="off"></label>
+              <div class="keychain-note"><span>⌑</span><div><strong>安全保存在本机</strong><small>不会写入日志或同步到云端。</small></div></div>
+            </div>
+            <div class="sheet-actions">
+              <button class="secondary-button" type="button" data-action="close-modal">取消</button>
+              <button class="primary-button" type="button" data-action="save-credentials">保存</button>
+            </div>
           </section>
         </div>
 
