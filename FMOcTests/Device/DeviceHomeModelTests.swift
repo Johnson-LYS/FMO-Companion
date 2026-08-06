@@ -22,6 +22,7 @@ struct DeviceHomeModelTests {
 
         model.startDiscovery()
         await model.waitForDiscovery()
+        await model.connect(to: endpoint)
         for _ in 0..<100 where model.dashboardSnapshot.callsign.currentValue == nil {
             await Task.yield()
         }
@@ -153,14 +154,14 @@ struct DeviceHomeModelTests {
             endpointStore: store
         )
 
-        await model.restoreSavedEndpoint()
-        model.startDiscovery()
+        await model.start()
         await model.waitForDiscovery()
         await model.waitForConnection()
 
         #expect(model.endpoints == [manual, nearby])
-        #expect(model.selectedEndpoint == nearby)
-        #expect(await store.load() == nearby)
+        #expect(model.selectedEndpoint == manual)
+        #expect(model.isConnected)
+        #expect(await store.load() == manual)
     }
 
     @Test
@@ -174,19 +175,42 @@ struct DeviceHomeModelTests {
             endpointStore: MemoryEndpointStore(endpoint: manual)
         )
 
-        await model.restoreSavedEndpoint()
-        model.startDiscovery()
+        await model.start()
         await model.waitForDiscovery()
         await model.waitForConnection()
 
         #expect(model.endpoints == [manual])
+        #expect(model.selectedEndpoint == manual)
+        #expect(model.isConnected)
     }
 
     @Test
-    func automaticConnectionConsumesOnlyFirstDiscoveredCandidate() async throws {
+    func failedStartupRestoreDoesNotAutomaticallyTryDiscoveredDevice() async throws {
+        let saved = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual, name: "FMO A")
+        let nearby = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual, name: "FMO B")
+        let geo = CountingFailingGeoClient()
+        let model = DeviceHomeModel(
+            discovery: MultipleDeviceDiscovery(endpoints: [nearby]),
+            geoClient: geo,
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: MemoryEndpointStore(endpoint: saved)
+        )
+
+        await model.start()
+        await model.waitForDiscovery()
+        await model.waitForConnection()
+
+        #expect(model.endpoints == [saved, nearby])
+        #expect(model.selectedEndpoint == saved)
+        #expect(model.phase == .failure)
+        #expect(await geo.connectedEndpoints() == [saved])
+    }
+
+    @Test
+    func discoveryWithoutSavedDeviceDoesNotAutomaticallyConnect() async throws {
         let first = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual, name: "FMO A")
         let second = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual, name: "FMO B")
-        let geo = CountingFailingGeoClient()
+        let geo = CountingGeoClient(coordinate: try GeoCoordinate(latitude: 30, longitude: 120))
         let model = DeviceHomeModel(
             discovery: MultipleDeviceDiscovery(endpoints: [first, second]),
             geoClient: geo,
@@ -194,14 +218,13 @@ struct DeviceHomeModelTests {
             endpointStore: MemoryEndpointStore()
         )
 
-        model.startDiscovery()
+        await model.start()
         await model.waitForDiscovery()
-        await model.waitForConnection()
 
         #expect(model.endpoints == [first, second])
-        #expect(model.selectedEndpoint == first)
-        #expect(model.phase == .failure)
-        #expect(await geo.connectedEndpoints() == [first])
+        #expect(model.selectedEndpoint == nil)
+        #expect(model.phase == .found)
+        #expect((await geo.connectedEndpoints()).isEmpty)
     }
 
     @Test
@@ -312,6 +335,29 @@ struct DeviceHomeModelTests {
         #expect(model.dashboardSnapshot.workingFrequencyMHz.currentValue == 438.5)
         #expect(model.dashboardSnapshot.qsoLogCount.currentValue == 18)
         #expect(await status.requestOrder() == ["callsign", "server", "filter", "frequency", "qso"])
+    }
+
+    @Test
+    func refreshesCurrentServerWhileTheDeviceRemainsConnected() async throws {
+        let endpoint = try FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+        let status = SwitchingLocalStatusProvider()
+        let model = DeviceHomeModel(
+            discovery: FakeDiscovery(endpoint: endpoint),
+            geoClient: FakeGeoClient(coordinate: try GeoCoordinate(latitude: 31.2304, longitude: 121.4737)),
+            localStatusProvider: status,
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: MemoryEndpointStore(),
+            statusRefreshWaiter: SingleImmediateStatusRefreshWaiter()
+        )
+
+        await model.connect(to: endpoint)
+        for _ in 0..<100 where model.dashboardSnapshot.currentServerName.currentValue != "服务器 B" {
+            await Task.yield()
+        }
+
+        #expect(model.dashboardSnapshot.currentServerName.currentValue == "服务器 B")
+        #expect(await status.currentServerReadCount() >= 2)
+        await model.disconnect()
     }
 }
 
@@ -425,6 +471,35 @@ private actor FakeLocalStatusProvider: FmoLocalStatusProviding {
     }
     func disconnect() {}
     func requestOrder() -> [String] { requests }
+}
+
+private actor SwitchingLocalStatusProvider: FmoLocalStatusProviding {
+    private var serverReads = 0
+
+    func connect(to endpoint: FmoDeviceEndpoint) {}
+    func getCallsign() -> String { "BG0TST" }
+    func getCurrentServer() -> FmoCurrentServer {
+        serverReads += 1
+        return FmoCurrentServer(
+            uid: Int64(serverReads),
+            name: serverReads == 1 ? "服务器 A" : "服务器 B"
+        )
+    }
+    func getServerFilter() -> FmoServerFilter { .kilometers(500) }
+    func getWorkingFrequencyMHz() -> Double { 438.5 }
+    func getQSOLogCount() -> Int { 18 }
+    func disconnect() {}
+    func currentServerReadCount() -> Int { serverReads }
+}
+
+private actor SingleImmediateStatusRefreshWaiter: FmoStatusRefreshWaiting {
+    private var waitCount = 0
+
+    func wait(for interval: Duration) async throws {
+        waitCount += 1
+        if waitCount == 1 { return }
+        try await Task.sleep(for: .seconds(30))
+    }
 }
 
 private actor FailingGeoClient: FmoGeoClient {

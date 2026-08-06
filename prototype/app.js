@@ -9,9 +9,13 @@
     discoveryTimer: null,
     discoveryActive: false,
     currentDeviceLabel: null,
+    lastDeviceLabel: null,
+    isRestoringLastDevice: false,
     dashboardTimer: null,
+    dashboardClockTimer: null,
+    dashboardTransitionTimer: null,
+    dashboardDisplayedEvent: null,
     dashboardEventIndex: 0,
-    liveActivityOpen: false,
     favoriteIds: new Set(),
     toastTimer: null,
   };
@@ -25,8 +29,8 @@
 
   const dashboardEvents = [
     { kind: "speaking", title: "BH4XYZ-15", time: "OM20xx · 刚刚" },
-    { kind: "history", title: "BD7ABC", time: "最近活动 · 28 秒前" },
-    { kind: "history", title: "BG0AAA", time: "最近活动 · 1 分钟前" },
+    { kind: "history", title: "BH4XYZ-15", occurredAt: Date.now() - 28_000 },
+    { kind: "history", title: "BG0AAA", occurredAt: Date.now() - 64_000 },
   ];
 
   const elements = {
@@ -40,6 +44,8 @@
     heroState: document.querySelector("#heroState"),
     heroTitle: document.querySelector("#heroTitle"),
     heroDescription: document.querySelector("#heroDescription"),
+    deviceSelectorButton: document.querySelector("#deviceSelectorButton"),
+    deviceSelectorLabel: document.querySelector("#deviceSelectorLabel"),
     dashboardPanel: document.querySelector("#dashboardPanel"),
     dashboardEventType: document.querySelector("#dashboardEventType"),
     dashboardEventTitle: document.querySelector("#dashboardEventTitle"),
@@ -54,20 +60,13 @@
     syncButton: document.querySelector("#syncButton"),
     deviceCoordinate: document.querySelector("#deviceCoordinate"),
     onboardingModal: document.querySelector("#onboardingModal"),
+    devicePickerModal: document.querySelector("#devicePickerModal"),
+    devicePickerSummary: document.querySelector("#devicePickerSummary"),
     manualModal: document.querySelector("#manualModal"),
     diagnosticsModal: document.querySelector("#diagnosticsModal"),
     rebootModal: document.querySelector("#rebootModal"),
     webPreviewModal: document.querySelector("#webPreviewModal"),
     adminConfirmModal: document.querySelector("#adminConfirmModal"),
-    liveActivityPreview: document.querySelector("#liveActivityPreview"),
-    lockStatusDot: document.querySelector("#lockStatusDot"),
-    lockUpdateState: document.querySelector("#lockUpdateState"),
-    lockCallsign: document.querySelector("#lockCallsign"),
-    lockConnectionLabel: document.querySelector("#lockConnectionLabel"),
-    lockEventRow: document.querySelector("#lockEventRow"),
-    lockEventType: document.querySelector("#lockEventType"),
-    lockEventTitle: document.querySelector("#lockEventTitle"),
-    lockEventTime: document.querySelector("#lockEventTime"),
     favoriteCount: document.querySelector("#favoriteCount"),
     favoriteEmpty: document.querySelector("#favoriteEmpty"),
     diagnosticSummary: document.querySelector("#diagnosticSummary"),
@@ -90,7 +89,7 @@
     });
     document.querySelectorAll("[data-detail]").forEach((section) => section.classList.remove("is-active"));
     elements.backButton.hidden = true;
-    elements.headerStatus.hidden = screen !== "home";
+    elements.headerStatus.hidden = true;
     elements.content.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -122,19 +121,68 @@
     elements.headerStatus.classList.toggle("is-error", kind === "error");
   }
 
-  function renderDashboardEvent(eventData) {
+  function formatDashboardElapsedTime(occurredAt) {
+    const seconds = Math.max(0, Math.floor((Date.now() - occurredAt) / 1000));
+    if (seconds < 60) return `${seconds} 秒前`;
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes} 分钟前`;
+  }
+
+  function updateDashboardEventTime() {
+    const eventData = state.dashboardDisplayedEvent;
+    if (!eventData) return;
+    elements.dashboardEventTime.textContent = eventData.kind === "speaking"
+      ? eventData.time
+      : `最近活动 · ${formatDashboardElapsedTime(eventData.occurredAt)}`;
+  }
+
+  function applyDashboardEvent(eventData) {
     const isSpeaking = eventData.kind === "speaking";
+    state.dashboardDisplayedEvent = eventData;
+    elements.dashboardEventType.closest(".dashboard-event").classList.toggle("is-recent", !isSpeaking);
     elements.dashboardEventType.classList.toggle("is-voice", isSpeaking);
     elements.dashboardEventType.textContent = isSpeaking ? "" : "◷";
     elements.dashboardEventType.setAttribute("aria-label", isSpeaking ? "当前讲话" : "最近讲话活动");
     elements.dashboardEventTitle.textContent = eventData.title;
-    elements.dashboardEventTime.textContent = eventData.time;
+    updateDashboardEventTime();
     elements.dashboardEventPulse.hidden = !isSpeaking;
-    elements.lockEventType.classList.toggle("is-voice", isSpeaking);
-    elements.lockEventType.textContent = isSpeaking ? "" : "◷";
-    elements.lockEventType.setAttribute("aria-label", isSpeaking ? "当前讲话" : "最近讲话活动");
-    elements.lockEventTitle.textContent = eventData.title;
-    elements.lockEventTime.textContent = eventData.time;
+  }
+
+  function renderDashboardEvent(eventData, animate = false) {
+    const eventRow = elements.dashboardEventType.closest(".dashboard-event");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const previousEvent = state.dashboardDisplayedEvent;
+    if (!animate || reduceMotion) {
+      applyDashboardEvent(eventData);
+      return;
+    }
+
+    window.clearTimeout(state.dashboardTransitionTimer);
+    const speakerChanged = previousEvent && previousEvent.title !== eventData.title;
+    const iconChanged = previousEvent && previousEvent.kind !== eventData.kind;
+
+    if (!speakerChanged && iconChanged) {
+      eventRow.classList.add("is-icon-changing");
+      state.dashboardTransitionTimer = window.setTimeout(() => {
+        applyDashboardEvent(eventData);
+        eventRow.classList.remove("is-icon-changing");
+      }, 130);
+      return;
+    }
+
+    if (!speakerChanged) {
+      applyDashboardEvent(eventData);
+      return;
+    }
+
+    eventRow.classList.add("is-exiting");
+    state.dashboardTransitionTimer = window.setTimeout(() => {
+      applyDashboardEvent(eventData);
+      eventRow.classList.remove("is-exiting");
+      eventRow.classList.add("is-entering");
+      void eventRow.offsetHeight;
+      eventRow.classList.remove("is-entering");
+    }, 160);
   }
 
   function setDirectoryView(view) {
@@ -190,7 +238,17 @@
 
   function stopDashboardTicker() {
     window.clearInterval(state.dashboardTimer);
+    window.clearInterval(state.dashboardClockTimer);
+    window.clearTimeout(state.dashboardTransitionTimer);
     state.dashboardTimer = null;
+    state.dashboardClockTimer = null;
+    state.dashboardTransitionTimer = null;
+    state.dashboardDisplayedEvent = null;
+    elements.dashboardEventType.closest(".dashboard-event").classList.remove(
+      "is-exiting",
+      "is-entering",
+      "is-icon-changing"
+    );
   }
 
   function startDashboardTicker() {
@@ -198,32 +256,9 @@
     renderDashboardEvent(dashboardEvents[state.dashboardEventIndex]);
     state.dashboardTimer = window.setInterval(() => {
       state.dashboardEventIndex = (state.dashboardEventIndex + 1) % dashboardEvents.length;
-      renderDashboardEvent(dashboardEvents[state.dashboardEventIndex]);
+      renderDashboardEvent(dashboardEvents[state.dashboardEventIndex], true);
     }, 3800);
-  }
-
-  function updateLiveActivityFreshness(isConnected) {
-    elements.lockStatusDot.classList.toggle("is-stale", !isConnected);
-    elements.lockUpdateState.textContent = isConnected ? "刚刚更新" : "最后更新 2 分钟前";
-    elements.lockConnectionLabel.textContent = isConnected ? "设备已连接" : "连接已断开 · 显示最后状态";
-  }
-
-  function openLiveActivity() {
-    closeAllModals();
-    state.liveActivityOpen = true;
-    updateLiveActivityFreshness(state.connection === "connected");
-    window.clearTimeout(elements.liveActivityPreview._hideTimer);
-    elements.liveActivityPreview.hidden = false;
-    requestAnimationFrame(() => elements.liveActivityPreview.classList.add("is-visible"));
-    elements.liveActivityPreview.querySelector(".lock-close")?.focus();
-  }
-
-  function closeLiveActivity() {
-    if (elements.liveActivityPreview.hidden) return;
-    state.liveActivityOpen = false;
-    window.clearTimeout(elements.liveActivityPreview._hideTimer);
-    elements.liveActivityPreview.classList.remove("is-visible");
-    elements.liveActivityPreview._hideTimer = window.setTimeout(() => { elements.liveActivityPreview.hidden = true; }, 220);
+    state.dashboardClockTimer = window.setInterval(updateDashboardEventTime, 1000);
   }
 
   function setConnectionState(nextState) {
@@ -232,16 +267,16 @@
     elements.heroDescription.hidden = false;
     elements.dashboardPanel.hidden = true;
     stopDashboardTicker();
-    updateLiveActivityFreshness(nextState === "connected");
     elements.discoverButton.hidden = false;
+    elements.deviceSelectorButton.hidden = true;
 
     if (nextState === "searching") {
-      elements.discoverButton.dataset.action = "discover";
+      elements.discoverButton.dataset.action = "open-device-picker";
       elements.hero.classList.add("is-searching");
       elements.heroState.textContent = "正在搜索 · 10 秒内";
-      elements.heroTitle.textContent = "正在浏览局域网服务";
-      elements.heroDescription.textContent = "我们会识别名称包含 FMO 的设备，并解析可连接地址。";
-      elements.discoverButton.querySelector("span:first-child").textContent = "停止搜索";
+      elements.heroTitle.textContent = state.isRestoringLastDevice ? "正在连接上次使用的 FMO" : "正在浏览局域网服务";
+      elements.heroDescription.textContent = state.isRestoringLastDevice ? state.lastDeviceLabel : "附近设备会自动出现在设备选择抽屉中。";
+      elements.discoverButton.querySelector("span:first-child").textContent = "查看扫描";
       elements.deviceEmpty.classList.add("is-searching");
       elements.deviceEmpty.querySelector("strong").textContent = "正在发现 FMO…";
       elements.deviceEmpty.querySelector("p").textContent = "保持此页面打开，发现结果会自动出现。";
@@ -253,11 +288,11 @@
     }
 
     if (nextState === "found") {
-      elements.discoverButton.dataset.action = "discover";
+      elements.discoverButton.dataset.action = "open-device-picker";
       elements.heroState.textContent = "发现 1 台设备";
-      elements.heroTitle.textContent = "正在自动连接";
-      elements.heroDescription.textContent = "已发现示例设备 FMO-7C2A，正在建立 GEO WebSocket。";
-      elements.discoverButton.querySelector("span:first-child").textContent = "重新发现";
+      elements.heroTitle.textContent = "选择要连接的 FMO";
+      elements.heroDescription.textContent = "扫描不会自动切换设备。";
+      elements.discoverButton.querySelector("span:first-child").textContent = "选择设备";
       elements.deviceEmpty.hidden = true;
       elements.discoveredDevice.hidden = false;
       elements.alternateDevice.hidden = true;
@@ -272,6 +307,8 @@
       elements.heroDescription.hidden = true;
       elements.dashboardPanel.hidden = false;
       elements.discoverButton.hidden = true;
+      elements.deviceSelectorButton.hidden = false;
+      elements.deviceSelectorLabel.textContent = state.currentDeviceLabel || "当前设备";
       elements.deviceEmpty.hidden = true;
       elements.discoveredDevice.hidden = false;
       elements.alternateDevice.hidden = false;
@@ -288,8 +325,8 @@
       elements.heroState.textContent = "连接中断";
       elements.heroTitle.textContent = "无法完成 WebSocket 握手";
       elements.heroDescription.textContent = "Wi-Fi 与主机解析正常，但 GEO 接口没有响应。查看诊断可获得下一步建议。";
-      elements.discoverButton.querySelector("span:first-child").textContent = "查看诊断";
-      elements.discoverButton.dataset.action = "open-diagnostics";
+      elements.discoverButton.querySelector("span:first-child").textContent = "选择设备";
+      elements.discoverButton.dataset.action = "open-device-picker";
       elements.deviceEmpty.hidden = true;
       elements.discoveredDevice.hidden = false;
       elements.alternateDevice.hidden = false;
@@ -301,13 +338,13 @@
 
     elements.heroState.textContent = "等待连接";
     elements.heroTitle.textContent = "让 iPhone 找到你的 FMO";
-    elements.heroDescription.textContent = "确保手机与盒子位于同一 Wi-Fi。自动发现失败时，也可以手动输入地址。";
-    elements.discoverButton.querySelector("span:first-child").textContent = "开始发现";
-    elements.discoverButton.dataset.action = "discover";
+    elements.heroDescription.textContent = "设备会在启动时自动扫描，也可以手动输入地址。";
+    elements.discoverButton.querySelector("span:first-child").textContent = "选择设备";
+    elements.discoverButton.dataset.action = "open-device-picker";
     elements.deviceEmpty.hidden = false;
     elements.deviceEmpty.classList.remove("is-searching");
-    elements.deviceEmpty.querySelector("strong").textContent = "尚未开始搜索";
-    elements.deviceEmpty.querySelector("p").textContent = "发现窗口最长 10 秒，结果会显示在这里。";
+    elements.deviceEmpty.querySelector("strong").textContent = "正在查找设备";
+    elements.deviceEmpty.querySelector("p").textContent = "附近设备会自动出现在这里。";
     elements.discoveredDevice.hidden = true;
     elements.alternateDevice.hidden = true;
     elements.coordinateCard.hidden = true;
@@ -317,16 +354,20 @@
 
   function setDiscoveryActive(isActive) {
     state.discoveryActive = isActive;
-    elements.listScanButton.textContent = isActive ? "停止" : "扫描";
+    elements.listScanButton.textContent = isActive ? "停止扫描" : "重新扫描";
   }
 
   function updateDeviceRows() {
     [elements.discoveredDevice, elements.alternateDevice].forEach((row) => {
       const isCurrent = row.dataset.deviceLabel === state.currentDeviceLabel;
+      const isLastConnected = row.dataset.deviceLabel === state.lastDeviceLabel;
+      const host = row === elements.discoveredDevice ? "fmo.local" : "fmo-91b4.local";
       row.classList.toggle("is-current", isCurrent);
       row.setAttribute("aria-current", isCurrent ? "true" : "false");
       row.querySelector(".device-meta b").textContent = isCurrent ? "当前" : "可用";
+      row.querySelector(".device-copy small").textContent = `${host} · ${isLastConnected ? "上次连接" : "附近"}`;
     });
+    if (state.currentDeviceLabel) elements.deviceSelectorLabel.textContent = state.currentDeviceLabel;
   }
 
   function startDiscovery() {
@@ -338,6 +379,7 @@
       return;
     }
 
+    state.isRestoringLastDevice = false;
     setDiscoveryActive(true);
     if (state.connection === "connected" || state.connection === "connecting") {
       showToast("正在更新附近设备", "⌕");
@@ -352,11 +394,12 @@
 
     elements.deviceEmpty.hidden = false;
     setConnectionState("searching");
-    state.discoveryTimer = window.setTimeout(async () => {
+    state.discoveryTimer = window.setTimeout(() => {
       setDiscoveryActive(false);
       setConnectionState("found");
-      showToast("发现首台 FMO，正在自动连接");
-      await connectDevice("FMO-7C2A", true);
+      elements.alternateDevice.hidden = false;
+      elements.devicePickerSummary.textContent = "发现 2 台设备，选择一台即可切换连接。";
+      showToast("发现 2 台 FMO，可手动选择", "⌕");
     }, 1350);
   }
 
@@ -373,11 +416,41 @@
     elements.heroTitle.textContent = `${isSwitching ? "正在切换到" : "正在连接"} ${label}`;
     elements.heroDescription.textContent = "正在解析主机并建立 GEO WebSocket…";
     updateHeaderStatus("连接中");
-    closeAllModals();
+    if (!isAutomatic) closeAllModals();
     await wait(800);
     state.currentDeviceLabel = label;
+    state.lastDeviceLabel = label;
+    state.isRestoringLastDevice = false;
+    try {
+      window.localStorage.setItem("fmo-prototype-last-device", label);
+    } catch {
+      // 受限环境仍保留当前会话内的上次连接设备。
+    }
     setConnectionState("connected");
-    showToast(isAutomatic ? "已自动连接首台 FMO" : (isSwitching ? "设备切换成功" : "连接成功，坐标已读取"));
+    elements.devicePickerSummary.textContent = `当前连接 ${label}；扫描结果仅用于手动切换。`;
+    showToast(isAutomatic ? "已连接上次使用的 FMO" : (isSwitching ? "设备切换成功" : "连接成功"));
+  }
+
+  function loadLastDevice() {
+    try {
+      return window.localStorage.getItem("fmo-prototype-last-device") || "FMO-7C2A";
+    } catch {
+      return "FMO-7C2A";
+    }
+  }
+
+  function restoreLastDevice() {
+    state.lastDeviceLabel = loadLastDevice();
+    state.isRestoringLastDevice = true;
+    setDiscoveryActive(true);
+    setConnectionState("searching");
+    state.discoveryTimer = window.setTimeout(async () => {
+      elements.deviceEmpty.hidden = true;
+      elements.discoveredDevice.hidden = false;
+      elements.alternateDevice.hidden = false;
+      await connectDevice(state.lastDeviceLabel, true);
+      setDiscoveryActive(false);
+    }, 850);
   }
 
   async function syncCoordinate() {
@@ -631,6 +704,8 @@
       startDiscovery();
     } else if (action === "connect") {
       await connectDevice(actionTarget.dataset.deviceLabel || "FMO-7C2A");
+    } else if (action === "open-device-picker") {
+      showModal(elements.devicePickerModal);
     } else if (action === "open-manual") {
       showModal(elements.manualModal);
     } else if (action === "manual-connect") {
@@ -646,10 +721,6 @@
       await syncCoordinate();
     } else if (action === "open-diagnostics") {
       showModal(elements.diagnosticsModal);
-    } else if (action === "open-live-activity") {
-      openLiveActivity();
-    } else if (action === "close-live-activity") {
-      closeLiveActivity();
     } else if (action === "open-reboot") {
       showModal(elements.rebootModal);
     } else if (action === "confirm-reboot") {
@@ -708,24 +779,13 @@
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-      if (state.liveActivityOpen) closeLiveActivity();
-      else {
-        const visibleModal = document.querySelector(".modal-backdrop.is-visible");
-        if (visibleModal) hideModal(visibleModal);
-        else if (state.detail) navigateBack();
-      }
+      const visibleModal = document.querySelector(".modal-backdrop.is-visible");
+      if (visibleModal) hideModal(visibleModal);
+      else if (state.detail) navigateBack();
     }
   });
 
   document.addEventListener("input", (event) => {
-    if (event.target.id === "lockCallsignToggle") {
-      elements.lockCallsign.textContent = event.target.checked ? "BI8SYN" : "我的 FMO";
-      return;
-    }
-    if (event.target.id === "lockEventToggle") {
-      elements.lockEventRow.hidden = !event.target.checked;
-      return;
-    }
     const range = event.target.closest("input[type='range'][data-output]");
     if (!range) return;
     const output = document.querySelector(`#${range.dataset.output}`);
@@ -740,6 +800,5 @@
 
   loadFavoriteState();
   setDirectoryView("stations");
-  setConnectionState("idle");
-  startDiscovery();
+  restoreLastDevice();
 })();

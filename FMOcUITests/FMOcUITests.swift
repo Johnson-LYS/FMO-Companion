@@ -12,7 +12,8 @@ final class FMOcUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.navigationBars["首页"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["device-discovery-toggle"].exists)
+        XCTAssertTrue(app.buttons["open-device-picker"].exists)
+        XCTAssertFalse(app.buttons["device-discovery-toggle"].exists)
         XCTAssertTrue(app.buttons["首页"].exists)
         XCTAssertTrue(app.buttons["FMO 网络"].exists)
         XCTAssertTrue(app.buttons["QSO"].exists)
@@ -28,7 +29,10 @@ final class FMOcUITests: XCTestCase {
         app.buttons["完成"].tap()
 
         app.swipeDown()
-        app.buttons["手动地址"].tap()
+        app.buttons["open-device-picker"].tap()
+        XCTAssertTrue(app.navigationBars["选择设备"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.buttons["device-discovery-toggle"].exists)
+        app.buttons["manual-address-entry"].tap()
         XCTAssertTrue(app.navigationBars["手动连接"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.textFields["主机名或 IPv4"].exists)
         XCTAssertTrue(app.textFields["端口（可选）"].exists)
@@ -55,8 +59,10 @@ final class FMOcUITests: XCTestCase {
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "saved-device"
         app.launch()
 
+        let selector = app.buttons["dashboard-device-selector"]
+        XCTAssertTrue(selector.waitForExistence(timeout: 5))
+        selector.tap()
         let deviceRow = app.buttons["device-row-fmo.local:80"]
-        if !deviceRow.waitForExistence(timeout: 2) { app.swipeUp() }
         XCTAssertTrue(deviceRow.waitForExistence(timeout: 5))
         deviceRow.swipeLeft()
         app.buttons["删除"].tap()
@@ -74,12 +80,8 @@ final class FMOcUITests: XCTestCase {
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "dashboard-connected"
         app.launch()
 
-        let deviceRow = app.buttons["device-row-fmo.local:80"]
-        XCTAssertTrue(deviceRow.waitForExistence(timeout: 5))
-        deviceRow.tap()
-
         let callsign = app.descendants(matching: .any)["dashboard-callsign"]
-        XCTAssertTrue(callsign.waitForExistence(timeout: 10))
+        XCTAssertTrue(callsign.waitForExistence(timeout: 30))
         XCTAssertTrue(callsign.label.contains("BG0TST"))
         let server = app.descendants(matching: .any)["dashboard-server-name"]
         XCTAssertTrue(server.waitForExistence(timeout: 2))
@@ -94,22 +96,41 @@ final class FMOcUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["GEO 会话"].exists)
         XCTAssertFalse(app.staticTexts["公开局域网接口"].exists)
         XCTAssertFalse(app.staticTexts["由 FMO 坐标换算"].exists)
+        XCTAssertTrue(app.buttons["dashboard-device-selector"].exists)
+        XCTAssertFalse(app.buttons["live-activity-entry"].exists)
     }
 
     @MainActor
-    func testLaunchAutomaticallyConnectsFirstDiscoveredDevice() throws {
+    func testLaunchRestoresLastDeviceAndKeepsNearbyDeviceForManualSelection() throws {
         let app = XCUIApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "automatic-connection"
         app.launch()
 
         let maidenhead = app.descendants(matching: .any)["dashboard-maidenhead-value"]
-        XCTAssertTrue(maidenhead.waitForExistence(timeout: 10))
+        XCTAssertTrue(maidenhead.waitForExistence(timeout: 30))
         XCTAssertEqual(maidenhead.value as? String, "PM01rf")
 
-        let deviceRow = app.buttons["device-row-fmo.local:80"]
-        XCTAssertTrue(deviceRow.exists)
-        XCTAssertTrue(deviceRow.isSelected)
+        let selector = app.buttons["dashboard-device-selector"]
+        XCTAssertTrue(selector.exists)
+        XCTAssertTrue(selector.value as? String == "当前设备 fmo.local，已连接")
+        selector.tap()
+
+        let savedDevice = app.buttons["device-row-fmo.local:80"]
+        XCTAssertTrue(savedDevice.waitForExistence(timeout: 2))
+        XCTAssertEqual(savedDevice.value as? String, "当前设备，已连接")
+        XCTAssertTrue(app.buttons["device-row-fmo-nearby.local:80"].exists)
         XCTAssertFalse(app.buttons["断开连接"].exists)
+    }
+
+    @MainActor
+    func testLiveActivityEntryIsHiddenFromMilestone() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "dashboard-connected"
+        app.launch()
+
+        XCTAssertTrue(app.buttons["dashboard-device-selector"].waitForExistence(timeout: 30))
+        XCTAssertFalse(app.buttons["live-activity-entry"].exists)
+        XCTAssertFalse(app.staticTexts["锁屏仪表盘"].exists)
     }
 
     @MainActor

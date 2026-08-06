@@ -48,6 +48,7 @@ flowchart LR
 | WebSocket | URLSession | GEO 协议 |
 | 定位 | Core Location | 手动与后台位置更新 |
 | 系统网页 | SafariServices | FMO 官方管理与 QSO 页面 |
+| 后续系统投影 checkpoint | ActivityKit、WidgetKit | 支持源码保留；扩展不被主 App 依赖或嵌入，0.3 不运行 |
 | 地图 | MapKit | FMO/APRS 节点与 QSO 地图 |
 | 安全 | CryptoKit、Keychain、LocalAuthentication | 签名、哈希、秘密与二次确认 |
 | 数据 | SwiftData、SQLite | App 状态与导入日志 |
@@ -66,7 +67,7 @@ flowchart LR
 
 ### Dashboard
 
-负责把 GEO、ADR-0005 本地只读设备状态、本地讲话事件和未来 APRS 等彼此独立的来源聚合为同一个类型化 `DashboardSnapshot`。每个字段保留来源、观测时间、可信度和可用性；首页与未来 ActivityKit 只做白名单投影。精确坐标、未知响应字段与原始帧不进入 Dashboard。
+负责把 GEO、ADR-0005 本地只读设备状态、本地讲话事件和未来 APRS 等彼此独立的来源聚合为同一个类型化 `DashboardSnapshot`。每个字段保留来源、观测时间、可信度和可用性；0.3 只交付首页白名单投影。`FMOcLiveActivity` Widget Extension 与 ActivityKit 支持源码作为后续探索 checkpoint 保留；主 App 不依赖或嵌入该扩展、不声明实时活动能力，运行时组合也不会创建或恢复活动。精确坐标、未知响应字段与原始帧不进入 Dashboard。
 
 ### APRS
 
@@ -97,8 +98,9 @@ Core Location event
 
 ```text
 GEO coordinate ──────────┐
-future device provider ──┼→ DashboardStore actor → DashboardSnapshot → home / Live Activity
-future trusted APRS ─────┘
+local status / events ───┼→ DashboardStore actor → DashboardSnapshot
+future trusted APRS ─────┘                         ├→ home projection
+                                                  └→ deferred ActivityKit checkpoint（0.3 不启动）
 ```
 
 ### FMO V4 APRS

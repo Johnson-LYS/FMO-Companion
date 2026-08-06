@@ -7,7 +7,7 @@
   <link rel="icon" href="data:,">
   <title>FMO Companion · 交互原型</title>
   <meta name="description" content="FMO Companion iOS 应用的交互式 HTML 原型与 UI 设计验证稿。">
-  <link rel="stylesheet" href="styles.css?v=20260805">
+  <link rel="stylesheet" href="styles.css?v=20260805b">
 </head>
 <body>
   <div class="prototype-shell">
@@ -26,7 +26,7 @@
             <h2 id="screenTitle">首页</h2>
             </div>
           </div>
-          <button class="header-status" id="headerStatus" type="button" data-action="open-diagnostics" aria-label="查看连接诊断">
+          <button class="header-status" id="headerStatus" type="button" data-action="open-diagnostics" aria-label="查看连接诊断" hidden>
             <span class="status-dot"></span><span>未连接</span>
           </button>
         </div>
@@ -38,7 +38,14 @@
                 <span class="hero-icon" aria-hidden="true">⌁</span>
                 <span class="hero-state" id="heroState">等待连接</span>
               </div>
-              <h3 id="heroTitle">让 iPhone 找到你的 FMO</h3>
+              <div class="hero-identity-row">
+                <h3 id="heroTitle">让 iPhone 找到你的 FMO</h3>
+                <button class="device-selector" id="deviceSelectorButton" type="button" data-action="open-device-picker" aria-label="选择 FMO 设备" hidden>
+                  <span class="status-dot" aria-hidden="true"></span>
+                  <strong id="deviceSelectorLabel">FMO-7C2A</strong>
+                  <b aria-hidden="true">⌄</b>
+                </button>
+              </div>
               <p id="heroDescription">确保手机与盒子位于同一 Wi-Fi。自动发现失败时，也可以手动输入地址。</p>
               <section class="dashboard-panel" id="dashboardPanel" aria-label="FMO 设备仪表盘" hidden>
                 <div class="dashboard-facts">
@@ -60,36 +67,10 @@
                   </div>
                 </div>
               </section>
-              <button class="primary-button hero-action" id="discoverButton" type="button" data-action="discover">
-                <span>开始发现</span><span aria-hidden="true">→</span>
+              <button class="primary-button hero-action" id="discoverButton" type="button" data-action="open-device-picker">
+                <span>查看设备</span><span aria-hidden="true">→</span>
               </button>
               <div class="signal-rings" aria-hidden="true"><i></i><i></i><i></i></div>
-            </div>
-
-            <div class="section-heading">
-              <div><span class="eyebrow">LOCAL NETWORK</span><h3>附近设备</h3></div>
-              <div class="section-heading-actions">
-                <button class="text-button" id="listScanButton" type="button" data-action="discover">扫描</button>
-                <button class="text-button" type="button" data-action="open-manual">手动输入</button>
-              </div>
-            </div>
-
-            <div class="device-list" id="deviceList" aria-live="polite">
-              <div class="empty-card" id="deviceEmpty">
-                <span class="empty-icon" aria-hidden="true">⌕</span>
-                <strong>尚未开始搜索</strong>
-                <p>发现窗口最长 10 秒，结果会显示在这里。</p>
-              </div>
-              <button class="device-row" id="discoveredDevice" type="button" data-action="connect" data-device-label="FMO-7C2A" hidden>
-                <span class="device-mark">FM</span>
-                <span class="device-copy"><strong>FMO-7C2A</strong><small>fmo.local · 示例设备</small></span>
-                <span class="device-meta"><b>可用</b><small>局域网</small></span>
-              </button>
-              <button class="device-row" id="alternateDevice" type="button" data-action="connect" data-device-label="FMO-91B4" hidden>
-                <span class="device-mark">FM</span>
-                <span class="device-copy"><strong>FMO-91B4</strong><small>fmo-91b4.local · 示例设备</small></span>
-                <span class="device-meta"><b>可用</b><small>局域网</small></span>
-              </button>
             </div>
 
             <section class="coordinate-card" id="coordinateCard" hidden>
@@ -231,7 +212,7 @@
             <div class="settings-list">
               <button type="button" data-action="open-detail" data-target="server-dashboard"><span>管理员功能</span><small>配置自建服务器后显示运维入口</small><b>›</b></button>
               <button type="button" data-action="open-detail" data-target="notifications"><span>通知</span><small>APNs、本地通知与事件过滤</small><b>›</b></button>
-              <button type="button" data-action="open-detail" data-target="system-integrations"><span>锁屏仪表盘与系统集成</span><small>实时活动、隐私显示与快捷指令</small><b>›</b></button>
+              <button type="button" data-action="open-detail" data-target="system-integrations"><span>系统集成</span><small>Siri 与快捷指令</small><b>›</b></button>
               <button type="button" data-action="open-detail" data-target="privacy-accessibility"><span>隐私与无障碍</span><small>精确位置、凭据、诊断与 VoiceOver</small><b>›</b></button>
               <button type="button" data-action="open-detail" data-target="product-boundaries"><span>关于与产品边界</span><small>公开协议、明确排除与版本</small><b>›</b></button>
             </div>
@@ -439,20 +420,7 @@
           </section>
 
           <section class="screen detail-screen" data-detail="system-integrations" data-title="系统集成" aria-labelledby="screenTitle">
-            <div class="section-heading top-heading"><div><span class="eyebrow">LIVE ACTIVITY</span><h3>锁屏仪表盘</h3></div></div>
-            <button class="live-activity-preview-card" type="button" data-action="open-live-activity">
-              <div class="live-preview-heading"><span><i></i> FMO Companion</span><b>刚刚更新</b></div>
-              <div class="live-preview-main"><div><strong>BI8SYN</strong><small>安吉 FMO 中继</small></div><span>438.500<small>MHz</small></span></div>
-              <div class="live-preview-event"><b class="is-voice" aria-label="当前讲话"></b><span>BH4XYZ-15</span><small>OM20xx · 刚刚</small></div>
-              <span class="live-preview-action">查看锁屏预览</span>
-            </button>
-            <div class="detail-card option-list live-privacy-options">
-              <label><span><strong>在锁屏显示呼号</strong><small>关闭后使用“我的 FMO”代替</small></span><input id="lockCallsignToggle" type="checkbox" checked></label>
-              <label><span><strong>显示最新事件</strong><small>只显示一条，不在锁屏滚动历史</small></span><input id="lockEventToggle" type="checkbox" checked></label>
-              <label><span><strong>显示梅登黑德</strong><small>可能透露大致位置，默认关闭</small></span><input type="checkbox"></label>
-            </div>
-            <div class="status-banner info-banner"><span>i</span><div><strong>更新由 iOS 调度</strong><small>断开后保留最后可信值并标记更新时间，不承诺持续实时刷新。</small></div></div>
-            <div class="section-heading compact-heading"><div><span class="eyebrow">SHORTCUTS</span><h3>Siri 与快捷指令</h3></div></div>
+            <div class="section-heading top-heading"><div><span class="eyebrow">SHORTCUTS</span><h3>Siri 与快捷指令</h3></div></div>
             <div class="shortcut-list"><button type="button" data-action="run-shortcut"><span>↗</span><div><strong>同步 FMO 位置</strong><small>需要解锁并确认位置访问</small></div><b>运行</b></button><button type="button" data-action="run-shortcut"><span>⌖</span><div><strong>查看附近 FMO 台站</strong><small>打开网络地图并应用距离过滤</small></div><b>运行</b></button><button type="button" data-action="run-shortcut"><span>▤</span><div><strong>打开最近 QSO</strong><small>跳转到最近一条已验证记录</small></div><b>运行</b></button></div>
           </section>
 
@@ -478,21 +446,6 @@
           <button class="tab-button" type="button" data-tab="settings"><span>⚙</span><small>设置</small></button>
         </nav>
 
-        <section class="lock-screen-preview" id="liveActivityPreview" role="dialog" aria-modal="true" aria-label="锁屏仪表盘预览" hidden>
-          <div class="lock-status"><span>9:41</span><span>5G&nbsp;&nbsp;88%</span></div>
-          <div class="lock-clock"><strong>9:41</strong><span>8月4日 星期二</span></div>
-          <article class="live-activity-card">
-            <header><span><i id="lockStatusDot"></i> FMO Companion</span><b id="lockUpdateState">刚刚更新</b></header>
-            <div class="activity-main">
-              <div><strong id="lockCallsign">BI8SYN</strong><small id="lockConnectionLabel">设备已连接</small></div>
-            </div>
-            <div class="activity-server-cluster"><div><span>当前服务器</span><strong>安吉 FMO 中继</strong></div><div><span>工作频率</span><strong>438.500 MHz</strong></div></div>
-            <div class="activity-event" id="lockEventRow"><b class="is-voice" id="lockEventType" aria-label="当前讲话"></b><span><strong id="lockEventTitle">BH4XYZ-15</strong><small id="lockEventTime">OM20xx · 刚刚</small></span></div>
-          </article>
-          <p class="lock-hint">向上轻扫以解锁</p>
-          <button class="lock-close" type="button" data-action="close-live-activity">结束锁屏仪表盘</button>
-        </section>
-
         <div class="modal-backdrop is-visible" id="onboardingModal">
           <section class="bottom-sheet onboarding-sheet" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
             <div class="sheet-handle" aria-hidden="true"></div>
@@ -506,6 +459,35 @@
             </ul>
             <button class="primary-button full-width" type="button" data-action="finish-onboarding">了解并继续</button>
             <small class="sheet-footnote">原型不会请求真实系统权限或读取位置。</small>
+          </section>
+        </div>
+
+        <div class="modal-backdrop" id="devicePickerModal" hidden>
+          <section class="bottom-sheet device-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="devicePickerTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="device-picker-heading">
+              <div><span class="step-label">FMO</span><h2 id="devicePickerTitle">选择设备</h2></div>
+              <button class="scan-button" id="listScanButton" type="button" data-action="discover">重新扫描</button>
+            </div>
+            <p id="devicePickerSummary">启动时会优先连接上一次使用的设备，扫描结果仅用于手动切换。</p>
+            <div class="device-list" id="deviceList" aria-live="polite">
+              <div class="empty-card" id="deviceEmpty">
+                <span class="empty-icon" aria-hidden="true">⌕</span>
+                <strong>正在查找设备</strong>
+                <p>附近设备会自动出现在这里。</p>
+              </div>
+              <button class="device-row" id="discoveredDevice" type="button" data-action="connect" data-device-label="FMO-7C2A" hidden>
+                <span class="device-mark">FM</span>
+                <span class="device-copy"><strong>FMO-7C2A</strong><small>fmo.local · 上次连接</small></span>
+                <span class="device-meta"><b>可用</b><small>局域网</small></span>
+              </button>
+              <button class="device-row" id="alternateDevice" type="button" data-action="connect" data-device-label="FMO-91B4" hidden>
+                <span class="device-mark">FM</span>
+                <span class="device-copy"><strong>FMO-91B4</strong><small>fmo-91b4.local · 附近</small></span>
+                <span class="device-meta"><b>可用</b><small>局域网</small></span>
+              </button>
+            </div>
+            <button class="manual-device-button" type="button" data-action="open-manual"><span>＋</span><span><strong>手动输入地址</strong><small>自动发现不可用时使用</small></span><b>›</b></button>
           </section>
         </div>
 
@@ -577,6 +559,6 @@
       </div>
     </main>
   </div>
-  <script src="app.js?v=20260805"></script>
+  <script src="app.js?v=20260805b"></script>
 </body>
 </html>

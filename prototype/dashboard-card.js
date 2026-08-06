@@ -9,7 +9,7 @@ const voiceMeter = document.querySelector("#voice-meter");
 const buttons = [...document.querySelectorAll("button[data-state]")];
 
 const eventSamples = [
-  { title: "BH4QKP", meta: "OM92xx · 12 秒前", icon: "#icon-volume", label: "最近讲话活动：BH4QKP，位置 OM92xx，12 秒前" },
+  { title: "BH4XYZ-7", occurredAt: Date.now() - 12_000, icon: "#icon-clock", label: "最近讲话活动：BH4XYZ-7，位置 OM92xx" },
   { title: "安吉 FMO 中继", meta: "连接已恢复 · 1 分钟前", icon: "#icon-server", label: "服务器连接已恢复：安吉 FMO 中继，1 分钟前" },
   { title: "OM20xx", meta: "位置已更新 · 3 分钟前", icon: "#icon-map-pin", label: "FMO 位置已更新为 OM20xx，3 分钟前" }
 ];
@@ -52,18 +52,49 @@ const views = {
 let selectedState = "speaking";
 let eventIndex = 0;
 let ticker;
+let clockTicker;
+let currentEvent;
+
+function elapsedMeta(event) {
+  if (!event.occurredAt) return event.meta;
+  const seconds = Math.max(0, Math.floor((Date.now() - event.occurredAt) / 1000));
+  return seconds < 60 ? `OM92xx · ${seconds} 秒前` : `OM92xx · ${Math.floor(seconds / 60)} 分钟前`;
+}
+
+function updateEventClock() {
+  if (!currentEvent) return;
+  document.querySelector("#event-meta").textContent = elapsedMeta(currentEvent);
+}
 
 function renderEvent(event, animate = false) {
   if (!event) return;
 
+  const previousEvent = currentEvent;
+
   const update = () => {
+    currentEvent = event;
     document.querySelector("#event-title").textContent = event.title;
-    document.querySelector("#event-meta").textContent = event.meta;
+    updateEventClock();
     document.querySelector("#event-icon-use").setAttribute("href", event.icon);
     eventRegion.setAttribute("aria-label", event.label);
   };
 
   if (!animate || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    update();
+    return;
+  }
+
+  const speakerChanged = previousEvent && previousEvent.title !== event.title;
+  const iconChanged = previousEvent && previousEvent.icon !== event.icon;
+  if (!speakerChanged && iconChanged) {
+    eventRegion.classList.add("is-icon-changing");
+    window.setTimeout(() => {
+      update();
+      eventRegion.classList.remove("is-icon-changing");
+    }, 130);
+    return;
+  }
+  if (!speakerChanged) {
     update();
     return;
   }
@@ -80,7 +111,9 @@ function renderEvent(event, animate = false) {
 
 function stopTicker() {
   window.clearInterval(ticker);
+  window.clearInterval(clockTicker);
   ticker = undefined;
+  clockTicker = undefined;
 }
 
 function startTicker() {
@@ -91,6 +124,7 @@ function startTicker() {
     eventIndex = (eventIndex + 1) % eventSamples.length;
     renderEvent(eventSamples[eventIndex], true);
   }, 3400);
+  clockTicker = window.setInterval(updateEventClock, 1000);
 }
 
 function selectState(stateName) {
@@ -116,7 +150,7 @@ function selectState(stateName) {
   offlineState.hidden = !isOffline;
   voiceMeter.hidden = stateName !== "speaking";
 
-  if (view.event) renderEvent(view.event);
+  if (view.event) renderEvent(view.event, true);
   buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.state === stateName)));
   startTicker();
 }

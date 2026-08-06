@@ -29,9 +29,9 @@ enum AppComposition {
             let endpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual)
             endpointStore = UITestEndpointStore(endpoint: endpoint)
             discovery = EmptyDeviceDiscovery()
-            geoClient = FmoGeoWebSocketClient()
-            localStatusProvider = FmoLocalStatusWebSocketClient()
-            localEventStream = FmoLocalEventWebSocketClient()
+            geoClient = UITestGeoClient()
+            localStatusProvider = UITestLocalStatusProvider()
+            localEventStream = UITestLocalEventStream()
         case "dashboard-connected":
             let endpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual)
             endpointStore = UITestEndpointStore(endpoint: endpoint)
@@ -40,9 +40,10 @@ enum AppComposition {
             localStatusProvider = UITestLocalStatusProvider()
             localEventStream = UITestLocalEventStream()
         case "automatic-connection":
-            let endpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual)
-            endpointStore = UITestEndpointStore(endpoint: nil)
-            discovery = endpoint.map(UITestSingleDeviceDiscovery.init(endpoint:)) ?? EmptyDeviceDiscovery()
+            let savedEndpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+            let nearbyEndpoint = try? FmoDeviceEndpoint(host: "fmo-nearby.local", source: .bonjour, name: "FMO Nearby")
+            endpointStore = UITestEndpointStore(endpoint: savedEndpoint)
+            discovery = nearbyEndpoint.map(UITestSingleDeviceDiscovery.init(endpoint:)) ?? EmptyDeviceDiscovery()
             geoClient = UITestGeoClient()
             localStatusProvider = UITestLocalStatusProvider()
             localEventStream = UITestLocalEventStream()
@@ -196,4 +197,5 @@ private nonisolated struct UITestLocalEventStream: FmoLocalEventStreaming {
 
     func disconnect() {}
 }
+
 #endif

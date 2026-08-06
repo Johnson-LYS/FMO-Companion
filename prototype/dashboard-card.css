@@ -38,10 +38,10 @@ button:focus-visible { outline: 3px solid rgba(255, 136, 0, .4); outline-offset:
 .freshness { display: flex; align-items: center; gap: 7px; color: var(--card-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
 .live-pip { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px rgba(82, 214, 136, .12); }
 
-.fmo-facts { margin: 8px 0 0; display: flex; align-items: center; gap: 12px; }
-.fact { min-width: 0; min-height: 20px; display: flex; align-items: center; gap: 6px; color: rgba(255, 255, 255, .75); }
-.fact .icon { width: 14px; height: 14px; color: var(--brand); }
-.fact strong { overflow: hidden; font-size: 11px; letter-spacing: .01em; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fmo-facts { margin: 7px 0 0; display: flex; align-items: center; gap: 10px; }
+.fact { min-width: 0; min-height: 18px; display: flex; align-items: center; gap: 4px; color: rgba(255, 255, 255, .66); }
+.fact .icon { width: 10px; height: 10px; color: var(--brand); }
+.fact strong { overflow: hidden; font-size: 10px; letter-spacing: .01em; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 .relay-activity-capsule { margin-top: 14px; padding: 12px 14px 10px; border-radius: 18px; background: rgba(255, 255, 255, .055); }
 .server-region { min-width: 0; }
@@ -51,13 +51,14 @@ button:focus-visible { outline: 3px solid rgba(255, 136, 0, .4); outline-offset:
 .region-copy small { margin-top: 5px; color: var(--card-muted); font-size: 9px; }
 
 .event-region { position: relative; min-height: 46px; margin-top: 5px; padding: 6px 34px 2px 0; display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 8px; overflow: hidden; }
-.event-icon { width: 30px; height: 30px; display: grid; place-items: center; color: var(--brand); }
+.event-icon { width: 30px; height: 30px; display: grid; place-items: center; color: var(--brand); transition: opacity .16s, transform .16s; }
 .event-copy { min-width: 0; transition: opacity .16s, transform .16s; }
 .event-copy strong, .event-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.event-copy strong { font-size: 13px; }
+.event-copy strong { font-size: 13px; transition: color .2s; }
 .event-copy small { margin-top: 4px; color: var(--card-muted); font-size: 8px; }
 .event-region.is-exiting .event-copy { opacity: 0; transform: translateY(-10px); }
 .event-region.is-entering .event-copy { opacity: 0; transform: translateY(10px); transition: none; }
+.event-region.is-icon-changing .event-icon { opacity: 0; transform: scale(.72) rotate(-16deg); }
 .voice-meter { position: absolute; right: 0; bottom: 12px; height: 21px; display: flex; align-items: end; gap: 2px; }
 .voice-meter i { width: 2px; height: 8px; border-radius: 2px; background: var(--brand); animation: voice 1s ease-in-out infinite; }
 .voice-meter i:nth-child(2) { height: 17px; animation-delay: -.35s; }
@@ -73,6 +74,7 @@ button:focus-visible { outline: 3px solid rgba(255, 136, 0, .4); outline-offset:
 
 .dashboard-card[data-state="events"] .voice-meter { display: none; }
 .dashboard-card[data-state="events"] .event-icon { color: var(--brand); }
+.dashboard-card[data-state="events"] .event-copy strong { color: rgba(255, 255, 255, .48); }
 .dashboard-card[data-state="partial"] .voice-meter { display: none; }
 .dashboard-card[data-state="partial"] .event-icon { color: var(--card-muted); }
 .dashboard-card[data-state="offline"] .live-pip { background: var(--offline); box-shadow: none; }

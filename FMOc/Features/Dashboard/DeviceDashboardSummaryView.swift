@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct DeviceDashboardSummaryView: View {
+    @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
+
     let snapshot: DashboardSnapshot
+    let deviceName: String
+    let openDevicePicker: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -11,15 +15,48 @@ struct DeviceDashboardSummaryView: View {
         }
     }
 
-    @ViewBuilder
     private var callsign: some View {
-        if let callsign = snapshot.callsign.currentValue {
-            Text(callsign)
-                .font(.largeTitle.bold().monospaced())
-                .minimumScaleFactor(0.72)
-                .lineLimit(1)
-                .accessibilityLabel("呼号 \(callsign)")
-                .accessibilityIdentifier("dashboard-callsign")
+        HStack(alignment: .center, spacing: 12) {
+            if let callsign = snapshot.callsign.currentValue {
+                Text(callsign)
+                    .font(.largeTitle.bold().monospaced())
+                    .foregroundStyle(.white)
+                    .minimumScaleFactor(0.62)
+                    .lineLimit(1)
+                    .accessibilityLabel("呼号 \(callsign)")
+                    .accessibilityIdentifier("dashboard-callsign")
+            }
+
+            Spacer(minLength: 0)
+
+            Button(action: openDevicePicker) {
+                HStack(spacing: 7) {
+                    Circle()
+                        .fill(.green)
+                        .frame(width: 7, height: 7)
+                        .shadow(color: .green.opacity(0.4), radius: 4)
+                    Text(deviceName)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Image(systemName: "chevron.down")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.55))
+                }
+                .padding(.horizontal, 10)
+                .frame(height: 38)
+                .background(.white.opacity(0.08), in: .rect(cornerRadius: 13))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 13)
+                        .stroke(.white.opacity(0.10), lineWidth: 1)
+                }
+                .padding(.vertical, 3)
+                .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("选择 FMO 设备")
+            .accessibilityValue("当前设备 \(deviceName)，已连接")
+            .accessibilityIdentifier("dashboard-device-selector")
         }
     }
 
@@ -28,10 +65,10 @@ struct DeviceDashboardSummaryView: View {
         let items = factItems
         if !items.isEmpty {
             ViewThatFits(in: .horizontal) {
-                HStack(spacing: 18) {
+                HStack(spacing: 14) {
                     factItemsView(items)
                 }
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 6) {
                     factItemsView(items)
                 }
             }
@@ -41,9 +78,15 @@ struct DeviceDashboardSummaryView: View {
     @ViewBuilder
     private func factItemsView(_ items: [FactItem]) -> some View {
         ForEach(items) { item in
-            Label(item.value, systemImage: item.symbol)
-                .font(.subheadline.weight(.semibold).monospacedDigit())
-                .foregroundStyle(.secondary)
+            HStack(spacing: 5) {
+                Image(systemName: item.symbol)
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 10, height: 10)
+                Text(item.value)
+                    .font(.caption2.weight(.semibold).monospacedDigit())
+                    .foregroundStyle(.white.opacity(0.66))
+            }
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
                 .accessibilityElement(children: .ignore)
@@ -63,6 +106,7 @@ struct DeviceDashboardSummaryView: View {
                 if let server {
                     Text(server)
                         .font(.headline)
+                        .foregroundStyle(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                         .accessibilityLabel("当前服务器 \(server)")
@@ -70,42 +114,74 @@ struct DeviceDashboardSummaryView: View {
                 }
 
                 if let activity {
-                    activityRow(
-                        kind: activity.kind,
-                        symbol: activity.symbol,
-                        callsign: activity.callsign,
-                        detail: activity.detail
-                    )
+                    ZStack(alignment: .leading) {
+                        activityRow(activity)
+                            .id(activity.id)
+                            .transition(activityTransition)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .clipped()
+                    .animation(activityAnimation, value: activity.id)
                 }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.white.opacity(0.64), in: .rect(cornerRadius: 18))
+            .background(.white.opacity(0.08), in: .rect(cornerRadius: 18))
         }
     }
 
-    private func activityRow(
-        kind: ActivityKind,
-        symbol: String,
-        callsign: String,
-        detail: String?
-    ) -> some View {
+    private func activityRow(_ activity: ActivityItem) -> some View {
         HStack(spacing: 10) {
-            Image(systemName: symbol)
+            Image(systemName: activity.symbol)
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(Color.accentColor)
+                .frame(width: 20, height: 20)
+                .contentTransition(
+                    accessibilityReduceMotion ? .identity : .symbolEffect(.replace)
+                )
+                .animation(activityAnimation, value: activity.symbol)
                 .symbolEffect(.variableColor.iterative, isActive: snapshot.currentSpeaker.currentValue != nil)
-            Text(callsign)
+            Text(activity.callsign)
                 .font(.headline.monospaced())
-            if let detail {
-                Text(detail)
+                .foregroundStyle(activity.kind == .speaking ? .white : .white.opacity(0.48))
+                .animation(.easeInOut(duration: 0.2), value: activity.kind)
+            if let grid = activity.grid {
+                Text(grid)
                     .font(.caption.monospaced())
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.52))
+            }
+            if let occurredAt = activity.occurredAt {
+                TimelineView(.periodic(from: .now, by: 1)) { _ in
+                    Text(occurredAt, style: .relative)
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.white.opacity(0.42))
+                }
             }
             Spacer(minLength: 0)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(activityAccessibilityLabel(kind: kind, callsign: callsign, detail: detail))
+        .accessibilityLabel(
+            activityAccessibilityLabel(
+                kind: activity.kind,
+                callsign: activity.callsign,
+                detail: activity.accessibilityDetail
+            )
+        )
+    }
+
+    private var activityTransition: AnyTransition {
+        if accessibilityReduceMotion {
+            return .opacity
+        }
+        return .asymmetric(
+            insertion: .move(edge: .bottom).combined(with: .opacity),
+            removal: .move(edge: .top).combined(with: .opacity)
+        )
+    }
+
+    private var activityAnimation: Animation {
+        accessibilityReduceMotion ? .easeOut(duration: 0.15) : .smooth(duration: 0.28)
     }
 
     private func activityAccessibilityLabel(
@@ -173,7 +249,8 @@ struct DeviceDashboardSummaryView: View {
                 kind: .speaking,
                 symbol: "speaker.wave.2.fill",
                 callsign: speaker.callsign,
-                detail: speaker.grid
+                grid: speaker.grid,
+                occurredAt: nil
             )
         }
         if let activity = snapshot.recentLocalActivity.currentValue {
@@ -181,7 +258,8 @@ struct DeviceDashboardSummaryView: View {
                 kind: .recent,
                 symbol: "clock.arrow.circlepath",
                 callsign: activity.callsign,
-                detail: activity.occurredAt.formatted(.relative(presentation: .named))
+                grid: nil,
+                occurredAt: activity.occurredAt
             )
         }
         return nil
@@ -201,10 +279,24 @@ private struct ActivityItem {
     let kind: ActivityKind
     let symbol: String
     let callsign: String
-    let detail: String?
+    let grid: String?
+    let occurredAt: Date?
+
+    var id: String {
+        callsign.uppercased()
+    }
+
+    var accessibilityDetail: String? {
+        switch kind {
+        case .speaking:
+            grid
+        case .recent:
+            occurredAt?.formatted(.relative(presentation: .named))
+        }
+    }
 }
 
-private enum ActivityKind {
+private enum ActivityKind: Equatable {
     case speaking
     case recent
 }

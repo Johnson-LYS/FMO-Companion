@@ -69,6 +69,16 @@ actor DashboardStore {
         return snapshot
     }
 
+    func recordCurrentServer(_ serverName: String) -> DashboardSnapshot {
+        let now = dateProvider.now()
+        snapshot.generatedAt = now
+        snapshot.localStatusLink = .connected
+        snapshot.currentServerName = .available(
+            observation(serverName, source: .localDeviceStatus, observedAt: now)
+        )
+        return snapshot
+    }
+
     func recordLocalStatusDisconnection() -> DashboardSnapshot {
         let now = dateProvider.now()
         snapshot.generatedAt = now

@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C0DA00100000000000000010 /* FMOc/Features/Dashboard/FmoDashboardActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DA000F000000000000000F /* FMOc/Features/Dashboard/FmoDashboardActivityAttributes.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		B03AE19A302025C700F33912 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,8 @@
 		B03AE18C302025C500F33912 /* FMOc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FMOc.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B03AE199302025C700F33912 /* FMOcTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FMOcTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B03AE1A3302025C700F33912 /* FMOcUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FMOcUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0DA00020000000000000002 /* FMOcLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FMOcLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0DA000F000000000000000F /* FMOc/Features/Dashboard/FmoDashboardActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FMOc/Features/Dashboard/FmoDashboardActivityAttributes.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -36,6 +42,13 @@
 				Info.plist,
 			);
 			target = B03AE18B302025C500F33912 /* FMOc */;
+		};
+		C0DA00040000000000000004 /* Exceptions for "FMOcLiveActivity" folder in "FMOcLiveActivity" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C0DA00010000000000000001 /* FMOcLiveActivity */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -56,6 +69,14 @@
 		B03AE1A6302025C700F33912 /* FMOcUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = FMOcUITests;
+			sourceTree = "<group>";
+		};
+		C0DA00030000000000000003 /* FMOcLiveActivity */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C0DA00040000000000000004 /* Exceptions for "FMOcLiveActivity" folder in "FMOcLiveActivity" target */,
+			);
+			path = FMOcLiveActivity;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -82,6 +103,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C0DA00060000000000000006 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -89,6 +117,8 @@
 			isa = PBXGroup;
 			children = (
 				B03AE18E302025C500F33912 /* FMOc */,
+				C0DA00030000000000000003 /* FMOcLiveActivity */,
+				C0DA00110000000000000011 /* Shared Activity */,
 				B03AE19C302025C700F33912 /* FMOcTests */,
 				B03AE1A6302025C700F33912 /* FMOcUITests */,
 				B03AE18D302025C500F33912 /* Products */,
@@ -99,10 +129,19 @@
 			isa = PBXGroup;
 			children = (
 				B03AE18C302025C500F33912 /* FMOc.app */,
+				C0DA00020000000000000002 /* FMOcLiveActivity.appex */,
 				B03AE199302025C700F33912 /* FMOcTests.xctest */,
 				B03AE1A3302025C700F33912 /* FMOcUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C0DA00110000000000000011 /* Shared Activity */ = {
+			isa = PBXGroup;
+			children = (
+				C0DA000F000000000000000F /* FMOc/Features/Dashboard/FmoDashboardActivityAttributes.swift */,
+			);
+			name = "Shared Activity";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -176,6 +215,28 @@
 			productReference = B03AE1A3302025C700F33912 /* FMOcUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		C0DA00010000000000000001 /* FMOcLiveActivity */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C0DA000E000000000000000E /* Build configuration list for PBXNativeTarget "FMOcLiveActivity" */;
+			buildPhases = (
+				C0DA00050000000000000005 /* Sources */,
+				C0DA00060000000000000006 /* Frameworks */,
+				C0DA00070000000000000007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C0DA00030000000000000003 /* FMOcLiveActivity */,
+			);
+			name = FMOcLiveActivity;
+			packageProductDependencies = (
+			);
+			productName = FMOcLiveActivity;
+			productReference = C0DA00020000000000000002 /* FMOcLiveActivity.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -197,6 +258,9 @@
 						CreatedOnToolsVersion = 26.6;
 						TestTargetID = B03AE18B302025C500F33912;
 					};
+					C0DA00010000000000000001 = {
+						CreatedOnToolsVersion = 26.6;
+					};
 				};
 			};
 			buildConfigurationList = B03AE187302025C500F33912 /* Build configuration list for PBXProject "FMOc" */;
@@ -214,6 +278,7 @@
 			projectRoot = "";
 			targets = (
 				B03AE18B302025C500F33912 /* FMOc */,
+				C0DA00010000000000000001 /* FMOcLiveActivity */,
 				B03AE198302025C700F33912 /* FMOcTests */,
 				B03AE1A2302025C700F33912 /* FMOcUITests */,
 			);
@@ -242,6 +307,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C0DA00070000000000000007 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -263,6 +335,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0DA00050000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0DA00100000000000000010 /* FMOc/Features/Dashboard/FmoDashboardActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -559,6 +639,66 @@
 			};
 			name = Release;
 		};
+		C0DA000C000000000000000C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5WZ4CQNT6A;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FMOcLiveActivity/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bi8syn.FMOc.LiveActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C0DA000D000000000000000D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5WZ4CQNT6A;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FMOcLiveActivity/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bi8syn.FMOc.LiveActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -594,6 +734,15 @@
 			buildConfigurations = (
 				B03AE1B4302025C700F33912 /* Debug */,
 				B03AE1B5302025C700F33912 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C0DA000E000000000000000E /* Build configuration list for PBXNativeTarget "FMOcLiveActivity" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C0DA000C000000000000000C /* Debug */,
+				C0DA000D000000000000000D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

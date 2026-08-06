@@ -21,6 +21,16 @@ nonisolated protocol FmoLocalStatusProviding: Sendable {
     func disconnect() async
 }
 
+nonisolated protocol FmoStatusRefreshWaiting: Sendable {
+    func wait(for interval: Duration) async throws
+}
+
+nonisolated struct TaskFmoStatusRefreshWaiter: FmoStatusRefreshWaiting {
+    func wait(for interval: Duration) async throws {
+        try await Task.sleep(for: interval)
+    }
+}
+
 nonisolated protocol FmoLocalEventStreaming: Sendable {
     func events(from endpoint: FmoDeviceEndpoint) async -> AsyncThrowingStream<FmoLocalEvent, any Error>
     func disconnect() async

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-05
+last-reviewed: 2026-08-06
 status: approved
 ---
 
@@ -59,8 +59,8 @@ idle
 ```
 
 - 坐标卡只在连接成功后显示。
-- 自动发现和手动地址是同一任务的两条入口。
-- App 启动即自动开始发现。扫描开始时无活动连接，首个本次发现的有效端点自动连接一次；失败后继续展示结果但不自动尝试下一台。已有连接时扫描只合并列表，不中断或切换。
+- 自动发现和手动地址统一收纳在设备选择 Sheet；首页不常驻设备列表。
+- App 启动即自动开始发现，并优先连接上一次成功连接的稳定端点。恢复失败后继续展示结果但不自动尝试其他设备；没有上次设备时由用户选择。已有连接时扫描只合并列表，不中断或切换。
 - 自动发现结果合并到已有列表，不覆盖手动或已保存端点；以规范化主机和有效端口去重。点击当前设备幂等，点击其他设备进入显式切换；用户选择优先于尚未提交的自动候选。
 - 正式首页不提供“断开连接”按钮或辅助功能动作；停止扫描不等于断开。连接仅由设备切换、删除当前设备、异常或生命周期要求结束。
 - 设备行主体用于连接，系统尾部左滑操作用于删除；不要为单一删除动作常驻垃圾桶或 `…`。删除当前设备同时断开并清除匹配的保存记录，附近设备可在后续发现中重新出现；同时提供确认、VoiceOver 动作和长按替代入口。
@@ -68,7 +68,7 @@ idle
 - 诊断探针独立于首页会话，页面必须分开显示两者；探针全部通过只能表述为设备可达。
 - 位置自动化、远控和官方页面位于“更多设备功能”。
 
-### 设备仪表盘与实时活动
+### 设备仪表盘
 
 原型中的仪表盘是 0.3 已确认的信息架构。ADR-0005 已批准用户授权的最小本地只读契约；正式实现继续读取 `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` 的逐字段登记与严格白名单。
 
@@ -77,21 +77,19 @@ idle
 ```text
 device status provider ─┐
 GEO-derived Maidenhead ─┼→ DashboardStore actor → home projection
-trusted future sources ─┘                    └→ Live Activity projection
+trusted future sources ─┘
 ```
 
 - 每个字段是类型化状态，不是可空字符串：`available(value, source, observedAt)`、`unknown`、`stale(lastValue, observedAt)`、`unsupported` 或 `rejected(reason)`。
-- 首页和锁屏从同一不可变快照生成；公共字段的值、来源、观测时间和过期状态必须一致。
+- 0.3 只生成首页投影；实时活动已延期，不得让 ActivityKit 状态反向影响仪表盘与设备连接。
 - GEO 本地会话、设备到服务器连接和未来 APRS-IS 会话是独立状态轴，不能用一个“connected” Boolean 合并。
-- 0.3 首页卡固定为三个内容区域：无前置图标的大字号呼号，下方同行展示六位梅登黑德/过滤距离；无前置图标的当前服务器名称；单行本地动态事件。服务器名称与动态事件合并在一个大圆角容器中，内部不用横/竖分隔线或二次胶囊。QSO 日志数和 `getUserPhyFreq` 单一频率不投影到首页；经纬度不进入卡片。延迟、管理员和在线/最大人数默认隐藏；管理员只有取得可靠字段时才条件出现，不得以 APRS、导入 QSO 或 GEO RTT 替代。
+- 0.3 首页卡固定为三个内容区域：无前置图标的大字号呼号，下方同行展示六位梅登黑德/过滤距离；无前置图标的当前服务器名称；单行本地动态事件。深色卡内主信息使用显式浅色前景，不继承系统文字色。呼号同行的设备选择按钮只显示单行“绿点 + 设备名 + 下箭头”，“已连接”仅保留为辅助功能语义。服务器名称与动态事件合并在一个大圆角容器中，内部不用横/竖分隔线或二次胶囊。QSO 日志数和 `getUserPhyFreq` 单一频率不投影到首页；经纬度不进入卡片。延迟、管理员和在线/最大人数默认隐藏；管理员只有取得可靠字段时才条件出现，不得以 APRS、导入 QSO 或 GEO RTT 替代。
 - `Deferred — external contract` 字段不得在 Release 中注入原型值；视布局选择不渲染或明确 `unknown / unsupported`。fixture 仅用于测试、Preview 与 HTML 原型，生产 composition 不得配置 demo provider。
 - Maidenhead 由带来源时间的有效 WGS84 坐标派生，并继承源可信度；无坐标时显示未知，不使用原型固定值。
 - 本地 `/events qso/callsign` 按讲话/空闲状态驱动当前讲话者；断流或过期立即降级。0.4 APRS `VOCAL` 仍只表达“最近检测到语音活动”，两者不得共用模型或文案；任何来源都不解析音频。
 - 可见仪表盘遵守“数据与图标优先”：不显示 `GEO 会话`、`公开局域网接口`、`梅登黑德`、`由 FMO 坐标换算` 等可由上下文、网格值或系统图标表达的解释文案；完整语义放入 VoiceOver。
-- HTML 中的单行纵向轮换只用于检查当前/历史两种布局；正式 App 完全由真实事件和新鲜度驱动，当前讲话优先固定，不能复制浏览器定时器。
-- Widget Extension 只渲染精简 ActivityKit 内容状态，不持有 Bonjour、WebSocket、APRS 或 Core Location 客户端。
-- 用户显式开始/结束实时活动；App 进行尽力而为更新并设置 `staleDate`。活动不可用、失败、系统结束或过期不能影响首页。
-- 锁屏最多包含最新一条事件，并通过编码 fixture 保证内容小于 4 KB。呼号可隐藏，位置类字段默认不进入锁屏。
+- HTML 中的轮换只用于检查当前/历史两种布局；正式 App 完全由真实事件和新鲜度驱动，当前讲话优先固定，不能复制浏览器定时器。SwiftUI 以规范化呼号作为事件行切换身份：只有呼号变化才执行整行“下入上出”转场；同一呼号由讲话变为最近活动时，整行不移动，只替换固定槽位内的图标并将呼号平滑过渡为次要灰阶。相对时间交给系统时间视图持续刷新；减少动态效果开启时只使用淡入淡出。
+- 实时活动、锁屏预览及其设置入口不进入 0.3 原型和交付。现有 ActivityKit 探索代码只保留为后续 checkpoint，重新启用前必须重新评审权限、生命周期与信息密度。
 
 ### 可靠定位
 
@@ -175,8 +173,8 @@ trusted future sources ─┘                    └→ Live Activity projection
 | `.app-header` | `NavigationStack` 标题与 toolbar |
 | `.hero-card` | 语义状态模型驱动的首页状态卡 |
 | `.dashboard-panel` | 连接态下的 `DeviceDashboardCard`；由首页快照投影驱动 |
+| `.device-selector` | 呼号同一行的当前设备按钮，打开设备选择 `.sheet` |
 | `.dashboard-event-kind.is-voice` | SwiftUI 使用 `speaker.wave.2.fill` / `radio.fill`；图标附辅助功能标签，不复制 CSS 造型 |
-| `.lock-screen-preview` | ActivityKit `ActivityConfiguration` 的锁屏 / Dynamic Island 视图，不复制外层锁屏背景 |
 | `.bottom-sheet` | 按语义选择 `.sheet`、系统 `Alert` 或系统权限弹窗；模式切换固定使用居中 `Alert` |
 | `.feature-row` | `NavigationLink` 或明确按钮 |
 | `.toast` | 可访问性播报、系统反馈或短暂状态提示 |

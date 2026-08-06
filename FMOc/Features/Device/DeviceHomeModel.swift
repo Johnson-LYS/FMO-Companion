@@ -34,11 +34,13 @@ final class DeviceHomeModel {
     private let locationProvider: any PhoneLocationProviding
     private let endpointStore: any FmoEndpointStoring
     private let dashboardStore: DashboardStore
+    private let statusRefreshWaiter: any FmoStatusRefreshWaiting
+    private let currentServerRefreshInterval: Duration
     private var discoveryTask: Task<Void, Never>?
     private var discoveryID: UUID?
-    private var automaticConnectionEligible = false
     private var connectionAttemptID = 0
     private var connectionTask: Task<Void, Never>?
+    private var localStatusTask: Task<Void, Never>?
     private var localEventTask: Task<Void, Never>?
 
     var phase: Phase = .idle
@@ -60,7 +62,9 @@ final class DeviceHomeModel {
         localEventStream: any FmoLocalEventStreaming = UnavailableFmoLocalEventStream(),
         locationProvider: any PhoneLocationProviding,
         endpointStore: any FmoEndpointStoring,
-        dashboardStore: DashboardStore = DashboardStore()
+        dashboardStore: DashboardStore = DashboardStore(),
+        statusRefreshWaiter: any FmoStatusRefreshWaiting = TaskFmoStatusRefreshWaiter(),
+        currentServerRefreshInterval: Duration = .seconds(3)
     ) {
         self.discovery = discovery
         self.geoClient = geoClient
@@ -69,6 +73,8 @@ final class DeviceHomeModel {
         self.locationProvider = locationProvider
         self.endpointStore = endpointStore
         self.dashboardStore = dashboardStore
+        self.statusRefreshWaiter = statusRefreshWaiter
+        self.currentServerRefreshInterval = currentServerRefreshInterval
     }
 
     static func live() -> DeviceHomeModel {
@@ -114,15 +120,20 @@ final class DeviceHomeModel {
     }
 
     func start() async {
-        await restoreSavedEndpoint()
+        let savedEndpoint = await restoreSavedEndpoint()
         startDiscovery()
+        if let savedEndpoint {
+            startAutomaticConnection(to: savedEndpoint)
+        }
     }
 
-    func restoreSavedEndpoint() async {
-        guard endpoints.isEmpty, let endpoint = await endpointStore.load() else { return }
+    @discardableResult
+    func restoreSavedEndpoint() async -> FmoDeviceEndpoint? {
+        guard endpoints.isEmpty, let endpoint = await endpointStore.load() else { return nil }
         endpoints = [endpoint]
         selectedEndpoint = endpoint
         phase = .found
+        return endpoint
     }
 
     func startDiscovery() {
@@ -130,7 +141,6 @@ final class DeviceHomeModel {
 
         let id = UUID()
         discoveryID = id
-        automaticConnectionEligible = !isConnected && phase != .connecting
         discoveryTask = Task { [weak self] in
             guard let self else { return }
             await self.performDiscovery(id: id)
@@ -138,7 +148,6 @@ final class DeviceHomeModel {
     }
 
     func stopDiscovery() {
-        automaticConnectionEligible = false
         discoveryTask?.cancel()
     }
 
@@ -157,7 +166,6 @@ final class DeviceHomeModel {
             if discoveryID == id {
                 discoveryTask = nil
                 discoveryID = nil
-                automaticConnectionEligible = false
                 isDiscovering = false
                 if phase == .discovering {
                     phase = endpoints.isEmpty ? .idle : .found
@@ -168,15 +176,10 @@ final class DeviceHomeModel {
         do {
             for try await endpoint in discovery.discover(timeout: .seconds(10)) {
                 try Task.checkCancellation()
-                let candidate = merge(endpoint)
+                merge(endpoint)
 
                 if phase == .discovering {
                     phase = .found
-                }
-
-                if automaticConnectionEligible {
-                    automaticConnectionEligible = false
-                    startAutomaticConnection(to: candidate)
                 }
             }
         } catch is CancellationError {
@@ -189,7 +192,6 @@ final class DeviceHomeModel {
 
     func connect(to endpoint: FmoDeviceEndpoint) async {
         guard !isCurrentOrConnecting(endpoint) else { return }
-        automaticConnectionEligible = false
         await launchConnection(to: endpoint).value
     }
 
@@ -243,9 +245,10 @@ final class DeviceHomeModel {
             await endpointStore.save(endpoint)
             guard attemptID == connectionAttemptID, !Task.isCancelled else { return }
             phase = .connected
-            lastOperationText = "已读取 FMO 坐标"
-            await refreshLocalStatus(from: endpoint)
+            lastOperationText = nil
+            let hasCurrentServer = await refreshLocalStatus(from: endpoint)
             guard attemptID == connectionAttemptID, !Task.isCancelled else { return }
+            startLocalStatusRefresh(from: endpoint, requiresFullSnapshot: !hasCurrentServer)
             startLocalEvents(from: endpoint)
         } catch {
             guard attemptID == connectionAttemptID else { return }
@@ -418,23 +421,26 @@ final class DeviceHomeModel {
         connectionTask = nil
     }
 
-    private func refreshLocalStatus(from endpoint: FmoDeviceEndpoint) async {
+    @discardableResult
+    private func refreshLocalStatus(from endpoint: FmoDeviceEndpoint) async -> Bool {
         dashboardSnapshot = await dashboardStore.beginLocalStatusConnection()
 
         do {
             try await localStatusProvider.connect(to: endpoint)
         } catch {
             dashboardSnapshot = await dashboardStore.recordLocalStatusDisconnection()
-            return
+            return false
         }
 
         var update = DashboardLocalStatusUpdate()
+        var hasCurrentServer = false
 
         if let value = try? await localStatusProvider.getCallsign() {
             update.callsign = value
         }
         if let value = try? await localStatusProvider.getCurrentServer() {
             update.currentServerName = value.name
+            hasCurrentServer = true
         }
         if let value = try? await localStatusProvider.getServerFilter() {
             switch value {
@@ -452,6 +458,47 @@ final class DeviceHomeModel {
         dashboardSnapshot = update.availableFieldCount > 0
             ? await dashboardStore.recordLocalStatus(update)
             : await dashboardStore.recordLocalStatusDisconnection()
+        return hasCurrentServer
+    }
+
+    private func startLocalStatusRefresh(
+        from endpoint: FmoDeviceEndpoint,
+        requiresFullSnapshot: Bool
+    ) {
+        localStatusTask?.cancel()
+        let waiter = statusRefreshWaiter
+        let interval = currentServerRefreshInterval
+        localStatusTask = Task { [weak self] in
+            var needsFullSnapshot = requiresFullSnapshot
+
+            while !Task.isCancelled {
+                do {
+                    try await waiter.wait(for: interval)
+                } catch {
+                    return
+                }
+                guard let self else { return }
+                guard !Task.isCancelled,
+                      selectedEndpoint?.id == endpoint.id,
+                      isConnected else { return }
+
+                if needsFullSnapshot {
+                    needsFullSnapshot = !(await refreshLocalStatus(from: endpoint))
+                    continue
+                }
+
+                do {
+                    try await localStatusProvider.connect(to: endpoint)
+                    let server = try await localStatusProvider.getCurrentServer()
+                    guard !Task.isCancelled, selectedEndpoint?.id == endpoint.id else { return }
+                    dashboardSnapshot = await dashboardStore.recordCurrentServer(server.name)
+                } catch {
+                    guard !Task.isCancelled, selectedEndpoint?.id == endpoint.id else { return }
+                    dashboardSnapshot = await dashboardStore.recordLocalStatusDisconnection()
+                    needsFullSnapshot = true
+                }
+            }
+        }
     }
 
     private func startLocalEvents(from endpoint: FmoDeviceEndpoint) {
@@ -476,6 +523,8 @@ final class DeviceHomeModel {
     }
 
     private func stopLocalConnections() async {
+        localStatusTask?.cancel()
+        localStatusTask = nil
         localEventTask?.cancel()
         localEventTask = nil
         await localEventStream.disconnect()

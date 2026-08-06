@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-05
+last-reviewed: 2026-08-06
 ---
 
 # 技术规格
@@ -16,7 +16,7 @@ last-reviewed: 2026-08-05
 ## 模块边界
 
 - `Device`：发现、保存设备、连接诊断。
-- `Dashboard`：设备状态聚合、字段可信度、首页投影与 ActivityKit 内容状态。
+- `Dashboard`：设备状态聚合、字段可信度与首页投影；ActivityKit 内容状态仅保留在后续 checkpoint 源码中。
 - `Location`：Core Location、节流策略、坐标同步。
 - `APRS`：传输、解析、证书与签名验证、地图模型。
 - `RemoteControl`：命令计数器、签名、发送与 ACK。
@@ -26,20 +26,16 @@ last-reviewed: 2026-08-05
 
 UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 服务。
 
-## 设备仪表盘与实时活动
+## 设备仪表盘
 
 - `DashboardSnapshot` 组合公开 GEO 与 ADR-0005 用户授权的本地只读状态；白名单外设备内部字段仍须公开文档、接口所有者授权或新 ADR 才能开发。
-- `DashboardSnapshot` 是唯一规范状态，字段至少包含类型化值、来源、`observedAt`、可信度和可用性。首页与锁屏只做不同白名单投影，不各自拉取或解释数据。
+- `DashboardSnapshot` 是唯一规范状态，字段至少包含类型化值、来源、`observedAt`、可信度和可用性。0.3 首页只消费白名单投影，不自行拉取或解释数据。
 - GEO 会话状态、设备到服务器状态和未来 APRS-IS 状态是三个独立维度。任何一条链路失败只使对应字段降级，不得覆盖其他来源仍可信的数据。
 - 0.3 目标字段收敛为呼号、当前服务器、过滤距离、单一工作频率、QSO 日志数、当前讲话状态和近期本地活动；延迟、管理员、在线/最大人数隐藏。由坐标派生的 Maidenhead 必须继承源坐标的时间与可信度。
 - 无正式来源的目标字段必须保持 `unknown / unsupported` 或不进入对应投影，登记为 `Deferred — external contract`；不得为了匹配 HTML 原型而添加生产 fixture、硬编码默认值或替代来源。
-- `DashboardStore` 使用 Actor 隔离聚合状态，通过协议注入状态提供者、时钟和活动控制器；协议解析保持独立于 SwiftUI 与 Widget Extension。
-- 锁屏仪表盘采用 ActivityKit 与 WidgetKit。Widget Extension 不持有网络、Bonjour、WebSocket 或 Core Location 客户端，只渲染 App 写入的精简 `ActivityContent`。
-- 0.3 采用 App 驱动的尽力而为本地更新，不引入 APNs 推送后台。设置 `staleDate`，连接中断或数据过期时保留最后可信值并明确标记；不得宣称持续实时刷新。
-- 动态内容最多包含最新一条事件，不携带事件数组、精确坐标或秘密；编码 fixture 必须同时覆盖静态属性、动态状态及其合计大小，确保 ActivityKit 静态与动态数据合计不超过 4 KB。
+- `DashboardStore` 使用 Actor 隔离聚合状态，通过协议注入状态提供者与时钟；协议解析保持独立于 SwiftUI。
+- 0.3 不展示或启动实时活动，不验收锁屏、Dynamic Island 或 ActivityKit 生命周期。已有相关实现只作为后续 checkpoint；主 App target 不依赖、不嵌入 Widget Extension，也不声明实时活动能力。支持类型可继续编译以维持 checkpoint 测试，但不得进入 `AppComposition` 或产生 ActivityKit 运行时调用。
 - `LocalSpeakingState` 与 `RecentVoiceActivity` 是两个独立模型。本地 `/events qso/callsign` 按明确的讲话/空闲状态表示当前讲话者；公开 APRS `VOCAL` 仍只能证明某呼号近期触发过活动，不能推导当前讲话者。两者不得共用来源、TTL 或文案。
-- 用户必须显式开始与结束锁屏仪表盘。呼号可单独隐藏，位置类信息默认不进入锁屏；活动失败、被系统结束或不可用不能影响首页与设备连接。
-- 按 ActivityKit 要求提供所有系统展示形态；0.3 真机重点验收 iPhone 锁屏、Dynamic Island（支持机型）、系统禁用实时活动、8 小时活动期与其后最多 4 小时锁屏保留、断线过期态和 App 终止后的系统行为。
 - fixture 只允许存在于测试、SwiftUI Preview 与 HTML 原型。生产依赖组合必须通过测试证明不会回退到 demo provider。
 
 ### 本地管理只读状态
@@ -47,6 +43,8 @@ UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 
 - ADR-0005 批准 `/ws` 五个固定只读请求与 `/events` 两类事件进入 Release composition；接口仍没有公开版本、鉴权或错误契约，必须失败关闭。
 - 使用独立的 `FmoLocalStatusWebSocketClient` 与 `FmoLocalEventWebSocketClient`，不能把多路状态消息塞入当前严格一发一收的 `FmoGeoWebSocketClient`。
 - `/ws` 请求响应按 `type + subType` 路由；当前样本没有请求 ID，因此在能力进一步确认前，同类命令串行化并防止旧响应跨设备/会话写入快照。
+- 初始完整状态读取成功后，连接中的首页默认每 3 秒只重新读取一次 `station/getCurrent`，用于观察在盒子或官方后台发生的外部服务器切换；不轮询 QSO、频率或其他状态。刷新必须可取消、间隔可注入，并在设备切换时隔离旧结果。
+- 当前服务器刷新失败只降级本地状态链路；GEO 和 `/events` 继续独立工作。下一轮刷新先重建完整白名单状态快照，成功后再恢复只读当前服务器刷新。App 不发送服务器切换写命令，也不承诺后台固定刷新频率。
 - `/events` 以连接内 `seq/ts` 排序；FMO 重启语义未确认，重连后必须先重新拉取完整状态，不跨会话续排。
 - 过滤距离使用穷举枚举：`0 = disabled`，`1...7 = 50/100/200/500/1000/2000/5000 km`；未知数字、负数和类型错误进入 `rejected/unknown`。
 - 工作频率是单一值；QSO `count` 是日志总数；当前讲话 grid 可缺失。任何缺失只降级对应字段。
@@ -64,8 +62,8 @@ UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 
 ## 网络
 
 - Bonjour 使用 Network.framework，浏览 `_http._tcp` 并解析端点。
-- App 启动时创建单一 Bonjour 扫描会话。仅扫描开始瞬间没有 `connected / connecting / switching` 任务的会话获得一次自动连接资格；首个本次发现且通过服务过滤、端点校验的稳定身份消费该资格。
-- 自动候选连接失败后不顺延尝试后续端点；发现流继续增量合并结果。已有连接时扫描、扫描中途断线或删除当前设备均不得让同一扫描临时获得自动连接资格。
+- App 启动时创建单一 Bonjour 扫描会话，并读取最后一次成功连接的稳定端点作为唯一自动恢复候选；持久化主机名/端口稳定身份，不持久化带接口作用域的易变解析 IP。
+- 自动恢复候选连接失败后不顺延尝试其他端点；发现流继续增量合并结果，由用户从设备选择 Sheet 手动切换。已有连接时扫描、扫描中途断线或删除当前设备均不得让同一扫描临时获得新的自动连接候选。
 - 同时最多存在一个发现任务和一个连接/切换任务。用户点击设备优先于未提交的自动候选；点击当前端点幂等，点击其他端点显式切换且不得自动跳到第三台设备。
 - 用户界面不暴露主动断开操作；连接只因切换设备、删除当前设备、网络/协议异常或 App/系统生命周期要求而结束。停止发现不结束连接。
 - GEO 使用 `URLSessionWebSocketTask`，地址为 `ws://<host>/ws`。

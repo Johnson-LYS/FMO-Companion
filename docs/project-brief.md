@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-05
+last-reviewed: 2026-08-06
 ---
 
 # 项目简报
@@ -12,15 +12,21 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 当前状态
 
-- **阶段：** 0.3 设备仪表盘基础开发
-- **已完成：** 0.1 原局域网闭环；0.2 可靠定位真机闭环；0.3 首页卡内容模型、视觉结构与正式 SwiftUI 投影
-- **进行中：** 0.1 连接 UX 修订已实现（启动自动扫描、首台仅尝试一次、失败不顺延、列表切换、无主动断开），待真实 FMO 回归；0.3 已实现共享 `DashboardSnapshot`、GEO 派生 Maidenhead、ADR-0005 本地只读状态客户端、讲话事件流与定稿首页卡，ActivityKit 尚未开始
+- **阶段：** 0.3 设备仪表盘基础已完成；下一步进入 0.4 FMO APRS 开发前评审
+- **已完成：** 0.1 局域网真机闭环；0.2 可靠定位真机闭环；0.3 首页卡、共享快照、本地只读状态、讲话事件、设备恢复/切换与断线恢复真机闭环
+- **进行中：** 0.4 FMO APRS 的需求、协议边界、技术方案与原型复核；实时活动继续作为独立 checkpoint，不进入主 App 打包
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
 
 ## 最近变更
 
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-06 | 用户确认 0.3 真机体验达到阶段目标；20 个单元测试套件、93 项测试通过，里程碑转为 Complete | `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` |
+| 2026-08-06 | 首页连接期间低频只读刷新当前服务器；事件动画收敛为“同人只换图标并渐灰、换人才整行切换” | `docs/architecture/modules/device-connectivity.md`、`docs/design/ui-design-system.md` |
+| 2026-08-06 | 收紧仪表盘网格/过滤距离辅助信息；事件窗口增加固定图标槽位、历史呼号降灰和实时相对时间刷新 | `docs/design/ui-design-system.md`、`docs/architecture/modules/dashboard.md` |
+| 2026-08-06 | 修复浅色模式下深色仪表盘文字对比度；设备选择按钮收敛为单行，网格/距离图标降为辅助层级 | `docs/design/ui-design-system.md`、`docs/architecture/modules/dashboard.md` |
+| 2026-08-05 | 完成首页原生设备选择 Sheet、启动恢复上次成功设备与手动切换优先；主 App 解除实时活动扩展依赖和嵌入 | `docs/architecture/modules/device-connectivity.md`、`docs/architecture/modules/dashboard.md` |
+| 2026-08-05 | 实时活动从 0.3 移除；首页原型改为启动恢复上次设备，设备列表收进呼号右侧按钮打开的选择 Sheet | `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` |
 | 2026-08-03 | 创建 Xcode SwiftUI 工程 | `FMOc.xcodeproj` |
 | 2026-08-03 | 使用 Loom 结构初始化文档与 Agent 环境 | `docs/plans/0001-project-bootstrap.md` |
 | 2026-08-03 | 将研究阶段的功能规划写入仓库 | `docs/plans/0002-milestone-0.1-local-connection.md` |
@@ -37,7 +43,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 | 2026-08-03 | 完成 Wi-Fi、主机端口、HTTP 与 GEO WebSocket 四步实时连接诊断 | `docs/architecture/modules/device-connectivity.md` |
 | 2026-08-03 | 补齐权限拒绝的系统设置恢复入口与异常断线状态收敛覆盖 | `docs/architecture/modules/device-connectivity.md` |
 | 2026-08-04 | 修正发现覆盖手动设备、补齐设备移除，并区分首页会话与独立诊断结果 | `docs/architecture/modules/device-connectivity.md` |
-| 2026-08-05 | 确认启动自动扫描、首台仅自动尝试一次、失败不顺延、列表手动切换，并移除首页主动断开入口；实现待补 | `docs/spec/product-spec.md` |
+| 2026-08-05 | 曾确认启动扫描后首台一次性自动尝试；后续已由“只恢复上次成功设备”规则取代 | `docs/spec/product-spec.md` |
 | 2026-08-04 | 设备删除改为系统原生左滑，并固化为所有可删除列表的 UI 规范 | `docs/design/ui-design-system.md` |
 | 2026-08-04 | Johnson iPhone 13 Pro + 真实 FMO 完成 0.1 全流程真机验收 | `docs/plans/0002-milestone-0.1-local-connection.md` |
 | 2026-08-04 | 冻结 0.2 模式阈值、离网恢复与系统浏览器契约并启动开发 | `docs/plans/0005-milestone-0.2-reliable-location.md` |
@@ -53,7 +59,10 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 | 2026-08-05 | 0.3 原型收敛为已观察字段语义，隐藏延迟、管理员与在线人数，并记录接口授权门槛和待补样本 | `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` |
 | 2026-08-05 | 接受 ADR-0005 并实现严格白名单的本地只读状态/事件客户端；首页改为数据与图标优先，不显示实现解释文案 | `docs/adr/0005-user-authorized-local-read-only-status.md` |
 | 2026-08-05 | 用户提供 IP 的脱敏真机探测确认 `/ws` 五个白名单路由；`/events` 握手成功但等待实际事件样本 | `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` |
-| 2026-08-05 | 完成定稿三段式原生仪表盘，以及启动扫描、首台一次性自动连接、列表切换和无主动断开的连接 UX | `docs/architecture/modules/dashboard.md`、`docs/architecture/modules/device-connectivity.md` |
+| 2026-08-05 | 完成定稿三段式原生仪表盘；当时的首台自动连接策略后续已由上次设备恢复 + Sheet 切换取代 | `docs/architecture/modules/dashboard.md`、`docs/architecture/modules/device-connectivity.md` |
+| 2026-08-05 | 用户确认修订后自动连接流程真机测试无问题，0.1 计划关闭 | `docs/plans/0002-milestone-0.1-local-connection.md` |
+| 2026-08-05 | 完成 ActivityKit 生命周期、隐私投影、锁屏与 Dynamic Island Widget Extension；联合构建和完整单元测试通过 | `docs/architecture/modules/dashboard.md` |
+| 2026-08-05 | 首轮真机未展示实时活动；补齐扩展声明、活动标识恢复与 ActivityKit 失败提示，等待真机复验 | `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` |
 
 ## 领域术语
 
@@ -88,7 +97,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 本轮开发入口
 
-1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.3 范围。
-2. 阅读 `docs/spec/product-spec.md` 的 SPEC-014；评审收藏与事件时同时读取 SPEC-006、SPEC-007。
+1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.4 范围。
+2. 阅读 `docs/spec/product-spec.md` 的 SPEC-006、SPEC-007；涉及仪表盘复用时回看 SPEC-014。
 3. 继续遵循 `docs/design/ui-design-system.md` 与 `docs/design/prototype-implementation-guide.md`。
-4. 按 `docs/plans/0006-milestone-0.3-device-dashboard-live-activity.md` 继续完成真机状态验收与 ActivityKit；严格遵守 ADR-0005 白名单。
+4. 先为 0.4 建立实施计划，冻结 APRS-IS 接入、FMO V4 解析、证书链/签名/CRL、地图/目录/事件与收藏的交付顺序；不得用 0.3 本地事件替代 0.4 APRS 可信事件。

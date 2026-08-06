@@ -44,7 +44,9 @@ struct ContentView: View {
             }
         }
         .tint(.accentColor)
-        .task { await locationAutomationModel.restoreIfNeeded() }
+        .task {
+            await locationAutomationModel.restoreIfNeeded()
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 locationAutomationModel.refreshAuthorization()

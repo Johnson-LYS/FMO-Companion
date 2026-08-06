@@ -95,6 +95,27 @@ struct DashboardSnapshotTests {
     }
 
     @Test
+    func refreshingCurrentServerPreservesOtherLocalStatusFields() async {
+        let store = DashboardStore()
+        let initial = DashboardLocalStatusUpdate(
+            callsign: "BG0TST",
+            currentServerName: "服务器 A",
+            filterDistance: .kilometers(500),
+            workingFrequencyMHz: 438.5,
+            qsoLogCount: 18
+        )
+
+        _ = await store.recordLocalStatus(initial)
+        let refreshed = await store.recordCurrentServer("服务器 B")
+
+        #expect(refreshed.currentServerName.currentValue == "服务器 B")
+        #expect(refreshed.callsign.currentValue == "BG0TST")
+        #expect(refreshed.filterDistance.currentValue == .kilometers(500))
+        #expect(refreshed.workingFrequencyMHz.currentValue == 438.5)
+        #expect(refreshed.qsoLogCount.currentValue == 18)
+    }
+
+    @Test
     func clearsCurrentSpeakerButKeepsRecentActivityStaleWhenEventStreamEnds() async {
         let date = Date(timeIntervalSince1970: 1_754_284_800)
         let store = DashboardStore(dateProvider: FixedDashboardDateProvider(date: date))
@@ -117,6 +138,30 @@ struct DashboardSnapshotTests {
             Issue.record("事件流断开后最近活动应保留为过期值")
             return
         }
+    }
+
+    @Test
+    func replacesCurrentSpeakerWithoutRequiringAnIntermediateIdleEvent() async {
+        let store = DashboardStore()
+        let firstSpeaker = FmoSpeakingState(
+            callsign: "BG1AAA",
+            grid: "OM20aa",
+            isSpeaking: true,
+            sequence: 1,
+            deviceUptimeMilliseconds: 10
+        )
+        let nextSpeaker = FmoSpeakingState(
+            callsign: "BG2BBB",
+            grid: "OM21bb",
+            isSpeaking: true,
+            sequence: 2,
+            deviceUptimeMilliseconds: 20
+        )
+
+        _ = await store.recordLocalEvent(.speaking(firstSpeaker))
+        let snapshot = await store.recordLocalEvent(.speaking(nextSpeaker))
+
+        #expect(snapshot.currentSpeaker.currentValue == DashboardSpeaker(callsign: "BG2BBB", grid: "OM21bb"))
     }
 
     @Test

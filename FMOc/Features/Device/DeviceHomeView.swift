@@ -6,7 +6,7 @@ struct DeviceHomeView: View {
     @Bindable var locationAutomationModel: LocationAutomationModel
     @Bindable var officialWebModel: OfficialWebModel
     @State private var actionTask: Task<Void, Never>?
-    @State private var showsManualAddress = false
+    @State private var showsDevicePicker = false
     @State private var showsDiagnostics = false
     @State private var pendingRemoval: FmoDeviceEndpoint?
     @Environment(\.openURL) private var openURL
@@ -17,10 +17,6 @@ struct DeviceHomeView: View {
                 .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
-
-            deviceSection
-
-            deviceFeaturesSection
 
             if model.isConnected {
                 coordinateSection
@@ -33,6 +29,8 @@ struct DeviceHomeView: View {
                 .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
+
+            deviceFeaturesSection
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
@@ -43,9 +41,10 @@ struct DeviceHomeView: View {
             actionTask?.cancel()
             model.stopDiscovery()
         }
-        .sheet(isPresented: $showsManualAddress) {
-            manualAddressSheet
-                .presentationDetents([.medium])
+        .sheet(isPresented: $showsDevicePicker) {
+            devicePickerSheet
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showsDiagnostics) {
             DeviceDiagnosticsView(
@@ -168,26 +167,28 @@ struct DeviceHomeView: View {
 
     private var statusCard: some View {
         VStack(alignment: .leading, spacing: 18) {
-            HStack(alignment: .top) {
-                if !model.isConnected {
+            if model.isConnected {
+                DeviceDashboardSummaryView(
+                    snapshot: model.dashboardSnapshot,
+                    deviceName: model.selectedEndpoint?.displayName ?? "FMO",
+                    openDevicePicker: { showsDevicePicker = true }
+                )
+            } else {
+                HStack(alignment: .top) {
                     Image(systemName: statusSymbol)
                         .font(.title2.weight(.semibold))
                         .frame(width: 48, height: 48)
                         .background(.white.opacity(0.72), in: .circle)
+
+                    Spacer()
+
+                    Text(statusBadge)
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 6)
+                        .background(.white.opacity(0.72), in: .capsule)
                 }
 
-                Spacer()
-
-                Text(statusBadge)
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 11)
-                    .padding(.vertical, 6)
-                    .background(.white.opacity(0.72), in: .capsule)
-            }
-
-            if model.isConnected {
-                DeviceDashboardSummaryView(snapshot: model.dashboardSnapshot)
-            } else {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(statusTitle)
                         .font(.title2.bold())
@@ -195,73 +196,106 @@ struct DeviceHomeView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
+
+                Button(model.isDiscovering ? "查看扫描" : "选择设备") {
+                    showsDevicePicker = true
+                }
+                .buttonStyle(BrandPrimaryButtonStyle())
+                .accessibilityIdentifier("open-device-picker")
             }
         }
         .padding(20)
-        .background(
+        .background { statusCardBackground }
+        .accessibilityElement(children: .contain)
+    }
+
+    @ViewBuilder
+    private var statusCardBackground: some View {
+        if model.isConnected {
+            LinearGradient(
+                colors: [Color(red: 0.10, green: 0.11, blue: 0.13), Color(red: 0.16, green: 0.17, blue: 0.19)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .clipShape(.rect(cornerRadius: 28))
+        } else {
             LinearGradient(
                 colors: [Color.accentColor.opacity(0.32), Color.accentColor.opacity(0.10)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
-            ),
-            in: .rect(cornerRadius: 28)
-        )
-        .accessibilityElement(children: .contain)
+            )
+            .clipShape(.rect(cornerRadius: 28))
+        }
     }
 
-    private var deviceSection: some View {
-        Section {
-            if model.endpoints.isEmpty {
-                ContentUnavailableView(
-                    "尚未发现设备",
-                    systemImage: "wifi.exclamationmark",
-                    description: Text("请确认 iPhone 和 FMO 在同一 Wi-Fi，或使用手动地址。")
-                )
-                .frame(minHeight: 160)
-            } else {
-                ForEach(model.endpoints) { endpoint in
-                    deviceRow(endpoint)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button("删除", systemImage: "trash", role: .destructive) {
-                                pendingRemoval = endpoint
-                            }
-                            .labelStyle(.iconOnly)
-                            .accessibilityLabel("删除")
-                            .tint(Color(uiColor: .systemRed))
-                        }
-                        .contextMenu {
-                            Button("删除设备", systemImage: "trash", role: .destructive) {
-                                pendingRemoval = endpoint
-                            }
-                        }
-                        .accessibilityAction(named: Text("删除设备")) {
-                            pendingRemoval = endpoint
-                        }
-                }
-            }
-        } header: {
-            HStack {
-                Text("设备")
-                    .font(.title3.weight(.semibold))
-                Spacer()
-                Button(model.isDiscovering ? "停止" : "扫描") {
-                    if model.isDiscovering {
-                        model.stopDiscovery()
+    private var devicePickerSheet: some View {
+        NavigationStack {
+            List {
+                Section {
+                    if model.endpoints.isEmpty {
+                        ContentUnavailableView(
+                            "尚未发现设备",
+                            systemImage: "wifi.exclamationmark",
+                            description: Text("请确认 iPhone 和 FMO 在同一 Wi-Fi。")
+                        )
+                        .frame(minHeight: 180)
                     } else {
-                        model.startDiscovery()
+                        ForEach(model.endpoints) { endpoint in
+                            deviceRow(endpoint)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button("删除", systemImage: "trash", role: .destructive) {
+                                        pendingRemoval = endpoint
+                                    }
+                                    .labelStyle(.iconOnly)
+                                    .accessibilityLabel("删除")
+                                    .tint(Color(uiColor: .systemRed))
+                                }
+                                .contextMenu {
+                                    Button("删除设备", systemImage: "trash", role: .destructive) {
+                                        pendingRemoval = endpoint
+                                    }
+                                }
+                                .accessibilityAction(named: Text("删除设备")) {
+                                    pendingRemoval = endpoint
+                                }
+                        }
                     }
                 }
-                .textCase(nil)
-                .accessibilityIdentifier("device-discovery-toggle")
-                Button("手动地址") { showsManualAddress = true }
-                    .textCase(nil)
+
+                Section {
+                    NavigationLink {
+                        manualAddressForm
+                    } label: {
+                        Label("手动输入地址", systemImage: "plus")
+                            .fullWidthRowHitArea()
+                    }
+                    .accessibilityIdentifier("manual-address-entry")
+                }
+            }
+            .navigationTitle("选择设备")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("完成") { showsDevicePicker = false }
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    Button(model.isDiscovering ? "停止扫描" : "重新扫描") {
+                        if model.isDiscovering {
+                            model.stopDiscovery()
+                        } else {
+                            model.startDiscovery()
+                        }
+                    }
+                    .accessibilityIdentifier("device-discovery-toggle")
+                }
             }
         }
-        .headerProminence(.increased)
+        .accessibilityIdentifier("device-picker-sheet")
     }
 
     private func deviceRow(_ endpoint: FmoDeviceEndpoint) -> some View {
         Button {
+            showsDevicePicker = false
             run { await model.connect(to: endpoint) }
         } label: {
             HStack(spacing: 14) {
@@ -292,8 +326,20 @@ struct DeviceHomeView: View {
             .fullWidthRowHitArea()
         }
         .buttonStyle(.plain)
-        .disabled(model.isBusy)
+        .disabled(isDeviceSelectionDisabled)
+        .accessibilityValue(
+            model.selectedEndpoint?.id == endpoint.id && model.isConnected
+                ? "当前设备，已连接"
+                : "可用"
+        )
         .accessibilityIdentifier("device-row-\(endpoint.id)")
+    }
+
+    private var isDeviceSelectionDisabled: Bool {
+        switch model.phase {
+        case .locating, .syncing: true
+        default: false
+        }
     }
 
     private var coordinateSection: some View {
@@ -359,35 +405,28 @@ struct DeviceHomeView: View {
         .buttonStyle(.plain)
     }
 
-    private var manualAddressSheet: some View {
-        NavigationStack {
-            Form {
-                Section("FMO 地址") {
-                    TextField("主机名或 IPv4", text: $model.manualHost)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .keyboardType(.URL)
-                    TextField("端口（可选）", text: $model.manualPort)
-                        .keyboardType(.numberPad)
-                }
-                Section {
-                    Button("连接") {
-                        showsManualAddress = false
-                        run { await model.connectManually() }
-                    }
-                    .buttonStyle(BrandPrimaryButtonStyle())
-                } footer: {
-                    Text("通常使用 fmo.local；请不要输入 http:// 或 /ws。")
-                }
+    private var manualAddressForm: some View {
+        Form {
+            Section("FMO 地址") {
+                TextField("主机名或 IPv4", text: $model.manualHost)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .keyboardType(.URL)
+                TextField("端口（可选）", text: $model.manualPort)
+                    .keyboardType(.numberPad)
             }
-            .navigationTitle("手动连接")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { showsManualAddress = false }
+            Section {
+                Button("连接") {
+                    showsDevicePicker = false
+                    run { await model.connectManually() }
                 }
+                .buttonStyle(BrandPrimaryButtonStyle())
+            } footer: {
+                Text("通常使用 fmo.local；请不要输入 http:// 或 /ws。")
             }
         }
+        .navigationTitle("手动连接")
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private func run(_ operation: @escaping @MainActor @Sendable () async -> Void) {
@@ -444,7 +483,7 @@ struct DeviceHomeView: View {
         switch model.phase {
         case .idle: "在同一 Wi-Fi 中自动发现，或手动输入 fmo.local。"
         case .discovering: "系统可能会询问是否允许访问本地网络。"
-        case .found: "连接后会先读取盒子当前坐标。"
+        case .found: "从设备列表选择要连接的 FMO。"
         case .connecting: "正在连接 \(model.selectedEndpoint?.displayAddress ?? "FMO")。"
         case .connected: "已通过 GEO 接口连接 \(model.selectedEndpoint?.displayAddress ?? "FMO")。"
         case .locating: "位置只用于本次同步，不会上传到分析服务。"
