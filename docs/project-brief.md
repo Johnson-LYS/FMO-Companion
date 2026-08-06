@@ -14,13 +14,14 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 - **阶段：** 0.3 设备仪表盘基础已完成；下一步进入 0.4 FMO APRS 开发前评审
 - **已完成：** 0.1 局域网真机闭环；0.2 可靠定位真机闭环；0.3 首页卡、共享快照、本地只读状态、讲话事件、设备恢复/切换与断线恢复真机闭环
-- **进行中：** 0.4 FMO APRS 的需求、协议边界、技术方案与原型复核；实时活动继续作为独立 checkpoint，不进入主 App 打包
+- **进行中：** 0.4 FMO APRS 原型已确认；官方报文解析格式已冻结，生产信任验证等待有效 CRL、签名 TBS、许可证与完整官方字节向量
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
 
 ## 最近变更
 
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-06 | 完成 FMO V4 官方材料核对：解析格式可冻结，生产验签因 CRL、许可证、CA/CRL 签名规则和完整向量暂时阻塞 | `docs/references/fmo-aprs-v4-readiness.md` |
 | 2026-08-06 | APRS 身份与“消息与远控”采用最多两层的关联 Sheet，移除重复 Hero 与实现文案，并固化产品化文案和轻量编辑原则 | `docs/design/ui-design-system.md`、`prototype/index.html` |
 | 2026-08-06 | 确认 0.4 只读身份继承规则，补齐 APRS 身份原型并建立 0007 实施计划草案 | `docs/plans/0007-milestone-0.4-fmo-aprs.md`、`prototype/index.html` |
 | 2026-08-06 | 冻结 0.4 为 APRS-IS `pass -1` 前台只读接收；公网消息/远控留到 0.6，局域网 WS 写操作继续由官方 Web UI 承担 | `docs/spec/technical-spec.md`、`docs/plans/0003-product-roadmap.md` |
