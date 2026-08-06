@@ -1,25 +1,5 @@
 import SwiftUI
 
-struct FmoNetworkView: View {
-    var body: some View {
-        ScrollView {
-            VStack(spacing: AppTheme.sectionSpacing) {
-                FeatureSummaryCard(
-                    title: "FMO 网络",
-                    subtitle: "台站、事件与可信网络状态集中在这里。",
-                    symbol: "globe.asia.australia",
-                    action: "配置 APRS 后使用"
-                )
-                FeatureLinkRow(title: "台站与服务器", subtitle: "搜索、收藏和查看数据年龄", symbol: "person.2")
-                FeatureLinkRow(title: "APRS 消息", subtitle: "发送消息并跟踪 ACK", symbol: "message")
-            }
-            .padding(AppTheme.pageSpacing)
-        }
-        .background(Color(uiColor: .systemGroupedBackground))
-        .navigationTitle("FMO 网络")
-    }
-}
-
 struct QsoHomeView: View {
     var body: some View {
         ContentUnavailableView {
@@ -54,49 +34,5 @@ struct SettingsHomeView: View {
             }
         }
         .navigationTitle("设置")
-    }
-}
-
-private struct FeatureSummaryCard: View {
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
-    let symbol: String
-    let action: LocalizedStringKey
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Image(systemName: symbol)
-                .font(.largeTitle)
-                .foregroundStyle(Color.accentColor)
-            Text(title).font(.title2.bold())
-            Text(subtitle).foregroundStyle(.secondary)
-            Text(action)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .appCard()
-    }
-}
-
-private struct FeatureLinkRow: View {
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
-    let symbol: String
-
-    var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: symbol)
-                .foregroundStyle(Color.accentColor)
-                .frame(width: 40, height: 40)
-                .background(Color.accentColor.opacity(0.12), in: .rect(cornerRadius: 12))
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title).font(.headline)
-                Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
-            }
-            Spacer()
-            Image(systemName: "lock.fill").foregroundStyle(.tertiary)
-        }
-        .appCard()
     }
 }

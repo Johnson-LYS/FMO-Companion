@@ -6,6 +6,7 @@ nonisolated enum APRSISFrameRejection: Equatable, Sendable {
 }
 
 nonisolated enum APRSISInboundEvent: Equatable, Sendable {
+    case sessionReady(serverCallsign: String)
     case frame(UnverifiedFMOV4Frame)
     case rejected(APRSISFrameRejection)
 }
@@ -104,11 +105,14 @@ actor APRSISReceiveOnlyClient: APRSISReceiving {
                             guard sentLogin, !acceptedLogin else {
                                 throw APRSISReceiveOnlyClientError.duplicateLoginResponse
                             }
-                            _ = try aprsISProtocol.parseLoginResponse(
+                            let response = try aprsISProtocol.parseLoginResponse(
                                 line,
                                 expectedIdentity: identity
                             )
                             acceptedLogin = true
+                            continuation.yield(
+                                .sessionReady(serverCallsign: response.serverCallsign)
+                            )
                         } else if !sentLogin {
                             try await transport.send(
                                 aprsISProtocol.makeLoginCommand(for: identity)

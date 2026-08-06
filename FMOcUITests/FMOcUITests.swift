@@ -39,6 +39,39 @@ final class FMOcUITests: XCTestCase {
     }
 
     @MainActor
+    func testFMONetworkIdentityCanBeConfiguredAndStartsReceiving() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "empty"
+        app.launch()
+
+        app.buttons["FMO 网络"].tap()
+        XCTAssertTrue(app.navigationBars["FMO 网络"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.staticTexts["APRS 消息"].exists)
+
+        let setup = app.buttons["aprs-identity-setup"]
+        XCTAssertTrue(setup.waitForExistence(timeout: 2))
+        setup.tap()
+
+        XCTAssertTrue(app.navigationBars["网络身份"].waitForExistence(timeout: 2))
+        let callsign = app.textFields["aprs-callsign-field"]
+        XCTAssertTrue(callsign.exists)
+        callsign.tap()
+        callsign.typeText("BG0TST")
+        app.buttons["aprs-identity-save"].tap()
+
+        let session = app.buttons["aprs-session-bar"]
+        XCTAssertTrue(session.waitForExistence(timeout: 2))
+        let receiving = XCTNSPredicateExpectation(
+            predicate: NSPredicate(
+                format: "value == %@",
+                "BG0TST-10，正在接收"
+            ),
+            object: session
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [receiving], timeout: 5), .completed)
+    }
+
+    @MainActor
     func testLocalNetworkDenialOffersSettingsRecovery() throws {
         let app = XCUIApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "local-network-denied"

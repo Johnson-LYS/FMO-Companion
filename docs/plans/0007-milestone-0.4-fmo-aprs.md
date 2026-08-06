@@ -43,7 +43,7 @@ status: in-progress
 
 ### 2. 只读身份与 APRS-IS 传输
 
-**状态（2026-08-06）：Foundation implemented。** 已实现身份规范化、亚洲 Tier 2 端点、Network.framework TCP、固定只读登录、CRLF/512 字节分帧、取消与可注入 transport。身份持久化优先级、App 活跃生命周期、登录超时、网络恢复和有上限退避待后续切片。
+**状态（2026-08-06）：Implemented。** 已实现身份规范化与持久化优先级、可信本地 FMO 呼号继承、亚洲 Tier 2 端点、Network.framework TCP、固定只读登录、CRLF/512 字节分帧、App 活跃生命周期、15 秒登录超时、取消与 `1...60` 秒有上限退避。身份 Sheet 与真实会话状态已接入 Release composition；未验证帧仍不得进入可见网络内容。
 
 - 实现 `ReceiveOnlyAPRSIdentity`、身份规范化/校验与持久化优先级；默认 App SSID 可编辑且范围限制为 `0...15`。
 - 使用 Network.framework Actor 封装 TCP、CRLF 行流、取消、路径恢复和有上限退避；服务器与等待策略可注入。
@@ -74,6 +74,8 @@ status: in-progress
 
 ### 6. 原生 UI
 
+**状态（2026-08-06）：Identity/session slice implemented。** 已移除重复 Hero 与 0.6 消息占位，完成无身份引导、单层身份 Sheet、紧凑会话条及连接/重连/暂停状态。地图、目录、事件、搜索和收藏等待阶段 4/5 的可信领域数据后实现。
+
 - FMO 网络首页呈现只读身份/连接状态、地图摘要、过滤器与最新可信事件；点击身份条以底部 Sheet 原地编辑呼号和 App SSID，不增加导航层级。
 - 目录支持台站/服务器/收藏分段、搜索、数据年龄和验证状态；星标行与详情共享同一收藏状态。
 - 事件流支持全部、CQ、OMCQ、VOCAL、ONLINE、BEACON、STATION 与收藏过滤；JOINT/EVENT 以验证后的业务事件呈现。
@@ -85,7 +87,7 @@ status: in-progress
 - 单元测试：身份优先级、登录/过滤行、绝不发送数据帧、分帧/粘包、行长与取消。
 - 协议测试：每种消息的有效/畸形/边界向量、确定性 CBOR、证书链、CRL、签名、timeSalt 与 JOINT 配对。
 - 模型测试：去重、乱序、TTL、过期、断线恢复、身份切换与收藏独立性。
-- UI 测试：无身份引导、身份 Sheet 保存/取消、原型中第二层凭据 Sheet 的呈现与返回、只读连接状态、地图/目录/事件导航、搜索、收藏与验证详情。
+- UI 测试：无身份引导、身份 Sheet 保存/取消和只读连接状态已覆盖；第二层凭据 Sheet 属于 0.6，不进入本里程碑。地图/目录/事件导航、搜索、收藏与验证详情待可信领域层完成后覆盖。
 - 网络集成：连接 APRS-IS 过滤端口，证明只收到/处理 `APFMO4`，且测试 transport 证明没有 APRS 数据帧从 App 发出。
 
 ## 明确不包含

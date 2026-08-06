@@ -28,9 +28,11 @@ struct APRSISReceiveOnlyClientTests {
 
         let stream = await sut.events(identity: identity, endpoint: .asia)
         var iterator = stream.makeAsyncIterator()
+        let readyEvent = try await iterator.next()
         let event = try await iterator.next()
         await sut.disconnect()
 
+        #expect(readyEvent == .sessionReady(serverCallsign: "T2TEST"))
         guard let event, case .frame(.position) = event else {
             Issue.record("Expected parsed position frame")
             return
@@ -73,10 +75,12 @@ struct APRSISReceiveOnlyClientTests {
 
         let stream = await sut.events(identity: identity, endpoint: .asia)
         var iterator = stream.makeAsyncIterator()
+        let readyEvent = try await iterator.next()
         let first = try await iterator.next()
         let second = try await iterator.next()
         await sut.disconnect()
 
+        #expect(readyEvent == .sessionReady(serverCallsign: "T2TEST"))
         #expect(first == APRSISInboundEvent.rejected(.invalidTNC2))
         guard let second, case .frame(.position) = second else {
             Issue.record("Expected stream to continue with valid frame")

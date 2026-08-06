@@ -6,6 +6,7 @@ enum AppComposition {
         let device: DeviceHomeModel
         let locationAutomation: LocationAutomationModel
         let officialWeb: OfficialWebModel
+        let fmoNetwork: FmoNetworkModel
     }
 
     @MainActor
@@ -16,6 +17,8 @@ enum AppComposition {
         let localStatusProvider: any FmoLocalStatusProviding
         let localEventStream: any FmoLocalEventStreaming
         let modeStore: any LocationSyncModeStoring
+        let aprsIdentityStore: any ReceiveOnlyAPRSIdentityStoring
+        let aprsReceiver: any APRSISReceiving
 
 #if DEBUG
         switch processInfo.environment["FMO_UI_TEST_SCENARIO"] {
@@ -63,6 +66,17 @@ enum AppComposition {
         modeStore = processInfo.environment["FMO_UI_TEST_SCENARIO"] == nil
             ? UserDefaultsLocationSyncModeStore()
             : UITestLocationSyncModeStore()
+
+        if let scenario = processInfo.environment["FMO_UI_TEST_SCENARIO"] {
+            let identity = scenario == "aprs-receiving"
+                ? try? ReceiveOnlyAPRSIdentity(callsign: "BG0TST", ssid: 10)
+                : nil
+            aprsIdentityStore = UITestAPRSIdentityStore(identity: identity)
+            aprsReceiver = UITestAPRSReceiver()
+        } else {
+            aprsIdentityStore = UserDefaultsReceiveOnlyAPRSIdentityStore()
+            aprsReceiver = makeLiveAPRSReceiver()
+        }
 #else
         endpointStore = UserDefaultsFmoEndpointStore()
         discovery = NWBrowserFmoDeviceDiscovery()
@@ -70,6 +84,8 @@ enum AppComposition {
         localStatusProvider = FmoLocalStatusWebSocketClient()
         localEventStream = FmoLocalEventWebSocketClient()
         modeStore = UserDefaultsLocationSyncModeStore()
+        aprsIdentityStore = UserDefaultsReceiveOnlyAPRSIdentityStore()
+        aprsReceiver = makeLiveAPRSReceiver()
 #endif
 
         let device = DeviceHomeModel(
@@ -91,17 +107,35 @@ enum AppComposition {
             coordinator: coordinator,
             authorizationReader: CoreLocationAuthorizationReader()
         )
+        let fmoNetwork = FmoNetworkModel(
+            receiver: aprsReceiver,
+            identityStore: aprsIdentityStore
+        )
 
         return Models(
             device: device,
             locationAutomation: locationAutomation,
-            officialWeb: OfficialWebModel()
+            officialWeb: OfficialWebModel(),
+            fmoNetwork: fmoNetwork
         )
     }
 
     @MainActor
     static func makeDeviceModel(processInfo: ProcessInfo = .processInfo) -> DeviceHomeModel {
         makeModels(processInfo: processInfo).device
+    }
+
+    private static func makeLiveAPRSReceiver() -> any APRSISReceiving {
+        let version = Bundle.main.object(
+            forInfoDictionaryKey: "CFBundleShortVersionString"
+        ) as? String ?? "0.4"
+        guard let aprsISProtocol = try? APRSISProtocol(
+            softwareName: "FMOCompanion",
+            softwareVersion: version
+        ) else {
+            preconditionFailure("Invalid static APRS-IS software identity")
+        }
+        return APRSISReceiveOnlyClient(aprsISProtocol: aprsISProtocol)
     }
 }
 
@@ -149,6 +183,52 @@ private actor UITestLocationSyncModeStore: LocationSyncModeStoring {
 
     func load() -> LocationSyncMode { mode }
     func save(_ mode: LocationSyncMode) { self.mode = mode }
+}
+
+private actor UITestAPRSIdentityStore: ReceiveOnlyAPRSIdentityStoring {
+    private var configuration: ReceiveOnlyAPRSIdentityConfiguration?
+
+    init(identity: ReceiveOnlyAPRSIdentity?) {
+        configuration = identity.map {
+            ReceiveOnlyAPRSIdentityConfiguration(identity: $0, source: .manual)
+        }
+    }
+
+    func load() -> ReceiveOnlyAPRSIdentityConfiguration? { configuration }
+
+    func saveManual(_ identity: ReceiveOnlyAPRSIdentity) {
+        configuration = ReceiveOnlyAPRSIdentityConfiguration(
+            identity: identity,
+            source: .manual
+        )
+    }
+
+    func adoptInherited(_ identity: ReceiveOnlyAPRSIdentity) {
+        guard configuration?.source != .manual else { return }
+        configuration = ReceiveOnlyAPRSIdentityConfiguration(
+            identity: identity,
+            source: .inherited
+        )
+    }
+}
+
+private actor UITestAPRSReceiver: APRSISReceiving {
+    private var continuation: AsyncThrowingStream<APRSISInboundEvent, any Error>.Continuation?
+
+    func events(
+        identity: ReceiveOnlyAPRSIdentity,
+        endpoint: APRSISEndpoint
+    ) -> AsyncThrowingStream<APRSISInboundEvent, any Error> {
+        AsyncThrowingStream { continuation in
+            self.continuation = continuation
+            continuation.yield(.sessionReady(serverCallsign: "T2TEST"))
+        }
+    }
+
+    func disconnect() {
+        continuation?.finish()
+        continuation = nil
+    }
 }
 
 private actor UITestGeoClient: FmoGeoClient {

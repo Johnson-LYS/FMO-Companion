@@ -14,13 +14,14 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 - **阶段：** 0.3 设备仪表盘基础已完成；0.4 FMO APRS 只读传输与未验证解析基础开发中
 - **已完成：** 0.1 局域网真机闭环；0.2 可靠定位真机闭环；0.3 首页卡、共享快照、本地只读状态、讲话事件、设备恢复/切换与断线恢复真机闭环
-- **进行中：** 0.4 已实现 Network.framework 只读接收、固定 `pass -1 / u/APFMO4` 登录、严格 CRLF/TNC2 与全部规划 V4 消息解析；身份持久化/重连待补，生产信任验证仍等待有效 CRL、签名 TBS、许可证与完整官方字节向量
+- **进行中：** 0.4 已实现只读身份持久化/继承、前台生命周期、登录超时、自动重连、Network.framework 接收、固定 `pass -1 / u/APFMO4` 登录、严格 CRLF/TNC2 与全部规划 V4 消息解析；身份 Sheet 和真实会话状态现可测试，生产信任验证仍等待有效 CRL、签名 TBS、许可证与完整官方字节向量
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
 
 ## 最近变更
 
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-06 | 完成 0.4 可测试身份/会话切片：手动优先与 FMO 呼号继承、前台生命周期、登录超时、自动重连、身份 Sheet 和真实连接状态；未验证帧继续隔离 | `docs/architecture/modules/aprs.md`、`docs/plans/0007-milestone-0.4-fmo-aprs.md` |
 | 2026-08-06 | 完成 0.4 首个代码切片：只读 APRS-IS transport、身份/登录、CRLF/TNC2 与全部规划 FMO V4 未验证解析；30 项新增测试通过，可信验证与 UI 继续阻塞 | `docs/architecture/modules/aprs.md`、`docs/plans/0007-milestone-0.4-fmo-aprs.md` |
 | 2026-08-06 | 完成 FMO V4 官方材料核对：解析格式可冻结，生产验签因 CRL、许可证、CA/CRL 签名规则和完整向量暂时阻塞 | `docs/references/fmo-aprs-v4-readiness.md` |
 | 2026-08-06 | APRS 身份与“消息与远控”采用最多两层的关联 Sheet，移除重复 Hero 与实现文案，并固化产品化文案和轻量编辑原则 | `docs/design/ui-design-system.md`、`prototype/index.html` |
@@ -105,4 +106,4 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.4 范围。
 2. 阅读 `docs/spec/product-spec.md` 的 SPEC-006、SPEC-007；涉及仪表盘复用时回看 SPEC-014。
 3. 继续遵循 `docs/design/ui-design-system.md` 与 `docs/design/prototype-implementation-guide.md`。
-4. 按 `docs/plans/0007-milestone-0.4-fmo-aprs.md` 继续补齐身份持久化、生命周期与重连；信任材料 checkpoint 关闭前不得开始可信验证或把 `UnverifiedFMOV4Frame` 接入 UI，也不得用 0.3 本地事件替代 0.4 APRS 可信事件。
+4. 按 `docs/plans/0007-milestone-0.4-fmo-aprs.md` 继续等待并关闭信任材料 checkpoint；关闭前不得开始可信验证或把 `UnverifiedFMOV4Frame` 接入地图、目录和事件 UI，也不得用 0.3 本地事件替代 0.4 APRS 可信事件。
