@@ -1,6 +1,6 @@
 ---
 last-reviewed: 2026-08-06
-status: draft
+status: in-progress
 ---
 
 # 计划 0007：里程碑 0.4 FMO APRS
@@ -34,6 +34,8 @@ status: draft
 
 **状态（2026-08-06）：Blocked。** V4 报文、用户 CERT 与消息 TBS 已可冻结；官方 CRL/许可证/完整字节向量仍未满足生产验签门槛。详细证据见 `docs/references/fmo-aprs-v4-readiness.md`。
 
+用户已确认先推进不依赖信任结论的只读传输与纯解析基础。该授权只解除阶段 2 和阶段 3 的工程阻塞；阶段 4 信任验证、可信聚合及面向用户的网络数据展示继续阻塞。所有阶段 3 输出以 `UnverifiedFMOV4Frame` 隔离，不能因“解析成功”获得可信状态。
+
 - 固定官方 FMO V4 文档版本、APRS-IS 连接规范、根/中间证书和 CRL 来源；核对证书材料许可证及分发方式。
 - 从官方示例制作最小、人工化测试向量；不得把真实网络捕获、真实证书指纹、呼号或位置写入仓库。
 - 用 spike 验证 CryptoKit Ed25519 与确定性 CBOR 兼容性。当前候选为项目内最小严格 RFC 8949 编解码器，只支持 FMO 所需的无符号整数、字节串、文本与固定长度数组；完整官方向量通过前不写入生产代码、不增加第三方依赖。
@@ -41,12 +43,16 @@ status: draft
 
 ### 2. 只读身份与 APRS-IS 传输
 
+**状态（2026-08-06）：Foundation implemented。** 已实现身份规范化、亚洲 Tier 2 端点、Network.framework TCP、固定只读登录、CRLF/512 字节分帧、取消与可注入 transport。身份持久化优先级、App 活跃生命周期、登录超时、网络恢复和有上限退避待后续切片。
+
 - 实现 `ReceiveOnlyAPRSIdentity`、身份规范化/校验与持久化优先级；默认 App SSID 可编辑且范围限制为 `0...15`。
 - 使用 Network.framework Actor 封装 TCP、CRLF 行流、取消、路径恢复和有上限退避；服务器与等待策略可注入。
 - 连接地区轮询域名的 `14580` 过滤端口，发送一次 `pass -1` 登录及 `filter u/APFMO4` 控制行；登录完成后从业务接口移除发送能力，禁止发送 APRS 帧。
 - 单行上限 512 字节；过长、非 TNC2、非法字节序列、服务器拒绝和登录失败使用类型化错误。
 
 ### 3. APRS 与 FMO V4 纯解析
+
+**状态（2026-08-06）：Parser foundation implemented。** 已实现严格 TNC2 与所有规划 `APFMO4` 消息家族的未验证模型，覆盖 token 顺序、字段上限、数值、坐标与 Base64url 长度；尚未开始 CERT CBOR 或任何可信判定。
 
 - 先解析 TNC2 包头、来源呼号/SSID、TOCALL、路径、POSITION/STATUS 与原始 APRS 坐标字符串。
 - 再按消息类型解析严格有界的 FMO V4 token；拒绝未知必填字段、数值越界、非法 base64url、错误 token 顺序和超长文本。
@@ -91,7 +97,9 @@ status: draft
 
 ## 开发前门槛
 
-- 用户确认更新后的 FMO 网络/身份 Sheet 原型。
-- 官方根/中间证书、CRL schema、许可证和更新策略完成 checkpoint。
-- 选定确定性 CBOR 方案并用官方向量证明字节级兼容。
-- 建立 0.4 分支/提交策略；在上述门槛完成前不编写生产 APRS 代码。
+- [x] 用户确认更新后的 FMO 网络/身份 Sheet 原型。
+- [ ] 官方根/中间证书、CRL schema、许可证和更新策略完成 checkpoint。
+- [ ] 选定确定性 CBOR 方案并用官方向量证明字节级兼容。
+- [x] 建立 `feat/fmo-aprs-readonly` 分支。
+
+阶段 2/3 的严格未验证基础已按用户确认先行；剩余两个信任门槛关闭前，不实现阶段 4、不产生 trusted domain event，也不把 APRS 数据接入 Release UI。

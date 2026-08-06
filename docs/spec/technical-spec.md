@@ -74,8 +74,10 @@ UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 
 
 ### APRS-IS 只读接入
 
-- 0.4 使用 Network.framework 建立可取消的 APRS-IS TCP 会话，默认连接地区轮询域名的用户定义过滤端口 `14580`；端点与过滤策略通过协议注入，不硬编码到解析器或 SwiftUI。
+- 0.4 使用 Network.framework 建立可取消的 APRS-IS TCP 会话，默认连接 Tier 2 亚洲区域轮询域名 `asia.aprs2.net` 的用户定义过滤端口 `14580`；端点通过协议注入，不硬编码到解析器或 SwiftUI。
 - 登录使用类型化 `ReceiveOnlyAPRSIdentity`（规范化呼号 + `0...15` App SSID）与 `pass -1`，并通过 `u/APFMO4` 服务器端过滤只请求 FMO V4 广播。登录行和过滤命令是建立只读订阅所必需的控制数据，不允许发送任何 APRS 数据帧。
+- APRS-IS 的 `# logresp ... unverified` 是 `pass -1` 只读登录的预期响应，只表明该会话不可向 APRS-IS 发布数据；它与 FMO CERT/CRL/SIG 信任验证互不替代。纯解析结果必须使用 `UnverifiedFMOV4Frame` 等显式未验证类型，完整信任管道前不得进入产品 UI。
+- 字节流只接受 CRLF；单行上限 512 字节且包含 CRLF。无法重新同步的行边界、UTF-8 或长度错误结束会话；单个 TNC2/FMO V4 语义错误只产生无原文拒绝类别并继续接收。
 - 身份来源优先级固定为“用户手动设置 > 最近一次可信本地 FMO 呼号 > 未配置”。手动设置以普通本地偏好持久化；呼号与 SSID 不是秘密，但不得进入分析日志。设备切换或后续自动读取不得覆盖手动身份；客户端不调用本地 `getPasscode`。
 - 0.4 不创建 APRS PASSCODE 或远控 SECRET 设置，不执行标准短消息、ACK、位置上报或 FMO 远控。无呼号时 FMO 网络入口显示配置引导，而不是使用共享或伪造身份。
 - APRS-IS 会话只随 App 活跃生命周期运行，支持取消、网络恢复和有上限的退避；不声明后台常驻连接，不以本地通知或 APNs 承诺事件到达。

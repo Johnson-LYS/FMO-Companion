@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-05
+last-reviewed: 2026-08-06
 ---
 
 # 架构总览
@@ -71,7 +71,7 @@ flowchart LR
 
 ### APRS
 
-由传输、帧解析、FMO V4 语义解析、信任验证、存储和地图投影组成。未通过验证的数据仍可用于诊断，但不能显示为可信。
+由只读 APRS-IS 传输、CRLF/TNC2 分帧、FMO V4 语义解析、信任验证、存储和地图投影组成。当前已实现的基础层使用 `pass -1` 与 `u/APFMO4`，并以 `UnverifiedFMOV4Frame` 明确隔离尚未验签的数据；它没有 APRS 数据帧发送接口，也尚未接入 Release UI。无效帧只形成无原文诊断类别，解析成功但未完成 CERT/CRL/SIG 验证的数据同样不能显示为可信。详细边界见 `docs/architecture/modules/aprs.md`。
 
 ### QSO
 
@@ -107,9 +107,10 @@ future trusted APRS ─────┘                         ├→ home proje
 
 ```text
 APRS-IS line
-→ APRS frame parser
-→ FMO V4 payload parser
-→ CERT/CBOR parser
+→ strict CRLF / 512-byte framer
+→ TNC2 packet parser
+→ unverified FMO V4 frame
+→ CERT/CBOR parser（blocked）
 → certificate + CRL + Ed25519 + replay validation
 → trusted domain event
 → storage / map / notification
