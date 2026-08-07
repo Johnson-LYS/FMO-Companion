@@ -41,7 +41,7 @@ final class OfficialWebModel {
         guard let endpoint else {
             issue = Issue(
                 title: String(localized: "无法打开 FMO 页面"),
-                message: String(localized: "请先在首页发现、手动添加或选择一台 FMO 设备，然后重试。")
+                message: String(localized: "请先在设备页发现、手动添加或选择一台 FMO 设备，然后重试。")
             )
             return
         }

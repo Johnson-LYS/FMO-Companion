@@ -7,7 +7,7 @@
   <link rel="icon" href="data:,">
   <title>FMO Companion · 交互原型</title>
   <meta name="description" content="FMO Companion iOS 应用的交互式 HTML 原型与 UI 设计验证稿。">
-  <link rel="stylesheet" href="styles.css?v=20260806d">
+  <link rel="stylesheet" href="styles.css?v=20260807e">
 </head>
 <body>
   <div class="prototype-shell">
@@ -23,7 +23,7 @@
             <button class="back-button" id="backButton" type="button" data-action="back" aria-label="返回" hidden>‹</button>
             <div>
             <span class="eyebrow">FMO COMPANION</span>
-            <h2 id="screenTitle">首页</h2>
+            <h2 id="screenTitle">设备</h2>
             </div>
           </div>
           <button class="header-status" id="headerStatus" type="button" data-action="open-diagnostics" aria-label="查看连接诊断" hidden>
@@ -167,28 +167,40 @@
             <div class="feature-stack">
               <button class="feature-row" type="button" data-action="open-detail" data-target="station-directory"><span class="feature-glyph">⌖</span><span><strong>台站与服务器目录</strong><small>搜索、收藏、覆盖与数据年龄</small></span><b>›</b></button>
               <button class="feature-row" type="button" data-action="open-detail" data-target="event-explorer"><span class="feature-glyph">≋</span><span><strong>完整事件流</strong><small>CQ、VOCAL、JOINT / EVENT 等</small></span><b>›</b></button>
-              <button class="feature-row" type="button" data-action="open-detail" data-target="communications-hub"><span class="feature-glyph">◌</span><span><strong>消息与通讯</strong><small>APRS 消息、会话与 ACK</small></span><b>›</b></button>
+              <button class="feature-row" type="button" data-action="open-detail" data-target="communications-hub"><span class="feature-glyph">◌</span><span><strong>消息</strong><small>APRS 会话与 ACK</small></span><b>›</b></button>
             </div>
             <p class="prototype-disclaimer">所有台站、事件和服务状态均为虚构原型数据，不代表当前已连接 APRS-IS 或服务器。</p>
           </section>
 
-          <section class="screen detail-screen" data-detail="communications-hub" data-title="消息与通讯" aria-labelledby="screenTitle">
-            <div class="section-heading top-heading">
-              <div><span class="eyebrow">APRS MESSAGES</span><h3>消息与身份</h3></div>
-            </div>
-            <button class="identity-card" type="button" data-action="open-aprs-identity">
-              <div class="identity-avatar">BI</div>
-              <div><strong>BI8SYN-10</strong><small>网络身份已设置</small></div>
-              <span class="identity-status">配置 ›</span>
+          <section class="screen detail-screen" data-detail="communications-hub" data-title="消息" aria-labelledby="screenTitle">
+            <button class="message-session-card" type="button" data-action="open-aprs-identity" aria-label="APRS 身份 BI8SYN-10，正在接收，点击设置">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span><strong>BI8SYN-10</strong><small>正在接收</small></span>
+              <b>设置 ›</b>
             </button>
-            <div class="message-preview">
-              <div class="message-bubble incoming">下午好，便携台已架设。<small>BH4XYZ · 已 ACK</small></div>
-              <div class="message-bubble outgoing">收到，稍后呼叫。<small>原型消息 · 14:32</small></div>
+            <div class="section-heading compact-heading"><div><h3>最近会话</h3><p>消息仅保存在此 iPhone</p></div></div>
+            <div class="conversation-list" id="conversationList">
+              <div class="swipe-shell" data-swipe-row>
+                <button class="swipe-delete" type="button" data-action="delete-conversation" aria-label="删除与 BH4XYZ-7 的会话"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m3 0-1 15H6L5 6m4 4v7m6-7v7"></path></svg></button>
+                <button class="conversation-row" type="button" data-action="open-conversation" data-recipient="BH4XYZ-7">
+                  <span class="station-avatar alt">BH</span>
+                  <span><strong>BH4XYZ-7</strong><small>好的，频点保持。</small></span>
+                  <span class="conversation-meta"><time>14:33</time><b>›</b></span>
+                </button>
+              </div>
+              <div class="swipe-shell" data-swipe-row>
+                <button class="swipe-delete" type="button" data-action="delete-conversation" aria-label="删除与 BG0AAA-9 的会话"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m3 0-1 15H6L5 6m4 4v7m6-7v7"></path></svg></button>
+                <button class="conversation-row" type="button" data-action="open-conversation" data-recipient="BG0AAA-9">
+                  <span class="station-avatar">BG</span>
+                  <span><strong>BG0AAA-9</strong><small class="unconfirmed-copy">未确认 · 对方可能已经收到</small></span>
+                  <span class="conversation-meta"><time>昨天</time><b>›</b></span>
+                </button>
+              </div>
             </div>
-            <button class="composer" type="button" data-action="open-detail" data-target="conversation">
-              <span>发送 APRS 消息…</span><b>↑</b>
+            <button class="primary-button full-width message-new-button" type="button" data-action="open-recipient-picker">
+              <span>新消息</span><span aria-hidden="true">＋</span>
             </button>
-            <p class="prototype-disclaimer">设备远程控制已移动到“首页 → 更多设备功能”，消息页只处理通讯任务。</p>
+            <p class="message-availability-note">离开 App 后停止接收；再次打开时不会自动补发旧消息。</p>
           </section>
 
           <section class="screen" data-screen="qso" aria-labelledby="screenTitle">
@@ -360,25 +372,29 @@
           </section>
 
           <section class="screen detail-screen" data-detail="conversation" data-title="APRS 消息" aria-labelledby="screenTitle">
-            <div class="conversation-header"><span class="station-avatar alt">BH</span><div><strong>BH4XYZ</strong><small>标准 APRS 消息 · 在线</small></div><span class="trust-mark">✓</span></div>
+            <div class="conversation-header"><span class="station-avatar alt" id="conversationAvatar">BH</span><div><strong id="conversationCallsign">BH4XYZ-7</strong><small><i class="inline-live-dot"></i>前台在线</small></div></div>
             <div class="conversation-thread" id="conversationThread">
               <div class="message-bubble incoming">下午好，便携台已架设。<small>收到 · 14:31</small></div>
-              <div class="message-bubble outgoing">收到，稍后呼叫。<small>ACK 01 · 14:32</small></div>
+              <div class="message-bubble outgoing">收到，稍后呼叫。<small>已确认 · 14:32</small></div>
               <div class="message-bubble incoming">好的，频点保持。<small>收到 · 14:33</small></div>
             </div>
-            <div class="ack-legend"><span><i class="sent"></i>已发送</span><span><i class="waiting"></i>等待 ACK</span><span><i class="acked"></i>已 ACK</span><span><i class="failed"></i>失败</span></div>
             <div class="composer active-composer"><input id="messageInput" type="text" value="信号收到，感谢测试。" aria-label="消息内容"><button type="button" data-action="send-message">↑</button></div>
-            <p class="prototype-disclaimer">原型只模拟标准 APRS 消息和 ACK 状态，不连接 APRS-IS。</p>
+            <p class="message-availability-note">等待确认期间离开 App，消息将标记为“未确认”且不会自动补发。</p>
           </section>
 
           <section class="screen detail-screen" data-detail="remote-control" data-title="远程控制" aria-labelledby="screenTitle">
-            <div class="detail-card"><div class="card-heading"><div><span class="eyebrow">REPLAY PROTECTION</span><h3>命令安全上下文</h3></div><span class="state-pill good">已就绪</span></div><div class="key-value"><span>Time Slot</span><b>28 765 432</b><span>Counter</span><b id="counterValue">0042</b><span>签名</span><b>HMAC-SHA1 截断</b><span>凭据</span><b>Keychain</b></div></div>
+            <button class="remote-target-card" type="button" data-action="open-remote-settings" aria-label="远控目标 FMO-7C2A，BG0TST-15，可控制，点击设置远控">
+              <span class="remote-target-mark">FM</span>
+              <span><small>远控目标</small><strong>FMO-7C2A</strong><small>BG0TST-15</small></span>
+              <span class="remote-ready"><i></i>可控制</span>
+            </button>
+            <div class="section-heading compact-heading"><div><h3>选择操作</h3><p>命令只发送一次，不会自动重试</p></div></div>
             <div class="command-list">
-              <button type="button" data-action="simulate-command" data-command="NORMAL"><span class="command-symbol">●</span><span><strong>NORMAL</strong><small>恢复正常工作状态</small></span><b>发送 ›</b></button>
-              <button type="button" data-action="simulate-command" data-command="STANDBY"><span class="command-symbol">◐</span><span><strong>STANDBY</strong><small>进入待机状态</small></span><b>发送 ›</b></button>
-              <button class="danger-command" type="button" data-action="open-reboot"><span class="command-symbol">↻</span><span><strong>REBOOT</strong><small>需生物认证并等待 ACK</small></span><b>确认 ›</b></button>
+              <button type="button" data-action="simulate-command" data-command="NORMAL"><span class="command-symbol">●</span><span><strong>恢复正常</strong><small>让设备回到正常工作状态</small></span><b>发送 ›</b></button>
+              <button type="button" data-action="simulate-command" data-command="STANDBY"><span class="command-symbol">◐</span><span><strong>进入待机</strong><small>设备保持在线，但停止正常工作</small></span><b>发送 ›</b></button>
+              <button class="danger-command" type="button" data-action="open-reboot"><span class="command-symbol">↻</span><span><strong>重启设备</strong><small>连接会暂时中断，需要身份确认</small></span><b>确认 ›</b></button>
             </div>
-            <div class="command-result" id="commandResult"><span>—</span><div><strong>等待命令</strong><small>发送后将在这里显示签名、发送与 ACK 阶段。</small></div></div>
+            <div class="command-result" id="commandResult"><span>—</span><div><strong>尚未发送操作</strong><small>发送后会在这里显示设备是否确认。</small></div></div>
           </section>
 
           <section class="screen detail-screen" data-detail="qso-import" data-title="导入 QSO" aria-labelledby="screenTitle">
@@ -427,7 +443,7 @@
 
           <section class="screen detail-screen" data-detail="privacy-accessibility" data-title="隐私与无障碍" aria-labelledby="screenTitle">
             <div class="privacy-score"><span>隐私状态</span><strong>A</strong><small>所有敏感数据均保持在预期边界内</small></div>
-            <div class="detail-card permission-status"><div><span class="check good">✓</span><span><strong>本地网络</strong><small>仅发现和连接 FMO</small></span><b>使用时</b></div><div><span class="check good">✓</span><span><strong>精确位置</strong><small>仅同步到当前盒子</small></span><b>使用时</b></div><div><span class="check good">✓</span><span><strong>Keychain</strong><small>PASSCODE、SECRET 与令牌</small></span><b>4 项</b></div></div>
+            <div class="detail-card permission-status"><div><span class="check good">✓</span><span><strong>本地网络</strong><small>仅发现和连接 FMO</small></span><b>使用时</b></div><div><span class="check good">✓</span><span><strong>精确位置</strong><small>仅同步到当前盒子</small></span><b>使用时</b></div><div><span class="check good">✓</span><span><strong>Keychain</strong><small>远控信息与服务器令牌</small></span><b>已保护</b></div></div>
             <button class="feature-row standalone-row" type="button" data-action="export-diagnostics"><span class="feature-glyph">↗</span><span><strong>预览并导出脱敏诊断</strong><small>导出前再次检查敏感字段</small></span><b>›</b></button>
             <div class="detail-card"><div class="card-heading"><div><h3>可访问性预览</h3><p>正式版纳入发布验收</p></div></div><div class="accessibility-grid"><span>动态字体</span><b>支持</b><span>VoiceOver</span><b>语义分组</b><span>减少动态</span><b>支持</b><span>触控区域</span><b>≥ 44 pt</b><span>深色模式</span><b>支持</b></div><label class="range-row"><span><strong>文字大小预览</strong><small><output id="textSizeOutput">100%</output></small></span><input type="range" min="90" max="160" step="10" value="100" data-output="textSizeOutput" data-suffix="%"></label></div>
           </section>
@@ -441,7 +457,7 @@
         </div>
 
         <nav class="tab-bar" aria-label="主要导航">
-          <button class="tab-button is-active" type="button" data-tab="home"><span>⌁</span><small>首页</small></button>
+          <button class="tab-button is-active" type="button" data-tab="home"><span>⌁</span><small>设备</small></button>
           <button class="tab-button" type="button" data-tab="network"><span>⌖</span><small>FMO 网络</small></button>
           <button class="tab-button" type="button" data-tab="qso"><span>▤</span><small>QSO</small></button>
           <button class="tab-button" type="button" data-tab="settings"><span>⚙</span><small>设置</small></button>
@@ -506,24 +522,42 @@
               <button class="secondary-button" type="button" data-action="close-modal">取消</button>
               <button class="primary-button" type="button" data-action="save-aprs-identity">保存</button>
             </div>
-            <button class="manual-device-button aprs-more-button" type="button" data-action="open-aprs-credentials"><span>⌑</span><span><strong>消息与远控</strong><small>发送消息或控制设备时配置</small></span><b>›</b></button>
           </section>
         </div>
 
-        <div class="modal-backdrop nested-modal" id="aprsCredentialsModal" hidden>
-          <section class="bottom-sheet aprs-credentials-sheet" role="dialog" aria-modal="true" aria-labelledby="aprsCredentialsTitle">
+        <div class="modal-backdrop" id="remoteSettingsModal" hidden>
+          <section class="bottom-sheet remote-settings-sheet" role="dialog" aria-modal="true" aria-labelledby="remoteSettingsTitle">
             <div class="sheet-handle" aria-hidden="true"></div>
-            <h2 id="aprsCredentialsTitle">消息与远控</h2>
-            <p>仅在发送消息或控制设备时使用</p>
-            <div class="detail-card form-card aprs-identity-form">
-              <label>APRS PASSCODE<input type="password" placeholder="输入后安全保存在本机" autocomplete="off"></label>
-              <label>远控 SECRET<input type="password" placeholder="输入后安全保存在本机" autocomplete="off"></label>
-              <div class="keychain-note"><span>⌑</span><div><strong>安全保存在本机</strong><small>不会写入日志或同步到云端。</small></div></div>
+            <h2 id="remoteSettingsTitle">远控设置</h2>
+            <p>为当前设备配置远程控制</p>
+            <div class="detail-card form-card aprs-identity-form credential-form">
+              <div class="credential-target"><span class="remote-target-mark">FM</span><span><small>当前设备</small><strong>FMO-7C2A · BG0TST-15</strong></span></div>
+              <div class="credential-target compact"><span class="remote-target-mark secondary">AP</span><span><small>发送身份</small><strong>BI8SYN-10 · 已配置</strong></span></div>
+              <label>此设备的 SECRET<input type="password" placeholder="已保存 · 输入可更新" autocomplete="new-password"></label>
+              <button class="credential-remove" type="button" data-action="clear-secret">移除此设备 SECRET</button>
+              <div class="keychain-note"><span>⌑</span><div><strong>仅保存在这台 iPhone</strong><small>每台 FMO 的远控信息相互独立。</small></div></div>
             </div>
             <div class="sheet-actions">
               <button class="secondary-button" type="button" data-action="close-modal">取消</button>
-              <button class="primary-button" type="button" data-action="save-credentials">保存</button>
+              <button class="primary-button" type="button" data-action="save-remote-settings">保存</button>
             </div>
+          </section>
+        </div>
+
+        <div class="modal-backdrop" id="recipientModal" hidden>
+          <section class="bottom-sheet recipient-sheet" role="dialog" aria-modal="true" aria-labelledby="recipientTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <h2 id="recipientTitle">新消息</h2>
+            <p>选择收藏呼号，或输入完整的 APRS 地址。</p>
+            <div class="section-heading compact-heading"><div><h3>收藏呼号</h3></div></div>
+            <div class="recipient-list">
+              <button type="button" data-action="choose-recipient" data-recipient="BH4XYZ-7"><span class="station-avatar alt">BH</span><span><strong>BH4XYZ-7</strong><small>最近使用的设备编号</small></span><b>›</b></button>
+              <button type="button" data-action="choose-recipient" data-recipient="BG0AAA-9"><span class="station-avatar">BG</span><span><strong>BG0AAA-9</strong><small>最近使用的设备编号</small></span><b>›</b></button>
+            </div>
+            <label class="input-label">其他收件人
+              <input id="manualRecipient" type="text" placeholder="例如 BH4XYZ-7" autocomplete="off" spellcheck="false">
+            </label>
+            <button class="primary-button full-width" type="button" data-action="open-manual-conversation">开始会话</button>
           </section>
         </div>
 
@@ -563,11 +597,12 @@
           <section class="bottom-sheet danger-sheet" role="alertdialog" aria-modal="true" aria-labelledby="rebootTitle">
             <div class="sheet-handle" aria-hidden="true"></div>
             <span class="danger-symbol">↻</span>
-            <h2 id="rebootTitle">确认重启 FMO？</h2>
-            <p>正式版本将调用 Face ID / Touch ID 再次确认，并等待设备 ACK。原型不会发送命令。</p>
+            <h2 id="rebootTitle">重启 FMO-7C2A？</h2>
+            <p>设备连接会暂时中断。继续后需要使用 Face ID 或设备密码确认。</p>
+            <p class="danger-footnote">如果没有收到设备确认，也可能已经完成重启；App 不会自动重发。</p>
             <div class="sheet-actions">
               <button class="secondary-button" type="button" data-action="close-modal">取消</button>
-              <button class="danger-button" type="button" data-action="confirm-reboot">模拟确认</button>
+              <button class="danger-button" type="button" data-action="confirm-reboot">继续并验证</button>
             </div>
           </section>
         </div>
@@ -595,6 +630,6 @@
       </div>
     </main>
   </div>
-  <script src="app.js?v=20260806d"></script>
+  <script src="app.js?v=20260807e"></script>
 </body>
 </html>

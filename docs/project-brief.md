@@ -12,7 +12,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 当前状态
 
-- **阶段：** 0.1–0.4 已完成；下一阶段为 0.6 通讯与远控的文档和原型设计
+- **阶段：** 0.1–0.4 已完成；0.6 前台消息与 FMO 远控已完成首轮原生实现，正在进行自动化与真机验收
 - **已完成：** 0.1 局域网真机闭环；0.2 可靠定位真机闭环；0.3 设备仪表盘；0.4 只读 APRS-IS、完整 FMO V4 信任验证、地图、事件、目录、搜索与收藏真机闭环
 - **发布前跟踪：** 官方信任锚独立许可证、完整官方 APRS CERT/SIG 字节向量与 Intermediate CRL 轮换；这些事项不回退已完成的 0.4 里程碑，但正式发布前必须关闭或明确处理
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
@@ -21,6 +21,12 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-07 | 修正后的 `APFMO0 + 60 字节 UTF-8` 普通消息已完成真机互发与 ACK 验收；0.6 消息、远控真机闭环均通过，剩余门槛为新增兼容向量的完整自动化回归 | `docs/architecture/modules/aprs.md`、`docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` |
+| 2026-08-07 | 0.6 远控真机链路通过；普通消息首轮互发失败定位到 FMO 兼容边界，已把 `APFMC0 + 7-bit ASCII/67` 修正为 `APFMO0 + 60 字节 UTF-8`，保留无效草稿并等待复验 | `docs/architecture/modules/aprs.md`、`docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` |
+| 2026-08-07 | 0.6 首轮实现通过 162 项单元测试与 11 条主流程 XCUITest；同时修复冷启动 ScenePhase 竞态，确保稍后配置身份后只读/写 APRS 会话均可进入前台连接 | `docs/architecture/modules/aprs.md`、`docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` |
+| 2026-08-07 | 完成 0.6 首轮原生实现：隔离验证写会话、自动 PASSCODE、标准消息/ACK、本机历史、按目标 Keychain SECRET、原子 Counter、三种远控与重启系统认证；进入测试和真机闭环 | `docs/adr/0006-isolated-aprs-write-session.md`、`docs/architecture/modules/aprs.md`、`docs/architecture/modules/remote-control.md` |
+| 2026-08-07 | 顶层“首页”改名为“设备”；远控入口和按目标隔离的 SECRET 设置归入设备，FMO 网络只保留 APRS 身份与消息；PASSCODE 由基础呼号自动计算且不持久化 | `docs/design/ui-design-system.md`、`docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` |
+| 2026-08-07 | 冻结 0.6 产品范围：先消息/ACK 后远控；仅保证前台收发，本地历史、有限消息重试、远控禁止自动重发、按目标 SECRET 与产品化远控页面 | `docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` |
 | 2026-08-07 | 用户完成 0.4 真实 iPhone + APRS-IS 真机验收；146 项单元测试与 14 项 XCUITest 通过，里程碑转为 Complete | `docs/plans/0007-milestone-0.4-fmo-aprs.md` |
 | 2026-08-07 | 修正 FMO 网络身份条在浅色 grouped background 上缺少层级的问题，改用系统语义卡片底色与轻描边并保持深色模式适配 | `docs/design/ui-design-system.md` |
 | 2026-08-07 | FMO 网络本地展示范围默认改为 500 km；首次进入自动取得手机位置，失败则回退全网，定位依赖纳入正式组合根与 UI 测试替身 | `docs/spec/product-spec.md`、`docs/architecture/modules/aprs.md` |
@@ -96,7 +102,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 - 使用者必须自行具备合规的呼号、证书与 APRS 凭据；App 不代替资质认证。
 - 设备私钥不得离开 FMO 盒子，App 不提取、不备份、不模拟。
-- APRS PASSCODE 和远控 SECRET 只保存在 Keychain，不进入日志或云端同步。
+- APRS-IS PASSCODE 由规范化基础呼号按需计算，不持久化；远控 SECRET 只保存在 Keychain，不进入日志或云端同步。
 - `VOCAL` 只代表某呼号近期触发过语音活动，不等于实时通联、当前说话人或语音内容。
 - iOS 后台定位不能承诺固定分钟级调度，只能基于系统位置更新做节流。
 - 盒子设置仍通过官方 `fmo.local` Web UI 打开；ADR-0005 只允许类型化只读状态，不使用 DOM 注入、不提供通用命令代理。
@@ -112,7 +118,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 本轮开发入口
 
-1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.6 范围。
-2. 回看 `docs/spec/product-spec.md` 的 SPEC-009、SPEC-010，并先冻结消息、ACK、凭据与危险远控确认流程。
-3. 先更新 `prototype/`、设计规范和新的 0.6 实施计划，经用户确认后再进入开发。
-4. 继续保持公开协议边界：0.6 公网远控使用官方 APRS 格式，不复用未公开的局域网管理 WebSocket 写命令。
+1. 以 `docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` 为当前计划。
+2. 完成消息/ACK 自动化回归后，使用用户合法身份验证前台收发、ACK、断网、后台停止与重启历史恢复。
+3. 再按 `NORMAL → STANDBY → REBOOT` 分级真机验收远控；只有用户明确准备后测试重启。
+4. 官方未公开的远控 ACK 只按目标来源做设备级确认，不推测 Time Slot/Counter 关联字段；公网远控不复用局域网管理 WebSocket 写命令。

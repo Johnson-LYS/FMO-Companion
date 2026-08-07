@@ -6,7 +6,7 @@ last-reviewed: 2026-08-07
 
 ## 目的
 
-在 App 活跃期间以只读方式连接 APRS-IS，把严格有界的 TNC2 / FMO V4 输入验证为带明确信任状态的台站、公共服务器和事件，并投影到地图、目录、事件流及独立持久化的收藏。
+在 App 活跃期间通过彼此隔离的 APRS-IS 会话提供两类能力：0.4 只读会话把严格有界的 TNC2 / FMO V4 输入验证为台站、公共服务器和事件；0.6 验证登录写会话只处理标准点对点消息、ACK/REJ 与固定 FMO 远控帧。两者共享字节 transport 与 TNC2 基础类型，但不共享登录状态机或业务发送入口。
 
 解析成功不等于可信。任何 `UnverifiedFMOV4Frame` 都必须通过 CERT、官方证书链、有效期、CRL、报文 Ed25519、`timeSalt` 与必要的 JOINT/EVENT 关系验证，才可进入可见业务快照；验证失败只累计无原文诊断类别。
 
@@ -30,6 +30,15 @@ protocol APRSISReceiving: Actor {
         identity: ReceiveOnlyAPRSIdentity,
         endpoint: APRSISEndpoint
     ) async -> AsyncThrowingStream<APRSISInboundEvent, Error>
+    func disconnect() async
+}
+
+protocol APRSISMessaging: Actor {
+    func events(
+        identity: ReceiveOnlyAPRSIdentity,
+        endpoint: APRSISEndpoint
+    ) async -> AsyncThrowingStream<APRSISMessagingEvent, Error>
+    func send(packet: String) async throws
     func disconnect() async
 }
 
@@ -60,7 +69,7 @@ protocol FMOV4RevocationChecking: Actor {
 }
 ```
 
-`APRSISReceiving` 是上层唯一可见的 APRS-IS 会话能力。底层 transport 的 `send` 只用于一次固定登录控制行，不从业务协议暴露，因此 0.4 没有发送 APRS 数据帧的入口。
+`APRSISReceiving` 仍是 FMO V4 网络唯一可见的只读会话；其底层 `send` 只用于固定 `pass -1` 登录。`APRSISMessaging` 是单独的验证写会话，只接受经过类型化编解码器生成且通过 512 字节/CRLF 校验的完整 APRS 数据帧。地图、目录和事件层无法取得写会话，消息层也无法绕过标准消息与三种远控命令生成任意帧。该边界由 ADR-0006 固定。
 
 `FmoNetworkModel` 在 `MainActor` 上管理身份、前台生命周期、登录超时、连接状态、有上限退避和 `FMOV4NetworkSnapshot`。SwiftUI 只读取会话状态和验证后的快照，不接触原始帧、证书 blob 或登录实现细节。
 
@@ -68,6 +77,11 @@ protocol FMOV4RevocationChecking: Actor {
 
 - `ReceiveOnlyAPRSIdentity` 规范化大写 ASCII 呼号，限制 App SSID 为 `0...15`，并确保完整登录呼号不超过 APRS-IS 的 9 字节边界；SSID 0 不写成 `-0`。
 - `APRSISProtocol` 只生成 `pass -1`、`filter u/APFMO4` 的固定 CRLF 登录行。只读登录预期服务器返回 `unverified`；这是 APRS-IS 登录状态，不是 FMO PKI 信任结果。
+- `APRSISPasscode` 按规范化基础呼号计算公开 PASSCODE，SSID 不参与；结果按需生成，不进入 Keychain、UserDefaults、SwiftData、日志或诊断。
+- `APRSISMessagingProtocol` 生成验证登录和 `g/<CALL-SSID>` 消息过滤器，只接受身份匹配的 `verified` 响应；`APRSISMessagingClient` 与 0.4 接收器使用独立 transport、取消任务和登录状态。
+- `APRSMessageCodec` 独立处理 `APFMO0` TOCALL、9 字节收件地址、最多 60 UTF-8 字节正文、1–5 位 ASCII 消息 ID、`ack` 与 `rej`。控制字符与 `{` 在发送前拒绝；中文等合法 UTF-8 不再被入站解析器静默丢弃。ACK 只按对端完整地址和消息 ID 关联；重复入站消息只落库一次，但每次仍回应 ACK。
+- `APRSMessageModel` 仅在 App 活跃且身份存在时维持写会话。发出消息最多自动重试 2 次；退到后台、身份变化或重试耗尽会把等待项收敛为“未确认”，不会在下次启动静默补发。组合根在首次前台任务中明确激活两条 APRS 会话，并以 `didBecomeActive` / `didEnterBackground` 通知重放生命周期；FMO 网络页出现时再次幂等确认激活，避免冷启动的 ScenePhase 时序使稍后保存的身份永久停在“已暂停”。
+- `APRSMessageRecord` 使用 SwiftData 保存本机消息历史、方向与确认状态；PASSCODE 和远控 SECRET 不进入数据模型。会话列表从消息记录按对端聚合，系统左滑删除会删除该对端本机历史。
 - `NWAPRSISByteTransport` 使用 Network.framework TCP、`TCP_NODELAY` 语义、Actor 隔离和取消感知回调桥接。默认端点是 Tier 2 亚洲区域轮询地址 `asia.aprs2.net:14580`，端点仍可注入测试或配置。
 - `APRSISReceiveOnlyClient` 等待服务器 `#` greeting 后发送一次登录，确认匹配当前身份的 `# logresp ... unverified` 后先产生一次 `sessionReady`，随后才接收业务帧。服务器注释不进入业务层；无效 TNC2 与无效 FMO V4 帧只产生无原文的类型化拒绝事件，不中断后续有效帧。
 - `UserDefaultsReceiveOnlyAPRSIdentityStore` 持久化普通身份偏好。来源优先级固定为手动身份高于最近可信本地 FMO 呼号；后续设备切换不会覆盖手动值。呼号与 SSID 不是秘密，但不写入日志。
@@ -96,6 +110,15 @@ Network.framework bytes
 → MapKit / directory / events / station details
 ```
 
+```text
+App active + APRS identity
+→ on-demand PASSCODE + verified APRS-IS session + g/CALL-SSID filter
+→ strict APRS message codec
+↔ typed message / ACK / REJ
+→ APRSMessageModel（去重、最多 2 次重试、前后台取消）
+→ SwiftData history / conversation UI
+```
+
 只有 `FMOV4Verifier.accepted` 才能进入 `FMOV4NetworkStore` 的业务记录。Release composition 注入真实 verifier、官方信任材料和 CRL store；UI 测试注入人工快照，不以未验证协议输入制造“可信”结果。
 
 ## 依赖
@@ -103,7 +126,7 @@ Network.framework bytes
 - Network.framework：APRS-IS TCP。
 - Foundation：字节、UTF-8、URLSession 与流模型。
 - CryptoKit：SHA-256 与 Ed25519。
-- SwiftData：呼号与公共服务器收藏。
+- SwiftData：呼号/公共服务器收藏与本机消息历史。
 - MapKit：验证后台站地图。
 - 当前没有第三方依赖。
 
@@ -118,10 +141,13 @@ Network.framework bytes
 - CRL 已签名但过期或网络暂不可用：保留密码学认证结果和内部降级状态，不向普通用户展示技术警告；如果列表中已命中吊销仍直接拒绝。
 - 重复签名或无法在期限内匹配 JOINT/EVENT：静默丢弃，不重复展示也不保存原始状态文本。
 - 不得将 APRS-IS 的 `unverified` 登录状态转换为“数据不可信”文案，也不得反向把它转换为“FMO 已验证”；两者属于不同层级。
+- 写会话返回 `unverified`、身份不匹配或异常登录格式：拒绝发送并进入可恢复等待；不得降级成只读 PASSCODE 或跳过验证。
+- 消息 ACK 迟到或重复：只更新地址和 ID 同时匹配的出站记录；已经因后台/身份变化关闭的旧消息不重新发送。
 
 ## 发布前跟踪
 
 - 0.4 已使用用户合法呼号完成真实 APRS-IS `APFMO4` 数据接收、地图/目录/事件与收藏真机验收；146 项单元测试与 14 项 XCUITest 通过。
+- 0.6 消息、ACK/REJ、隔离写会话、SwiftData 历史与消息 UI 已实现。首轮消息真机反馈暴露 `APFMC0` 与 7-bit ASCII 假设不兼容 FMO，按 `APFMO0 + 60 字节 UTF-8` 修正后，消息与远控真机闭环均已通过；新增兼容向量仍需完成一次可运行的全量自动化回归。
 - 补充官方未省略的 APRS CERT/SIG 字节向量，作为第二实现交叉验证。
 - 发布前确认官方 Root/Intermediate 证书所声明的独立许可证 URL；当前两个 URL 仍为 404。
 - Intermediate CRL #4 当前已过 `nextUpdate`；内部保留过期状态但 UI 暂不展示，等待官方轮换后验证自动刷新路径。
@@ -129,6 +155,10 @@ Network.framework bytes
 ## 关键文件
 
 - `FMOc/Features/APRS/APRSISReceiveOnlyClient.swift`
+- `FMOc/Features/APRS/APRSISMessagingClient.swift`
+- `FMOc/Features/APRS/APRSMessageModel.swift`
+- `FMOc/Features/APRS/APRSMessageProtocol.swift`
+- `FMOc/Features/APRS/APRSMessagesView.swift`
 - `FMOc/Features/APRS/FmoNetworkModel.swift`
 - `FMOc/Features/APRS/FmoNetworkView.swift`
 - `FMOc/Features/APRS/FmoNetworkMapModel.swift`
@@ -159,3 +189,4 @@ Network.framework bytes
 - 确定性 CBOR 的规范编码/严格拒绝、官方 Root/Intermediate 验签、`{}`/非法 CRL、人工完整证书链与消息签名、重复帧去重。
 - 人工可信快照驱动的地图、目录导航、展开搜索和结果显示 XCUITest；测试数据只存在 DEBUG composition。
 - Network.framework 真正的公共网络连接仍需使用用户配置的合法呼号做只读集成验收；自动化测试不得使用伪造身份连接公网。
+- PASSCODE 固定向量、验证登录、标准消息/ACK/REJ、重复消息只落库一次但重复 ACK、地址+ID 精确关联、有限重试与后台停止。

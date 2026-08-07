@@ -4,6 +4,7 @@ import SwiftUI
 
 struct FmoNetworkView: View {
     @Bindable var model: FmoNetworkModel
+    @Bindable var messageModel: APRSMessageModel
     @State private var mapModel: FmoNetworkMapModel
     @State private var isPresentingIdentity = false
     @State private var mapPosition: MapCameraPosition = .region(
@@ -18,9 +19,11 @@ struct FmoNetworkView: View {
 
     init(
         model: FmoNetworkModel,
+        messageModel: APRSMessageModel,
         locationProvider: any PhoneLocationProviding = CoreLocationProvider()
     ) {
         self.model = model
+        self.messageModel = messageModel
         _mapModel = State(
             initialValue: FmoNetworkMapModel(locationProvider: locationProvider)
         )
@@ -47,6 +50,10 @@ struct FmoNetworkView: View {
                     distanceScopeMenu
                 }
             }
+        }
+        .task {
+            await model.setActive(true)
+            await messageModel.setActive(true)
         }
         .task(id: model.identity != nil) {
             guard model.identity != nil else { return }
@@ -445,6 +452,17 @@ struct FmoNetworkView: View {
                     )
                 }
                 .accessibilityIdentifier("aprs-event-explorer-entry")
+                Divider().padding(.leading, 60)
+                NavigationLink {
+                    APRSMessagesView(model: messageModel)
+                } label: {
+                    explorationRow(
+                        title: "APRS 消息",
+                        subtitle: "发送消息并跟踪确认状态",
+                        symbol: "message"
+                    )
+                }
+                .accessibilityIdentifier("aprs-messages-entry")
             }
             .buttonStyle(.plain)
             .background(.background.secondary, in: .rect(cornerRadius: 18))

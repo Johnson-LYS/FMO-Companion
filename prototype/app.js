@@ -17,11 +17,13 @@
     dashboardDisplayedEvent: null,
     dashboardEventIndex: 0,
     favoriteIds: new Set(),
+    currentRecipient: "BH4XYZ-7",
+    swipeStartX: null,
     toastTimer: null,
   };
 
   const titles = {
-    home: "首页",
+    home: "设备",
     network: "FMO 网络",
     qso: "QSO",
     settings: "设置",
@@ -62,7 +64,8 @@
     onboardingModal: document.querySelector("#onboardingModal"),
     devicePickerModal: document.querySelector("#devicePickerModal"),
     aprsIdentityModal: document.querySelector("#aprsIdentityModal"),
-    aprsCredentialsModal: document.querySelector("#aprsCredentialsModal"),
+    remoteSettingsModal: document.querySelector("#remoteSettingsModal"),
+    recipientModal: document.querySelector("#recipientModal"),
     devicePickerSummary: document.querySelector("#devicePickerSummary"),
     manualModal: document.querySelector("#manualModal"),
     diagnosticsModal: document.querySelector("#diagnosticsModal"),
@@ -579,19 +582,49 @@
 
   async function simulateCommand(command) {
     const result = document.querySelector("#commandResult");
-    const counter = document.querySelector("#counterValue");
-    counter.textContent = String(Number(counter.textContent) + 1).padStart(4, "0");
+    const labels = { NORMAL: "恢复正常", STANDBY: "进入待机", REBOOT: "重启设备" };
+    const label = labels[command] || command;
     result.querySelector("span").textContent = "…";
-    result.querySelector("strong").textContent = `正在签名 ${command}`;
-    result.querySelector("small").textContent = "Time Slot 与 Counter 已锁定，正在生成 HMAC。";
+    result.querySelector("strong").textContent = `正在发送“${label}”`;
+    result.querySelector("small").textContent = "请保持 App 在前台。";
     await wait(700);
-    result.querySelector("strong").textContent = "命令已发送，等待 ACK";
-    result.querySelector("small").textContent = "标准 APRS 消息已进入等待状态。";
+    result.querySelector("strong").textContent = "已发送，等待设备确认";
+    result.querySelector("small").textContent = "等待期间不会自动重复发送。";
     await wait(900);
     result.querySelector("span").textContent = "✓";
-    result.querySelector("strong").textContent = `${command} 已确认`;
-    result.querySelector("small").textContent = "收到设备 ACK；原型未发送真实命令。";
-    showToast(`${command} ACK 演示完成`);
+    result.querySelector("strong").textContent = `“${label}”已确认`;
+    result.querySelector("small").textContent = "设备已确认收到操作。";
+    showToast(`${label}已确认`);
+  }
+
+  function openConversation(recipient) {
+    const normalizedRecipient = recipient.trim().toUpperCase();
+    if (!normalizedRecipient) return;
+    state.currentRecipient = normalizedRecipient;
+    document.querySelector("#conversationCallsign").textContent = normalizedRecipient;
+    document.querySelector("#conversationAvatar").textContent = normalizedRecipient.slice(0, 2);
+    const thread = document.querySelector("#conversationThread");
+    if (normalizedRecipient === "BH4XYZ-7") {
+      thread.innerHTML = '<div class="message-bubble incoming">下午好，便携台已架设。<small>收到 · 14:31</small></div><div class="message-bubble outgoing">收到，稍后呼叫。<small>已确认 · 14:32</small></div><div class="message-bubble incoming">好的，频点保持。<small>收到 · 14:33</small></div>';
+    } else if (normalizedRecipient === "BG0AAA-9") {
+      thread.innerHTML = '<div class="message-bubble outgoing">到达后请告知。<small>未确认 · 昨天</small></div>';
+    } else {
+      thread.innerHTML = '<div class="conversation-empty"><span>◌</span><strong>开始新会话</strong><p>发送第一条 APRS 消息。</p></div>';
+    }
+    hideModal(elements.recipientModal);
+    showDetail("conversation");
+  }
+
+  function deleteConversation(row) {
+    row.remove();
+    const list = document.querySelector("#conversationList");
+    if (!list.querySelector("[data-swipe-row]")) {
+      const empty = document.createElement("div");
+      empty.className = "empty-card compact-empty";
+      empty.innerHTML = "<span class=\"empty-icon\">◌</span><strong>还没有会话</strong><p>收到或发送消息后会显示在这里。</p>";
+      list.append(empty);
+    }
+    showToast("本地会话已删除", "⌫");
   }
 
   async function simulateImport(button) {
@@ -634,14 +667,18 @@
     bubble.className = "message-bubble outgoing";
     bubble.textContent = value;
     const status = document.createElement("small");
-    status.textContent = "等待 ACK · 刚刚";
+    status.textContent = "发送中 · 刚刚";
     bubble.append(status);
-    document.querySelector("#conversationThread").append(bubble);
+    const thread = document.querySelector("#conversationThread");
+    thread.querySelector(".conversation-empty")?.remove();
+    thread.append(bubble);
     input.value = "";
-    showToast("消息已发送，等待 ACK", "↑");
-    await wait(1100);
-    status.textContent = "ACK 02 · 刚刚";
-    showToast("已收到 APRS ACK");
+    await wait(450);
+    status.textContent = "等待确认 · 刚刚";
+    showToast("消息已发送，等待确认", "↑");
+    await wait(900);
+    status.textContent = "已确认 · 刚刚";
+    showToast("对方已确认收到");
   }
 
   async function simulateSimpleCheck(button, working, complete) {
@@ -720,8 +757,30 @@
       showModal(elements.devicePickerModal);
     } else if (action === "open-aprs-identity") {
       showModal(elements.aprsIdentityModal);
-    } else if (action === "open-aprs-credentials") {
-      showModal(elements.aprsCredentialsModal, elements.aprsIdentityModal);
+    } else if (action === "open-remote-settings") {
+      showModal(elements.remoteSettingsModal);
+    } else if (action === "open-recipient-picker") {
+      showModal(elements.recipientModal);
+    } else if (action === "choose-recipient") {
+      openConversation(actionTarget.dataset.recipient);
+    } else if (action === "open-manual-conversation") {
+      const input = document.querySelector("#manualRecipient");
+      const recipient = input.value.trim().toUpperCase();
+      if (!/^[A-Z0-9]{1,6}-(?:[0-9]|1[0-5])$/.test(recipient)) {
+        input.focus();
+        showToast("请输入完整呼号与设备编号", "!");
+      } else {
+        openConversation(recipient);
+      }
+    } else if (action === "open-conversation") {
+      const swipeRow = actionTarget.closest("[data-swipe-row]");
+      if (swipeRow?.dataset.suppressClick === "true") {
+        delete swipeRow.dataset.suppressClick;
+        return;
+      }
+      openConversation(actionTarget.dataset.recipient);
+    } else if (action === "delete-conversation") {
+      deleteConversation(actionTarget.closest("[data-swipe-row]"));
     } else if (action === "open-manual") {
       showModal(elements.manualModal);
     } else if (action === "manual-connect") {
@@ -740,8 +799,14 @@
     } else if (action === "open-reboot") {
       showModal(elements.rebootModal);
     } else if (action === "confirm-reboot") {
+      actionTarget.disabled = true;
+      actionTarget.textContent = "正在验证…";
+      await wait(650);
+      actionTarget.disabled = false;
+      actionTarget.textContent = "继续并验证";
       hideModal(elements.rebootModal);
-      showToast("身份确认演示完成，未发送命令", "↻");
+      showToast("身份已确认", "✓");
+      await simulateCommand("REBOOT");
     } else if (action === "simulate-permission") {
       const banner = actionTarget.previousElementSibling;
       banner.className = "status-banner info-banner";
@@ -774,9 +839,12 @@
     } else if (action === "save-aprs-identity") {
       await simulateSimpleCheck(actionTarget, "正在保存…", "APRS 身份已保存");
       hideModal(elements.aprsIdentityModal);
-    } else if (action === "save-credentials") {
-      await simulateSimpleCheck(actionTarget, "正在保存…", "安全凭据已保存");
-      hideModal(elements.aprsCredentialsModal);
+    } else if (action === "save-remote-settings") {
+      await simulateSimpleCheck(actionTarget, "正在保存…", "远控设置已保存");
+      hideModal(elements.remoteSettingsModal);
+    } else if (action === "clear-secret") {
+      actionTarget.previousElementSibling.querySelector("input").placeholder = "未设置";
+      showToast("此设备的 SECRET 已移除", "⌫");
     } else if (action === "send-message") {
       await sendMessage();
     } else if (action === "simulate-command") {
@@ -811,6 +879,27 @@
     if (!range) return;
     const output = document.querySelector(`#${range.dataset.output}`);
     output.textContent = `${range.value}${range.dataset.suffix || ""}`;
+  });
+
+  document.addEventListener("pointerdown", (event) => {
+    const row = event.target.closest("[data-swipe-row]");
+    if (!row || event.target.closest(".swipe-delete")) return;
+    state.swipeStartX = event.clientX;
+    row.dataset.pointerId = String(event.pointerId);
+  });
+
+  document.addEventListener("pointerup", (event) => {
+    const row = event.target.closest("[data-swipe-row]");
+    if (!row || state.swipeStartX === null) return;
+    const delta = event.clientX - state.swipeStartX;
+    state.swipeStartX = null;
+    if (delta < -30) {
+      document.querySelectorAll("[data-swipe-row]").forEach((item) => item.classList.toggle("is-revealed", item === row));
+      row.dataset.suppressClick = "true";
+    } else if (delta > 20) {
+      row.classList.remove("is-revealed");
+      row.dataset.suppressClick = "true";
+    }
   });
 
   document.getElementById("networkRange")?.addEventListener("change", (event) => {

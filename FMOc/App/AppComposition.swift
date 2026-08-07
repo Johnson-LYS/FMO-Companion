@@ -7,6 +7,8 @@ enum AppComposition {
         let locationAutomation: LocationAutomationModel
         let officialWeb: OfficialWebModel
         let fmoNetwork: FmoNetworkModel
+        let aprsMessages: APRSMessageModel
+        let remoteControl: FmoRemoteControlModel
         let fmoNetworkLocationProvider: any PhoneLocationProviding
     }
 
@@ -21,6 +23,7 @@ enum AppComposition {
         let aprsIdentityStore: any ReceiveOnlyAPRSIdentityStoring
         let aprsReceiver: any APRSISReceiving
         let aprsNetworkProcessor: any FMOV4NetworkProcessing
+        let messagingClient: any APRSISMessaging
         let fmoNetworkLocationProvider: any PhoneLocationProviding
 
 #if DEBUG
@@ -127,12 +130,40 @@ enum AppComposition {
             networkProcessor: aprsNetworkProcessor,
             initialSnapshot: makeInitialAPRSNetworkSnapshot(processInfo: processInfo)
         )
+        let messagingProtocol: APRSISMessagingProtocol
+        do {
+            let version = Bundle.main.object(
+                forInfoDictionaryKey: "CFBundleShortVersionString"
+            ) as? String ?? "0.6"
+            messagingProtocol = try APRSISMessagingProtocol(
+                softwareName: "FMOCompanion",
+                softwareVersion: version
+            )
+        } catch {
+            preconditionFailure("Invalid static APRS-IS messaging identity")
+        }
+#if DEBUG
+        if processInfo.environment["FMO_UI_TEST_SCENARIO"] != nil {
+            messagingClient = UITestAPRSMessagingClient()
+        } else {
+            messagingClient = APRSISMessagingClient(messagingProtocol: messagingProtocol)
+        }
+#else
+        messagingClient = APRSISMessagingClient(messagingProtocol: messagingProtocol)
+#endif
+        let aprsMessages = APRSMessageModel(client: messagingClient)
+        let remoteControl = FmoRemoteControlModel(client: messagingClient)
+        aprsMessages.controlMessageHandler = { [weak remoteControl] envelope in
+            remoteControl?.handleControlMessage(envelope) ?? false
+        }
 
         return Models(
             device: device,
             locationAutomation: locationAutomation,
             officialWeb: OfficialWebModel(),
             fmoNetwork: fmoNetwork,
+            aprsMessages: aprsMessages,
+            remoteControl: remoteControl,
             fmoNetworkLocationProvider: fmoNetworkLocationProvider
         )
     }
@@ -308,6 +339,20 @@ private actor UITestAPRSIdentityStore: ReceiveOnlyAPRSIdentityStoring {
             source: .inherited
         )
     }
+}
+
+private actor UITestAPRSMessagingClient: APRSISMessaging {
+    func events(
+        identity _: ReceiveOnlyAPRSIdentity,
+        endpoint _: APRSISEndpoint
+    ) -> AsyncThrowingStream<APRSISMessagingEvent, any Error> {
+        AsyncThrowingStream { continuation in
+            continuation.yield(.sessionReady(serverCallsign: "T2UITEST"))
+        }
+    }
+
+    func send(packet _: String) {}
+    func disconnect() {}
 }
 
 private actor UITestAPRSReceiver: APRSISReceiving {

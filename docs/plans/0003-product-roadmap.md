@@ -11,7 +11,7 @@ status: active
 | 0.2 | 可靠定位 | 低功耗/车载模式、重连、后台权限、官方 Web 后台入口 | Complete |
 | 0.3 | 设备仪表盘基础 | 共享快照、GEO/Maidenhead、局部降级与最终交互原型 | Complete |
 | 0.4 | FMO APRS | V4 解析、证书链、签名/CRL、地图、服务器目录、事件流 | Complete |
-| 0.6 | 通讯与远控 | APRS 短消息、ACK、NORMAL/STANDBY/REBOOT、Keychain | Planned |
+| 0.6 | 通讯与远控 | APRS 短消息、ACK、NORMAL/STANDBY/REBOOT、Keychain | In Development |
 | 0.8 | QSO | SQLite 导入、查询、P-256 验签、ADIF 导出 | Planned |
 | 1.0 | 完整伴侣 | 自建服务器 API、APNs、小组件、快捷指令、可访问性 | Planned |
 
@@ -25,12 +25,12 @@ status: active
 
 ## 0.3 设备仪表盘基础与最终交互原型
 
-- 首页卡内容已收敛为大字号呼号、六位 Maidenhead、过滤距离、当前服务器和单行本地讲话/历史三个区域；单一频率与 QSO 日志数保留在数据层或对应功能页，不进入首页卡。延迟、无可靠来源的管理员和在线人数隐藏。
+- 设备卡内容已收敛为大字号呼号、六位 Maidenhead、过滤距离、当前服务器和单行本地讲话/历史三个区域；单一频率与 QSO 日志数保留在数据层或对应功能页，不进入设备卡。延迟、无可靠来源的管理员和在线人数隐藏。
 - 先实现共享状态模型、字段来源/时间/过期语义、局部降级，以及现有 GEO 能力真实支持的连接与 Maidenhead 字段。
 - ADR-0005 已批准并实现管理 WebSocket 的最小只读白名单；状态读取与 `/events` 独立于 GEO，单项失败只降级对应字段。
 - 连接断开/恢复、切换设备隔离和盒子端服务器 A → B → A 同步已经完成真机验收。延迟决定隐藏；管理员、在线/最大人数、“无服务器”语义、`isHost` 与重启后事件序列继续延期，不阻塞字段受限的 0.3。
-- 启动自动扫描并优先恢复上一次成功连接的设备；设备列表从首页移入呼号右侧按钮打开的选择 Sheet，扫描结果只用于用户显式切换。
-- 类型化快照驱动首页；每个字段保留来源、观测时间、可信度和过期状态。
+- 启动自动扫描并优先恢复上一次成功连接的设备；设备列表从设备页移入呼号右侧按钮打开的选择 Sheet，扫描结果只用于用户显式切换。
+- 类型化快照驱动设备页；每个字段保留来源、观测时间、可信度和过期状态。
 - 实时活动、锁屏与 Dynamic Island 从 0.3 移除，已有 ActivityKit 实现只作为后续 checkpoint，不提供入口或计入完成度。
 - 0.3 不前移完整 APRS-IS、QSO 导入或 APNs，也不把这些来源的“最后观测”冒充设备内部实时状态。
 
@@ -44,10 +44,11 @@ status: active
 
 ## 0.6 通讯与远控
 
-- 标准 APRS 消息与 ACK。
-- 用户显式配置 PASSCODE。
-- 通过 APRS-IS 公网发送 NORMAL、STANDBY、REBOOT；不复用未公开的局域网管理 WebSocket 写命令。
-- HMAC、Counter、Time Slot、Keychain 与危险操作二次确认。
+- 第一阶段交付前台标准 APRS 消息、ACK、有限自动重试、本地会话历史和收藏呼号联系人。
+- 第二阶段交付 APRS-IS 公网 `NORMAL`、`STANDBY`、`REBOOT`；不复用未公开的局域网管理 WebSocket 写命令，命令不自动重发。
+- PASSCODE 由规范化基础呼号按公开算法自动计算且不持久化；远控 SECRET 按目标 FMO 隔离并只进入 Keychain。
+- HMAC、Counter、Time Slot、ACK 与危险操作二次确认必须以固定官方版本和脱敏测试向量为准；用户界面不展示这些实现细节。
+- 0.6 只保证 App 前台活跃期间收发；后台常驻、离线推送、APNs 和配套服务端留到 1.0。
 
 ## 0.8 QSO
 

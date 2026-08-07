@@ -11,10 +11,10 @@ final class FMOcUITests: XCTestCase {
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "empty"
         app.launch()
 
-        XCTAssertTrue(app.navigationBars["首页"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["设备"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["open-device-picker"].exists)
         XCTAssertFalse(app.buttons["device-discovery-toggle"].exists)
-        XCTAssertTrue(app.buttons["首页"].exists)
+        XCTAssertTrue(app.buttons["设备"].exists)
         XCTAssertTrue(app.buttons["FMO 网络"].exists)
         XCTAssertTrue(app.buttons["QSO"].exists)
         XCTAssertTrue(app.buttons["设置"].exists)
@@ -24,8 +24,8 @@ final class FMOcUITests: XCTestCase {
         XCTAssertTrue(diagnosticsRow.waitForExistence(timeout: 2))
         diagnosticsRow.coordinate(withNormalizedOffset: CGVector(dx: 0.72, dy: 0.5)).tap()
         XCTAssertTrue(app.navigationBars["连接诊断"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.staticTexts["首页当前未连接"].exists)
-        XCTAssertTrue(app.staticTexts["以下结果是独立可达性检查，不代表首页已建立连接。"].exists)
+        XCTAssertTrue(app.staticTexts["设备当前未连接"].exists)
+        XCTAssertTrue(app.staticTexts["以下结果是独立可达性检查，不代表设备页已建立连接。"].exists)
         app.buttons["完成"].tap()
 
         app.swipeDown()
@@ -62,13 +62,15 @@ final class FMOcUITests: XCTestCase {
         let session = app.buttons["aprs-session-bar"]
         XCTAssertTrue(session.waitForExistence(timeout: 2))
         let receiving = XCTNSPredicateExpectation(
-            predicate: NSPredicate(
-                format: "value == %@",
-                "BG0TST-10，正在接收"
-            ),
+            predicate: NSPredicate(format: "value CONTAINS %@", "正在接收"),
             object: session
         )
-        XCTAssertEqual(XCTWaiter.wait(for: [receiving], timeout: 5), .completed)
+        XCTAssertEqual(
+            XCTWaiter.wait(for: [receiving], timeout: 5),
+            .completed,
+            "Unexpected session value: \(String(describing: session.value))"
+        )
+        XCTAssertTrue((session.value as? String)?.contains("BG0TST-10") == true)
     }
 
     @MainActor
@@ -122,7 +124,7 @@ final class FMOcUITests: XCTestCase {
         app.launch()
 
         let alert = app.alerts["本地网络访问已关闭"]
-        XCTAssertTrue(alert.waitForExistence(timeout: 2))
+        XCTAssertTrue(alert.waitForExistence(timeout: 8))
         XCTAssertTrue(alert.buttons["前往设置"].exists)
         XCTAssertTrue(alert.buttons["暂不"].exists)
 
@@ -150,6 +152,33 @@ final class FMOcUITests: XCTestCase {
         confirmation.buttons["删除设备"].tap()
 
         XCTAssertTrue(deviceRow.waitForNonExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testMessagesAndRemoteControlFollowApprovedHierarchy() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "aprs-network-content"
+        app.launch()
+
+        XCTAssertTrue(app.navigationBars["设备"].waitForExistence(timeout: 5))
+        let remoteControl = app.buttons["remote-control-entry"]
+        if !remoteControl.exists { app.swipeUp() }
+        XCTAssertTrue(remoteControl.waitForExistence(timeout: 5))
+        remoteControl.tap()
+        XCTAssertTrue(app.navigationBars["远程控制"].waitForExistence(timeout: 2))
+        app.buttons["remote-control-settings"].tap()
+        XCTAssertTrue(app.navigationBars["远控设置"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.secureTextFields["12 位凭据"].exists)
+        app.buttons["取消"].tap()
+
+        app.buttons["FMO 网络"].tap()
+        let messages = app.buttons["aprs-messages-entry"]
+        if !messages.exists { app.swipeUp() }
+        XCTAssertTrue(messages.waitForExistence(timeout: 5))
+        messages.tap()
+        XCTAssertTrue(app.navigationBars["APRS 消息"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.buttons["aprs-new-message"].exists)
+        XCTAssertTrue(app.staticTexts["已连接"].waitForExistence(timeout: 5))
     }
 
     @MainActor

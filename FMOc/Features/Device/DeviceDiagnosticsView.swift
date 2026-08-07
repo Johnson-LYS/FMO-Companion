@@ -22,7 +22,7 @@ struct DeviceDiagnosticsView: View {
             List {
                 Section("App 连接状态") {
                     Label(
-                        isMainConnected ? "首页连接已建立" : "首页当前未连接",
+                        isMainConnected ? "设备连接已建立" : "设备当前未连接",
                         systemImage: isMainConnected ? "link.circle.fill" : "link.badge.plus"
                     )
                     .foregroundStyle(isMainConnected ? Color.green : Color.primary)
@@ -30,7 +30,7 @@ struct DeviceDiagnosticsView: View {
                     Text(
                         isMainConnected
                             ? "以下结果用于独立验证当前网络路径。"
-                            : "以下结果是独立可达性检查，不代表首页已建立连接。"
+                            : "以下结果是独立可达性检查，不代表设备页已建立连接。"
                     )
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -48,7 +48,7 @@ struct DeviceDiagnosticsView: View {
                 } header: {
                     Text("独立探测 · \(endpoint?.displayAddress ?? "尚未选择设备")")
                 } footer: {
-                    Text("每一步均为独立可达性检查；全部通过表示设备可达，不等于首页连接状态。诊断不包含精确位置、凭据或设备私密数据。")
+                    Text("每一步均为独立可达性检查；全部通过表示设备可达，不等于设备页连接状态。诊断不包含精确位置、凭据或设备私密数据。")
                 }
             }
             .navigationTitle("连接诊断")
