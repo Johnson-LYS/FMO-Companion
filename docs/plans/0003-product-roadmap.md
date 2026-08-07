@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-06
+last-reviewed: 2026-08-07
 status: active
 ---
 
@@ -10,7 +10,7 @@ status: active
 | 0.1 | 局域网闭环 | 发现、诊断、GEO 读写、手动定位 | Complete |
 | 0.2 | 可靠定位 | 低功耗/车载模式、重连、后台权限、官方 Web 后台入口 | Complete |
 | 0.3 | 设备仪表盘基础 | 共享快照、GEO/Maidenhead、局部降级与最终交互原型 | Complete |
-| 0.4 | FMO APRS | V4 解析、证书链、签名/CRL、地图、服务器目录、事件流 | In Planning |
+| 0.4 | FMO APRS | V4 解析、证书链、签名/CRL、地图、服务器目录、事件流 | Complete |
 | 0.6 | 通讯与远控 | APRS 短消息、ACK、NORMAL/STANDBY/REBOOT、Keychain | Planned |
 | 0.8 | QSO | SQLite 导入、查询、P-256 验签、ADIF 导出 | Planned |
 | 1.0 | 完整伴侣 | 自建服务器 API、APNs、小组件、快捷指令、可访问性 | Planned |

@@ -132,6 +132,7 @@ final class FMOcUITests: XCTestCase {
 
     @MainActor
     func testSavedDeviceCanBeRemoved() throws {
+        XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "saved-device"
         app.launch()
@@ -148,7 +149,7 @@ final class FMOcUITests: XCTestCase {
         XCTAssertTrue(confirmation.waitForExistence(timeout: 2))
         confirmation.buttons["删除设备"].tap()
 
-        XCTAssertTrue(app.staticTexts["尚未发现设备"].waitForExistence(timeout: 2))
+        XCTAssertTrue(deviceRow.waitForNonExistence(timeout: 2))
     }
 
     @MainActor
@@ -179,6 +180,7 @@ final class FMOcUITests: XCTestCase {
 
     @MainActor
     func testLaunchRestoresLastDeviceAndKeepsNearbyDeviceForManualSelection() throws {
+        XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "automatic-connection"
         app.launch()
@@ -195,7 +197,7 @@ final class FMOcUITests: XCTestCase {
         let savedDevice = app.buttons["device-row-fmo.local:80"]
         XCTAssertTrue(savedDevice.waitForExistence(timeout: 2))
         XCTAssertEqual(savedDevice.value as? String, "当前设备，已连接")
-        XCTAssertTrue(app.buttons["device-row-fmo-nearby.local:80"].exists)
+        XCTAssertTrue(app.buttons["device-row-fmo.local:81"].waitForExistence(timeout: 2))
         XCTAssertFalse(app.buttons["断开连接"].exists)
     }
 

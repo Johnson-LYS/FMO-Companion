@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-06
+last-reviewed: 2026-08-07
 ---
 
 # FMO 已公开能力与来源
@@ -15,7 +15,7 @@ last-reviewed: 2026-08-06
 | 设备综合状态 API | 官方说明书描述屏幕字段；2026-08-05 用户授权分析其本人设备后台抓包，观察到 `/ws` 与 `/events` 管理消息，但仍无公开版本契约 | `User-authorized read-only — ADR-0005`；只允许固定白名单、脱敏 schema 和局部降级 |
 | 官方管理后台 | 使用说明书确认同局域网访问 `fmo.local` | 可在 App 打开，不映射未知 API |
 | APRS FMO V4 | 官方报文格式公开 CQ、OMCQ、VOCAL、ONLINE、BEACON、STATION、JOINT/EVENT；VOCAL 由 PTT ≥ 3 秒触发并携带呼号、位置与 serverUID，但没有会话目标或结束状态 | 可解析、展示与验证；VOCAL 只表述为最近语音活动 |
-| FMO V4 信任验证 | CERT CBOR、Ed25519、timeSalt、根/中间证书与 CRL | 格式已公开；生产验签等待有效信任材料与完整向量 |
+| FMO V4 信任验证 | CERT CBOR、Ed25519、timeSalt、根/中间证书与 CRL；官方 SAS 源码公开固定顺序 CBOR TBS | 0.4 已实现并通过真机验收；独立许可证与完整官方字节向量保留为发布前事项 |
 | APRS 远控 | 官方示例公开 NORMAL、STANDBY、REBOOT、HMAC、Counter、ACK | 可原生实现 |
 | QSO 数据 | Web UI 备份 SQLite，官方脚本读取 `qso_logs` 并导出 ADIF | 可由用户导入处理 |
 | QSO 验签 | 官方工具公开 SHA-256 + ECDSA P-256 验证 | 可用 CryptoKit 实现 |
@@ -41,7 +41,7 @@ last-reviewed: 2026-08-06
 
 握手样本未出现 Cookie、Authorization、TLS 或 WebSocket 子协议，而 `/ws` 同时存在读取 PASSCODE 的命令。若未来获准接入，必须使用只读命令与字段双重白名单，不得实现通用命令代理，不得请求、解码、保存或记录 PASSCODE，并为原始帧大小、畸形数据、未知字段和秘密字段丢弃建立测试。
 
-FMO V4 解析格式已在官方 v1.0 文档中明确，但生产信任验证仍受 CRL 新鲜度、CA/CRL 签名 TBS、许可证和完整官方字节向量阻塞；不得把“可解析”写成“可验证”。核对记录见 `docs/references/fmo-aprs-v4-readiness.md`。
+FMO V4 解析格式和 CA/CRL 签名 TBS 已由官方 v1.0 文档与 SAS 源码明确，0.4 已完成生产形态的信任验证和真机联调。CRL 新鲜度继续按内部状态处理；独立许可证与完整官方字节向量仍是发布前门槛。核对记录见 `docs/references/fmo-aprs-v4-readiness.md`。
 
 ### 待补样本
 

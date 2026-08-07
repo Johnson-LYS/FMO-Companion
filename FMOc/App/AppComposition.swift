@@ -47,7 +47,12 @@ enum AppComposition {
             localEventStream = UITestLocalEventStream()
         case "automatic-connection":
             let savedEndpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual)
-            let nearbyEndpoint = try? FmoDeviceEndpoint(host: "fmo-nearby.local", source: .bonjour, name: "FMO Nearby")
+            let nearbyEndpoint = try? FmoDeviceEndpoint(
+                host: FmoDeviceEndpoint.bonjourHost,
+                port: 81,
+                source: .bonjour,
+                name: "FMO Nearby"
+            )
             endpointStore = UITestEndpointStore(endpoint: savedEndpoint)
             discovery = nearbyEndpoint.map(UITestSingleDeviceDiscovery.init(endpoint:)) ?? EmptyDeviceDiscovery()
             geoClient = UITestGeoClient()

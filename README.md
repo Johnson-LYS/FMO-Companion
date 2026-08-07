@@ -1,6 +1,6 @@
 # FMO Companion
 
-FMO Companion 是面向 FMO（NFM Over Internet）盒子的原生 iOS 伴侣应用。项目只使用公开协议和用户授权的接口，首个开发目标是在同一局域网内发现 FMO，并通过官方 GEO WebSocket 完成坐标读取与同步。
+FMO Companion 是面向 FMO（NFM Over Internet）盒子的原生 iOS 伴侣应用。项目只使用公开协议和用户授权的接口。0.1–0.4 已完成局域网设备、可靠定位、设备仪表盘和只读 FMO APRS 网络；下一阶段为 0.6 通讯与远控。
 
 ## 技术基线
 
@@ -14,7 +14,7 @@ FMO Companion 是面向 FMO（NFM Over Internet）盒子的原生 iOS 伴侣应�
 
 1. 使用 Xcode 打开 `FMOc.xcodeproj`。
 2. 阅读 `AGENTS.md` 和 `docs/project-brief.md`。
-3. 当前实施计划见 `docs/plans/0002-milestone-0.1-local-connection.md`。
+3. 当前路线图见 `docs/plans/0003-product-roadmap.md`；开始新阶段前先阅读 `docs/project-brief.md`。
 4. 选择本机可用的 iPhone Simulator 或真实 iPhone 运行测试。
 
 ## 文档

@@ -12,15 +12,16 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 当前状态
 
-- **阶段：** 0.3 设备仪表盘基础已完成；0.4 FMO APRS 只读网络功能进入联调与真机验收
-- **已完成：** 0.1 局域网真机闭环；0.2 可靠定位真机闭环；0.3 首页卡、共享快照、本地只读状态、讲话事件、设备恢复/切换与断线恢复真机闭环
-- **进行中：** 0.4 已实现只读 APRS-IS 会话、全部规划 V4 解析、严格确定性 CBOR、官方 Root/Intermediate 验证、官方 CRL 获取与状态区分、用户证书/消息签名/timeSalt/JOINT+EVENT 验证、可信聚合、地图、事件流、可搜索目录和 SwiftData 收藏；当前剩余真实 APRS-IS 数据联调、UI 真机验收，以及发布前许可证/完整官方报文字节向量确认
+- **阶段：** 0.1–0.4 已完成；下一阶段为 0.6 通讯与远控的文档和原型设计
+- **已完成：** 0.1 局域网真机闭环；0.2 可靠定位真机闭环；0.3 设备仪表盘；0.4 只读 APRS-IS、完整 FMO V4 信任验证、地图、事件、目录、搜索与收藏真机闭环
+- **发布前跟踪：** 官方信任锚独立许可证、完整官方 APRS CERT/SIG 字节向量与 Intermediate CRL 轮换；这些事项不回退已完成的 0.4 里程碑，但正式发布前必须关闭或明确处理
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
 
 ## 最近变更
 
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-07 | 用户完成 0.4 真实 iPhone + APRS-IS 真机验收；146 项单元测试与 14 项 XCUITest 通过，里程碑转为 Complete | `docs/plans/0007-milestone-0.4-fmo-aprs.md` |
 | 2026-08-07 | 修正 FMO 网络身份条在浅色 grouped background 上缺少层级的问题，改用系统语义卡片底色与轻描边并保持深色模式适配 | `docs/design/ui-design-system.md` |
 | 2026-08-07 | FMO 网络本地展示范围默认改为 500 km；首次进入自动取得手机位置，失败则回退全网，定位依赖纳入正式组合根与 UI 测试替身 | `docs/spec/product-spec.md`、`docs/architecture/modules/aprs.md` |
 | 2026-08-06 | FMO 网络增加右上角全网/公里范围过滤，统一裁剪地图、目录和事件；追踪移到地图左下，事件采用最近 24 小时且最多 200 条的双上限并在界面可见 | `docs/spec/product-spec.md`、`docs/architecture/modules/aprs.md` |
@@ -111,7 +112,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 本轮开发入口
 
-1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.4 范围。
-2. 阅读 `docs/spec/product-spec.md` 的 SPEC-006、SPEC-007；涉及仪表盘复用时回看 SPEC-014。
-3. 继续遵循 `docs/design/ui-design-system.md` 与 `docs/design/prototype-implementation-guide.md`。
-4. 按 `docs/plans/0007-milestone-0.4-fmo-aprs.md` 完成真实 APRS-IS 只读联调和 UI/真机验收；只有 `FMOV4Verifier` 完整接受的数据可进入地图、目录和事件，0.3 本地事件不得冒充 0.4 APRS 可信事件。
+1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.6 范围。
+2. 回看 `docs/spec/product-spec.md` 的 SPEC-009、SPEC-010，并先冻结消息、ACK、凭据与危险远控确认流程。
+3. 先更新 `prototype/`、设计规范和新的 0.6 实施计划，经用户确认后再进入开发。
+4. 继续保持公开协议边界：0.6 公网远控使用官方 APRS 格式，不复用未公开的局域网管理 WebSocket 写命令。

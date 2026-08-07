@@ -1,6 +1,6 @@
 ---
 last-reviewed: 2026-08-07
-status: in-progress
+status: complete
 ---
 
 # 计划 0007：里程碑 0.4 FMO APRS
@@ -32,13 +32,13 @@ status: in-progress
 
 ### 1. 公开协议与信任材料 checkpoint
 
-**状态（2026-08-06）：Implementation checkpoint resolved。** 官方 SAS 仓库已公开 Root/Intermediate CA、Root/Intermediate CRL 与用户证书的固定顺序 CBOR TBS，并提供与官方内置信任锚一致的实现；Root 自签名与 Intermediate 签名已由 CryptoKit 实测通过。Root CRL 的 `{}` 与 SAS 的 `not published yet` 行为一致，App 将其显示为“暂无已知吊销”；已签名 CRL 过期或不可用时仍保留独立可信状态。详细证据见 `docs/references/fmo-aprs-v4-readiness.md`。
+**状态（2026-08-06）：Implementation checkpoint resolved。** 官方 SAS 仓库已公开 Root/Intermediate CA、Root/Intermediate CRL 与用户证书的固定顺序 CBOR TBS，并提供与官方内置信任锚一致的实现；Root 自签名与 Intermediate 签名已由 CryptoKit 实测通过。Root CRL 的 `{}` 与 SAS 的 `not published yet` 行为一致，App 在内部将其映射为“暂无已知吊销”，不向普通用户展示技术信任状态；已签名 CRL 过期或不可用时仍保留独立可信状态。详细证据见 `docs/references/fmo-aprs-v4-readiness.md`。
 
 独立证书许可证 URL 与完整官方 APRS CERT/SIG 字节向量仍需在发布前关闭，因此当前实现保留可替换信任材料和测试注入边界；这两项不再阻止开发和用户授权联调，但不得在发布说明中宣称已解决。
 
 - 固定官方 FMO V4 文档版本、APRS-IS 连接规范、根/中间证书和 CRL 来源；核对证书材料许可证及分发方式。
 - 从官方示例制作最小、人工化测试向量；不得把真实网络捕获、真实证书指纹、呼号或位置写入仓库。
-- 用 spike 验证 CryptoKit Ed25519 与确定性 CBOR 兼容性。当前候选为项目内最小严格 RFC 8949 编解码器，只支持 FMO 所需的无符号整数、字节串、文本与固定长度数组；完整官方向量通过前不写入生产代码、不增加第三方依赖。
+- 用 spike 验证 CryptoKit Ed25519 与确定性 CBOR 兼容性。项目最终采用最小严格 RFC 8949 编解码器，只支持 FMO 所需的无符号整数、字节串、文本与固定长度数组；官方 CA 与人工完整链路通过后进入生产代码，不增加第三方依赖，完整官方报文字节向量继续作为发布前交叉验证。
 - 核对公开 V4 文档与远控示例中消息 TOCALL 的差异；差异不阻塞只读取 `APFMO4`，但必须在 0.6 前关闭。
 
 ### 2. 只读身份与 APRS-IS 传输
@@ -52,7 +52,7 @@ status: in-progress
 
 ### 3. APRS 与 FMO V4 纯解析
 
-**状态（2026-08-06）：Parser foundation implemented。** 已实现严格 TNC2 与所有规划 `APFMO4` 消息家族的未验证模型，覆盖 token 顺序、字段上限、数值、坐标与 Base64url 长度；尚未开始 CERT CBOR 或任何可信判定。
+**状态（2026-08-06）：Parser foundation implemented。** 此 checkpoint 已实现严格 TNC2 与所有规划 `APFMO4` 消息家族的未验证模型，覆盖 token 顺序、字段上限、数值、坐标与 Base64url 长度；后续第 4 阶段已完成 CERT CBOR 与可信判定。
 
 - 先解析 TNC2 包头、来源呼号/SSID、TOCALL、路径、POSITION/STATUS 与原始 APRS 坐标字符串。
 - 再按消息类型解析严格有界的 FMO V4 token；拒绝未知必填字段、数值越界、非法 base64url、错误 token 顺序和超长文本。
@@ -78,7 +78,7 @@ status: in-progress
 
 ### 6. 原生 UI
 
-**状态（2026-08-06）：Implemented，等待体验验收。** 已完成无身份引导、单层身份 Sheet、紧凑会话条、零数据也可见的地图、最新事件、类型/收藏筛选、台站/服务器/收藏目录、直接搜索、普通详情和星标共享状态；证书链、CRL 与可信等级仅作为内部准入，不进入用户界面。0.6 消息、发送凭据和远控入口未进入原生 0.4。
+**状态（2026-08-07）：Implemented and accepted。** 已完成并通过真机体验验收：无身份引导、单层身份 Sheet、紧凑会话条、零数据也可见的地图、最新事件、类型/收藏筛选、台站/服务器/收藏目录、直接搜索、普通详情和星标共享状态；证书链、CRL 与可信等级仅作为内部准入，不进入用户界面。0.6 消息、发送凭据和远控入口未进入原生 0.4。
 
 - FMO 网络首页呈现只读身份/连接状态、地图摘要、过滤器与最新可信事件；点击身份条以底部 Sheet 原地编辑呼号和 App SSID，不增加导航层级。
 - 导航栏提供全网与 `50...5000 km` 的本地范围 Menu，默认 `500 km`；首次进入已配置页面时自动取得一次手机位置，失败回退全网，此后有限范围按需定位并统一裁剪地图、目录和事件。地图左下提供默认开启的追踪开关，右下提供一次性本机定位按钮。这些控件不继承或修改盒子距离过滤器，也不改变 APRS 数据订阅。
@@ -88,6 +88,8 @@ status: in-progress
 - 消息、发送凭据、远控和通知页面不进入 0.4 原生实现；HTML 中保留它们只是最终产品导航参考。
 
 ### 7. 验证与真机验收
+
+**状态（2026-08-07）：Complete。** 用户使用真实 iPhone、合法呼号与公网 APRS-IS 数据完成 0.4 界面和连接验收；通用模拟器构建通过，31 个单元测试套件共 146 项通过，完整 XCUITest 14 项通过。
 
 - 单元测试：身份优先级、登录/过滤行、绝不发送数据帧、分帧/粘包、行长与取消。
 - 协议测试：每种消息的有效/畸形/边界向量、确定性 CBOR、证书链、CRL、签名、timeSalt 与 JOINT 配对。
@@ -109,4 +111,4 @@ status: in-progress
 - [x] 选定严格最小确定性 CBOR，并用官方 CA 签名和人工完整链路证明兼容；官方完整 APRS 报文字节向量留作发布前交叉验证。
 - [x] 建立 `feat/fmo-aprs-readonly` 分支。
 
-阶段 2–6 已进入 Release composition；下一步是阶段 7 的真实 APRS-IS 只读连接、界面/收藏真机验收和全套回归。未通过 `FMOV4Verifier` 的输入仍不得进入可见网络内容。
+阶段 2–7 已完成并进入 Release composition，0.4 里程碑关闭。未通过 `FMOV4Verifier` 的输入仍不得进入可见网络内容。独立证书许可证、完整官方 APRS CERT/SIG 字节向量与 Intermediate CRL 轮换继续作为发布前跟踪项，不回退里程碑状态。

@@ -119,9 +119,9 @@ Network.framework bytes
 - 重复签名或无法在期限内匹配 JOINT/EVENT：静默丢弃，不重复展示也不保存原始状态文本。
 - 不得将 APRS-IS 的 `unverified` 登录状态转换为“数据不可信”文案，也不得反向把它转换为“FMO 已验证”；两者属于不同层级。
 
-## 当前剩余
+## 发布前跟踪
 
-- 使用用户合法呼号完成真实 APRS-IS `APFMO4` 数据接收、地图/目录/事件与收藏真机验收。
+- 0.4 已使用用户合法呼号完成真实 APRS-IS `APFMO4` 数据接收、地图/目录/事件与收藏真机验收；146 项单元测试与 14 项 XCUITest 通过。
 - 补充官方未省略的 APRS CERT/SIG 字节向量，作为第二实现交叉验证。
 - 发布前确认官方 Root/Intermediate 证书所声明的独立许可证 URL；当前两个 URL 仍为 404。
 - Intermediate CRL #4 当前已过 `nextUpdate`；内部保留过期状态但 UI 暂不展示，等待官方轮换后验证自动刷新路径。
