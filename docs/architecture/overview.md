@@ -71,7 +71,7 @@ flowchart LR
 
 ### APRS
 
-由只读 APRS-IS 传输、身份持久化、前台会话协调、CRLF/TNC2 分帧、FMO V4 语义解析、信任验证、存储和地图投影组成。当前已实现的基础层使用 `pass -1` 与 `u/APFMO4`，并以 `UnverifiedFMOV4Frame` 明确隔离尚未验签的数据；它没有 APRS 数据帧发送接口。Release UI 已接入身份 Sheet 和连接状态，但地图、目录与事件只能接收未来完整验证后的领域事件。无效帧只形成无原文诊断类别，解析成功但未完成 CERT/CRL/SIG 验证的数据同样不能显示为可信。详细边界见 `docs/architecture/modules/aprs.md`。
+由只读 APRS-IS 传输、身份持久化、前台会话协调、CRLF/TNC2 分帧、FMO V4 语义解析、信任验证、短期聚合、SwiftData 收藏和 MapKit/SwiftUI 投影组成。传输使用 `pass -1` 与 `u/APFMO4`，并以 `UnverifiedFMOV4Frame` 隔离未验签输入；业务层没有 APRS 数据帧发送接口。`FMOV4Verifier` 完成 CERT、官方 Root/Intermediate、有效期、CRL、Ed25519、timeSalt 与 JOINT/EVENT 关系验证后，领域记录才进入地图、目录和事件流；失败输入只形成无原文诊断计数。详细边界见 `docs/architecture/modules/aprs.md`。
 
 ### QSO
 
@@ -110,10 +110,10 @@ APRS-IS line
 → strict CRLF / 512-byte framer
 → TNC2 packet parser
 → unverified FMO V4 frame
-→ CERT/CBOR parser（blocked）
+→ strict deterministic CBOR + CERT parser
 → certificate + CRL + Ed25519 + replay validation
-→ trusted domain event
-→ storage / map / notification
+→ authenticated domain record（含 CRL 新鲜度）
+→ reducer / MapKit / directory / event stream / SwiftData favorites
 ```
 
 ### QSO

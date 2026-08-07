@@ -7,7 +7,7 @@
   <link rel="icon" href="data:,">
   <title>FMO Companion · 交互原型</title>
   <meta name="description" content="FMO Companion iOS 应用的交互式 HTML 原型与 UI 设计验证稿。">
-  <link rel="stylesheet" href="styles.css?v=20260805b">
+  <link rel="stylesheet" href="styles.css?v=20260806d">
 </head>
 <body>
   <div class="prototype-shell">
@@ -114,6 +114,18 @@
           <section class="screen" data-screen="network" aria-labelledby="screenTitle">
             <div class="section-heading top-heading">
               <div><span class="eyebrow">FMO NETWORK</span><h3>网络态势</h3></div>
+              <label class="network-range-menu" aria-label="范围过滤">
+                <select id="networkRange" aria-label="选择显示范围">
+                  <option value="all">全网</option>
+                  <option value="50">50 km</option>
+                  <option value="100">100 km</option>
+                  <option value="200">200 km</option>
+                  <option value="500" selected>500 km</option>
+                  <option value="1000">1000 km</option>
+                  <option value="2000">2000 km</option>
+                  <option value="5000">5000 km</option>
+                </select>
+              </label>
             </div>
             <button class="network-session-bar" type="button" data-action="open-aprs-identity" aria-label="FMO 网络身份 BI8SYN-10，正在接收，点击编辑">
               <span class="live-dot"></span><span><strong>BI8SYN-10</strong><small>正在接收</small></span><b>›</b>
@@ -123,7 +135,12 @@
               <span class="station-dot station-a"><i></i><b>BI8SYN</b></span>
               <span class="station-dot station-b"><i></i><b>BG0AAA</b></span>
               <span class="station-dot station-c"><i></i><b>BH4XYZ</b></span>
-              <div class="map-caption"><strong>3 个可信台站</strong><small>均为虚构原型数据</small></div>
+              <span class="station-dot station-own" id="mapOwnLocation" hidden><i></i><b>我的位置</b></span>
+              <div class="map-control-stack" aria-label="地图控制">
+                <label class="map-tracking-toggle"><span>◎ 追踪</span><input type="checkbox" checked aria-label="自动追踪新台站"></label>
+              </div>
+              <button class="map-location-button" type="button" data-action="locate-on-map" aria-label="显示我的位置">⌖</button>
+              <div class="map-caption"><strong>3 个台站</strong><small>均为虚构原型数据</small></div>
             </div>
             <div class="filter-chips" role="group" aria-label="事件过滤">
               <button class="chip is-selected" type="button">全部</button>
@@ -131,14 +148,15 @@
               <button class="chip" type="button">呼叫</button>
               <button class="chip" type="button">收藏</button>
             </div>
+            <div class="section-heading compact-heading timeline-heading"><div><h3>最近动态</h3></div><small>◴ 24h · 200</small></div>
             <div class="timeline-card">
               <article class="timeline-item">
                 <span class="event-mark orange">CQ</span>
-                <div><strong>BH4XYZ 发起 CQ</strong><p>已验证 · 距离约 18 km</p></div><time>刚刚</time>
+                <div><strong>BH4XYZ 发起 CQ</strong><p>距离约 18 km</p></div><time>刚刚</time>
               </article>
               <article class="timeline-item">
                 <span class="event-mark green">ON</span>
-                <div><strong>BG0AAA 上线</strong><p>证书链有效 · 数据新鲜</p></div><time>3 分</time>
+                <div><strong>BG0AAA 上线</strong><p>3 分钟前</p></div><time>3 分</time>
               </article>
               <article class="timeline-item">
                 <span class="event-mark gray">ST</span>
@@ -271,12 +289,12 @@
           <section class="screen detail-screen" data-detail="station-directory" data-title="台站与服务器" aria-labelledby="screenTitle">
             <div class="search-field"><span>⌕</span><input type="search" placeholder="搜索呼号、服务器或地区" aria-label="搜索台站与服务器"></div>
             <div class="inline-tabs" data-choice-group="directory-tab"><button class="is-selected" type="button" data-directory-view="stations">台站</button><button type="button" data-directory-view="servers">服务器</button><button type="button" data-directory-view="favorites">收藏</button></div>
-            <div class="directory-summary"><div><strong>128</strong><small>已验证台站</small></div><div><strong>12</strong><small>服务器</small></div><div><strong id="favoriteCount">2</strong><small>收藏</small></div></div>
+            <div class="directory-summary"><div><strong>128</strong><small>台站</small></div><div><strong>12</strong><small>服务器</small></div><div><strong id="favoriteCount">2</strong><small>收藏</small></div></div>
             <div data-directory-panel="stations">
               <div class="station-list">
-                <article class="station-card"><button class="station-card-main" type="button" data-action="open-detail" data-target="trust-center"><span class="station-avatar">BI</span><span><strong>BI8SYN</strong><small>18 km · 在线 · 1 分钟前</small></span><span class="trust-mark">✓ 可信</span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BI8SYN" data-favorite-label="BI8SYN" aria-label="收藏呼号 BI8SYN" aria-pressed="false">☆</button></article>
-                <article class="station-card"><button class="station-card-main" type="button" data-action="open-detail" data-target="trust-center"><span class="station-avatar alt">BH</span><span><strong>BH4XYZ</strong><small>42 km · 语音活跃 · 刚刚</small></span><span class="trust-mark">✓ 可信</span></button><button class="favorite-button is-selected" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BH4XYZ" data-favorite-label="BH4XYZ" aria-label="取消收藏呼号 BH4XYZ" aria-pressed="true">★</button></article>
-                <article class="station-card"><button class="station-card-main" type="button" data-action="open-detail" data-target="trust-center"><span class="station-avatar muted">BD</span><span><strong>BD7ABC</strong><small>未知距离 · 数据已过期</small></span><span class="unknown-mark">? 未知根</span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BD7ABC" data-favorite-label="BD7ABC" aria-label="收藏呼号 BD7ABC" aria-pressed="false">☆</button></article>
+                <article class="station-card"><button class="station-card-main" type="button" data-action="open-detail" data-target="station-detail"><span class="station-avatar">BI</span><span><strong>BI8SYN</strong><small>18 km · 在线 · 1 分钟前</small></span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BI8SYN" data-favorite-label="BI8SYN" aria-label="收藏呼号 BI8SYN" aria-pressed="false">☆</button></article>
+                <article class="station-card"><button class="station-card-main" type="button" data-action="open-detail" data-target="station-detail"><span class="station-avatar alt">BH</span><span><strong>BH4XYZ</strong><small>42 km · 语音活跃 · 刚刚</small></span></button><button class="favorite-button is-selected" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BH4XYZ" data-favorite-label="BH4XYZ" aria-label="取消收藏呼号 BH4XYZ" aria-pressed="true">★</button></article>
+                <article class="station-card"><button class="station-card-main" type="button" data-action="open-detail" data-target="station-detail"><span class="station-avatar muted">BD</span><span><strong>BD7ABC</strong><small>未知距离 · 12 分钟前</small></span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BD7ABC" data-favorite-label="BD7ABC" aria-label="收藏呼号 BD7ABC" aria-pressed="false">☆</button></article>
               </div>
             </div>
             <div data-directory-panel="servers" hidden>
@@ -284,41 +302,33 @@
               <article class="server-directory-card"><button class="server-directory-main" type="button" data-action="show-directory-item" data-item-label="示例西南服务器"><span><strong>示例西南服务器</strong><small>southwest.example.invalid:1883 · 覆盖 80 km</small></span><span><b>11</b><small>在线</small></span><span><b>29</b><small>峰值</small></span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="server:456" data-favorite-label="示例西南服务器" aria-label="收藏服务器 示例西南服务器" aria-pressed="false">☆</button></article>
             </div>
             <div class="favorite-collection" data-directory-panel="favorites" hidden>
-              <section><h4>收藏呼号</h4><article class="favorite-summary-row" data-favorite-copy="call:BH4XYZ"><button class="favorite-summary-main" type="button" data-action="open-detail" data-target="trust-center"><span class="station-avatar alt">BH</span><span><strong>BH4XYZ</strong><small>42 km · 刚刚活动</small></span></button><button class="favorite-button is-selected" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BH4XYZ" data-favorite-label="BH4XYZ" aria-label="取消收藏呼号 BH4XYZ" aria-pressed="true">★</button></article><article class="favorite-summary-row" data-favorite-copy="call:BI8SYN" hidden><button class="favorite-summary-main" type="button" data-action="open-detail" data-target="trust-center"><span class="station-avatar">BI</span><span><strong>BI8SYN</strong><small>18 km · 1 分钟前</small></span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BI8SYN" data-favorite-label="BI8SYN" aria-label="收藏呼号 BI8SYN" aria-pressed="false">☆</button></article><article class="favorite-summary-row" data-favorite-copy="call:BD7ABC" hidden><button class="favorite-summary-main" type="button" data-action="open-detail" data-target="trust-center"><span class="station-avatar muted">BD</span><span><strong>BD7ABC</strong><small>数据已过期 · 收藏仍保留</small></span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BD7ABC" data-favorite-label="BD7ABC" aria-label="收藏呼号 BD7ABC" aria-pressed="false">☆</button></article></section>
+              <section><h4>收藏呼号</h4><article class="favorite-summary-row" data-favorite-copy="call:BH4XYZ"><button class="favorite-summary-main" type="button" data-action="open-detail" data-target="station-detail"><span class="station-avatar alt">BH</span><span><strong>BH4XYZ</strong><small>42 km · 刚刚活动</small></span></button><button class="favorite-button is-selected" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BH4XYZ" data-favorite-label="BH4XYZ" aria-label="取消收藏呼号 BH4XYZ" aria-pressed="true">★</button></article><article class="favorite-summary-row" data-favorite-copy="call:BI8SYN" hidden><button class="favorite-summary-main" type="button" data-action="open-detail" data-target="station-detail"><span class="station-avatar">BI</span><span><strong>BI8SYN</strong><small>18 km · 1 分钟前</small></span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BI8SYN" data-favorite-label="BI8SYN" aria-label="收藏呼号 BI8SYN" aria-pressed="false">☆</button></article><article class="favorite-summary-row" data-favorite-copy="call:BD7ABC" hidden><button class="favorite-summary-main" type="button" data-action="open-detail" data-target="station-detail"><span class="station-avatar muted">BD</span><span><strong>BD7ABC</strong><small>12 分钟前 · 收藏仍保留</small></span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BD7ABC" data-favorite-label="BD7ABC" aria-label="收藏呼号 BD7ABC" aria-pressed="false">☆</button></article></section>
               <section><h4>收藏服务器</h4><article class="favorite-summary-row server-favorite-row" data-favorite-copy="server:123"><button class="favorite-summary-main" type="button" data-action="show-directory-item" data-item-label="示例华东服务器"><span class="station-avatar">S</span><span><strong>示例华东服务器</strong><small>24 / 37 在线 · 数据新鲜</small></span></button><button class="favorite-button is-selected" type="button" data-action="toggle-item-favorite" data-favorite-id="server:123" data-favorite-label="示例华东服务器" aria-label="取消收藏服务器 示例华东服务器" aria-pressed="true">★</button></article><article class="favorite-summary-row server-favorite-row" data-favorite-copy="server:456" hidden><button class="favorite-summary-main" type="button" data-action="show-directory-item" data-item-label="示例西南服务器"><span class="station-avatar muted">S</span><span><strong>示例西南服务器</strong><small>11 / 29 在线 · 数据新鲜</small></span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="server:456" data-favorite-label="示例西南服务器" aria-label="收藏服务器 示例西南服务器" aria-pressed="false">☆</button></article></section>
               <div class="empty-card compact-empty" id="favoriteEmpty" hidden><span class="empty-icon">☆</span><strong>尚无收藏</strong><p>可从台站或服务器目录点击星标添加。</p></div>
             </div>
             <p class="prototype-disclaimer">呼号、服务器与距离均为虚构数据。</p>
           </section>
 
-          <section class="screen detail-screen" data-detail="trust-center" data-title="FMO V4 信任" aria-labelledby="screenTitle">
-            <div class="trust-hero"><span class="trust-seal">✓</span><div><span class="eyebrow">VERIFIED IDENTITY</span><h3>BI8SYN</h3><p>证书链、签名和重放窗口均通过</p></div><button class="favorite-button trust-favorite" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BI8SYN" data-favorite-label="BI8SYN" aria-label="收藏呼号 BI8SYN" aria-pressed="false">☆</button></div>
-            <div class="detail-card trust-checklist">
-              <div><span class="check good">✓</span><span><strong>CERT blob</strong><small>确定性 CBOR 解析成功</small></span></div>
-              <div><span class="check good">✓</span><span><strong>呼号绑定</strong><small>消息呼号与证书主体一致</small></span></div>
-              <div><span class="check good">✓</span><span><strong>证书链与有效期</strong><small>根与中间证书可信，当前有效</small></span></div>
-              <div><span class="check good">✓</span><span><strong>CRL</strong><small>最近更新 18 分钟前，未吊销</small></span></div>
-              <div><span class="check good">✓</span><span><strong>Ed25519 签名</strong><small>报文签名有效</small></span></div>
-              <div><span class="check good">✓</span><span><strong>timeSalt / 重放窗口</strong><small>时间窗口有效，未发现重放</small></span></div>
-              <div><span class="check good">✓</span><span><strong>JOINT / EVENT 关系</strong><small>事件哈希链一致</small></span></div>
+          <section class="screen detail-screen" data-detail="station-detail" data-title="台站详情" aria-labelledby="screenTitle">
+            <div class="trust-hero"><span class="station-avatar">BI</span><div><span class="eyebrow">FMO STATION</span><h3>BI8SYN</h3><p>最近上线 · 1 分钟前</p></div><button class="favorite-button trust-favorite" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BI8SYN" data-favorite-label="BI8SYN" aria-label="收藏呼号 BI8SYN" aria-pressed="false">☆</button></div>
+            <div class="detail-card key-value">
+              <span>位置</span><b>OM20xx</b>
+              <span>距离</span><b>约 18 km</b>
+              <span>最近活动</span><b>ONLINE</b>
+              <span>收到时间</span><b>1 分钟前</b>
             </div>
-            <div class="detail-card">
-              <div class="card-heading"><div><h3>异常状态预览</h3><p>失败数据不会显示为可信</p></div></div>
-              <div class="failure-chips" data-choice-group="trust-failure"><button class="is-selected" type="button">过期</button><button type="button">吊销</button><button type="button">签名错误</button><button type="button">呼号不匹配</button><button type="button">未知根</button></div>
-            </div>
-            <button class="secondary-button full-width" type="button" data-action="simulate-check">重新验证并更新 CRL</button>
           </section>
 
           <section class="screen detail-screen" data-detail="event-explorer" data-title="完整事件流" aria-labelledby="screenTitle">
             <div class="inline-tabs scroll-tabs" data-choice-group="event-filter"><button class="is-selected" type="button">全部</button><button type="button">CQ</button><button type="button">OMCQ</button><button type="button">VOCAL</button><button type="button">ONLINE</button><button type="button">BEACON</button><button type="button">STATION</button></div>
             <div class="event-stream">
-              <article><span class="event-mark orange">CQ</span><div><strong>BH4XYZ 发起 CQ</strong><small>已验证 · 18 km</small></div><time>刚刚</time></article>
-              <article><span class="event-mark orange">OM</span><div><strong>BG0AAA 发起 OMCQ</strong><small>老友呼叫 · 已验证</small></div><time>1 分</time></article>
+              <article><span class="event-mark orange">CQ</span><div><strong>BH4XYZ 发起 CQ</strong><small>距离约 18 km</small></div><time>刚刚</time></article>
+              <article><span class="event-mark orange">OM</span><div><strong>BG0AAA 发起 OMCQ</strong><small>老友呼叫</small></div><time>1 分</time></article>
               <article><span class="event-mark green is-voice" aria-label="最近检测到语音活动"></span><div><strong>BI8SYN</strong><small>18 km · OM20xx · 2 分钟前</small></div><time>2 分</time></article>
               <article><span class="event-mark green">ON</span><div><strong>BD7ABC 上线</strong><small>ONLINE · 数据新鲜</small></div><time>4 分</time></article>
               <article><span class="event-mark gray">BC</span><div><strong>BEACON 位置更新</strong><small>精度约 30 m · 6 分钟前</small></div><time>6 分</time></article>
               <article><span class="event-mark gray">ST</span><div><strong>STATION 服务广播</strong><small>在线 24 · 覆盖 60 km</small></div><time>8 分</time></article>
-              <article><span class="event-mark orange">JE</span><div><strong>JOINT + EVENT 已关联</strong><small>哈希关系验证通过</small></div><time>10 分</time></article>
+              <article><span class="event-mark orange">EV</span><div><strong>动态事件</strong><small>10 分钟前</small></div><time>10 分</time></article>
             </div>
             <button class="primary-button full-width" type="button" data-action="open-detail" data-target="notifications">配置事件通知</button>
           </section>
@@ -585,6 +595,6 @@
       </div>
     </main>
   </div>
-  <script src="app.js?v=20260805b"></script>
+  <script src="app.js?v=20260806d"></script>
 </body>
 </html>

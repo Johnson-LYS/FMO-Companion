@@ -121,11 +121,9 @@ struct FmoNetworkModelTests {
         )
 
         await sut.restoreIfNeeded(isActive: true)
-        try await Task.sleep(for: .milliseconds(30))
 
-        #expect(sut.phase == .waitingToRetry)
-        let disconnectCount = await receiver.disconnectCount()
-        #expect(disconnectCount >= 2)
+        #expect(await eventually { sut.phase == .waitingToRetry })
+        #expect(await eventually { await receiver.disconnectCount() >= 2 })
         await sut.setActive(false)
     }
 
@@ -150,7 +148,7 @@ struct FmoNetworkModelTests {
     ) async -> Bool {
         for _ in 0 ..< attempts {
             if await condition() { return true }
-            await Task.yield()
+            try? await Task.sleep(for: .milliseconds(1))
         }
         return false
     }

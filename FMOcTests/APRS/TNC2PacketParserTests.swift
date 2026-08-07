@@ -7,7 +7,7 @@ struct TNC2PacketParserTests {
     @Test
     func parsesFMOV4TNC2Packet() throws {
         let packet = try sut.parse(
-            "zz0tst-15>apfmo4,TCPIP*,qAS,T2TEST:=0000.00N/00000.00EI FMO-V4,CQ"
+            "zz0tst-15>apfmo4,TCPIP*,qAS,T2TEST:=0000.00N/00000.00EiFMO-V4,CQ"
         )
 
         #expect(packet.source == TNC2Address(callsign: "ZZ0TST", ssid: 15))

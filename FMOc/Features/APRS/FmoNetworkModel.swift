@@ -52,8 +52,10 @@ final class FmoNetworkModel {
 
     private let receiver: any APRSISReceiving
     private let identityStore: any ReceiveOnlyAPRSIdentityStoring
+    private let networkProcessor: any FMOV4NetworkProcessing
     private let endpoint: APRSISEndpoint
     private let policy: Policy
+    private let now: @Sendable () -> Date
     private var sessionTask: Task<Void, Never>?
     private var sessionGeneration = 0
     private var hasRestored = false
@@ -62,17 +64,24 @@ final class FmoNetworkModel {
     var configuration: ReceiveOnlyAPRSIdentityConfiguration?
     var phase: Phase = .unconfigured
     var serverCallsign: String?
+    var networkSnapshot: FMOV4NetworkSnapshot = .empty
 
     init(
         receiver: any APRSISReceiving,
         identityStore: any ReceiveOnlyAPRSIdentityStoring,
+        networkProcessor: any FMOV4NetworkProcessing = DiscardingFMOV4NetworkProcessor(),
+        initialSnapshot: FMOV4NetworkSnapshot = .empty,
         endpoint: APRSISEndpoint = .asia,
-        policy: Policy = Policy()
+        policy: Policy = Policy(),
+        now: @escaping @Sendable () -> Date = Date.init
     ) {
         self.receiver = receiver
         self.identityStore = identityStore
+        self.networkProcessor = networkProcessor
+        networkSnapshot = initialSnapshot
         self.endpoint = endpoint
         self.policy = policy
+        self.now = now
     }
 
     var identity: ReceiveOnlyAPRSIdentity? {
@@ -236,8 +245,9 @@ final class FmoNetworkModel {
                 timeoutTask.cancel()
                 self.serverCallsign = serverCallsign
                 phase = .receiving
-            case .frame, .rejected:
-                // 未完成完整信任验证的数据只在接收层消费，不进入 UI。
+            case .frame(let frame):
+                networkSnapshot = await networkProcessor.process(frame, at: now())
+            case .rejected:
                 break
             }
         }

@@ -278,10 +278,20 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(255, 136, 0,
 .station-a { left: 45%; top: 40%; }
 .station-b { left: 20%; top: 66%; }
 .station-c { right: 15%; top: 22%; }
-.map-caption { position: absolute; left: 15px; right: 15px; bottom: 14px; padding: 11px 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; background: rgba(0,0,0,.34); backdrop-filter: blur(14px); }
+.station-own { left: 52%; top: 57%; color: #82b8ff; }
+.station-own i { background: #4a90ff; box-shadow: 0 0 0 6px rgba(74,144,255,.2); }
+.network-range-menu { min-height: 34px; padding: 0 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); display: flex; align-items: center; color: var(--orange-deep); font-size: 11px; font-weight: 800; box-shadow: 0 1px 0 var(--line); }
+.network-range-menu select { max-width: 83px; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; cursor: pointer; }
+.map-control-stack { position: absolute; left: 14px; bottom: 14px; display: grid; justify-items: start; gap: 7px; }
+.map-tracking-toggle { min-height: 34px; padding: 0 8px 0 10px; border: 1px solid rgba(255,255,255,.14); border-radius: 999px; background: rgba(0,0,0,.42); backdrop-filter: blur(14px); display: flex; align-items: center; gap: 7px; color: white; font-size: 9px; font-weight: 700; }
+.map-tracking-toggle input { width: 25px; height: 15px; margin: 0; accent-color: var(--orange); }
+.map-location-button { position: absolute; right: 14px; bottom: 14px; width: 36px; height: 36px; border: 1px solid rgba(255,255,255,.14); border-radius: 50%; background: rgba(0,0,0,.42); backdrop-filter: blur(14px); color: var(--orange); font-size: 17px; cursor: pointer; }
+.map-caption { position: absolute; right: 14px; top: 14px; padding: 8px 10px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; background: rgba(0,0,0,.34); backdrop-filter: blur(14px); }
 .map-caption strong, .map-caption small { display: block; }
 .map-caption strong { font-size: 12px; }
-.map-caption small { margin-top: 3px; color: rgba(255,255,255,.62); font-size: 9px; }
+.map-caption small { display: none; }
+.timeline-heading { margin-top: 14px; }
+.timeline-heading > small { color: var(--ink-secondary); font-size: 10px; font-weight: 700; }
 .filter-chips { margin: 13px 0; display: flex; gap: 7px; overflow-x: auto; }
 .chip { padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink-secondary); font-size: 10px; cursor: pointer; }
 .chip.is-selected { border-color: var(--ink); background: var(--ink); color: white; }

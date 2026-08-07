@@ -36,7 +36,7 @@
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>用于发现并连接同一局域网内的 FMO 设备。</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>用于读取当前 iPhone 位置并由你主动同步到 FMO 设备。</string>
+	<string>用于在地图显示当前位置，并由你主动同步到 FMO 设备。</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>启用低功耗或车载模式后，用于在后台把 iPhone 位置同步到你选择的 FMO 设备。</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

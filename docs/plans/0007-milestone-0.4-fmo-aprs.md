@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-06
+last-reviewed: 2026-08-07
 status: in-progress
 ---
 
@@ -32,9 +32,9 @@ status: in-progress
 
 ### 1. 公开协议与信任材料 checkpoint
 
-**状态（2026-08-06）：Blocked。** V4 报文、用户 CERT 与消息 TBS 已可冻结；官方 CRL/许可证/完整字节向量仍未满足生产验签门槛。详细证据见 `docs/references/fmo-aprs-v4-readiness.md`。
+**状态（2026-08-06）：Implementation checkpoint resolved。** 官方 SAS 仓库已公开 Root/Intermediate CA、Root/Intermediate CRL 与用户证书的固定顺序 CBOR TBS，并提供与官方内置信任锚一致的实现；Root 自签名与 Intermediate 签名已由 CryptoKit 实测通过。Root CRL 的 `{}` 与 SAS 的 `not published yet` 行为一致，App 将其显示为“暂无已知吊销”；已签名 CRL 过期或不可用时仍保留独立可信状态。详细证据见 `docs/references/fmo-aprs-v4-readiness.md`。
 
-用户已确认先推进不依赖信任结论的只读传输与纯解析基础。该授权只解除阶段 2 和阶段 3 的工程阻塞；阶段 4 信任验证、可信聚合及面向用户的网络数据展示继续阻塞。所有阶段 3 输出以 `UnverifiedFMOV4Frame` 隔离，不能因“解析成功”获得可信状态。
+独立证书许可证 URL 与完整官方 APRS CERT/SIG 字节向量仍需在发布前关闭，因此当前实现保留可替换信任材料和测试注入边界；这两项不再阻止开发和用户授权联调，但不得在发布说明中宣称已解决。
 
 - 固定官方 FMO V4 文档版本、APRS-IS 连接规范、根/中间证书和 CRL 来源；核对证书材料许可证及分发方式。
 - 从官方示例制作最小、人工化测试向量；不得把真实网络捕获、真实证书指纹、呼号或位置写入仓库。
@@ -60,12 +60,16 @@ status: in-progress
 
 ### 4. 信任验证
 
+**状态（2026-08-06）：Implemented。** 已实现严格 10 元素 CERT、官方 Root/Intermediate、有效期/UID/国家范围、Root/Intermediate CRL、用户证书与消息 Ed25519、`timeSalt ±1`、去重及 JOINT/EVENT 哈希配对。CRL 支持四小时刷新、网络失败使用已有签名缓存、防低版本回滚，并把未发布、当前、过期、不可用与非法内容分开处理。
+
 - 解析 10 元素 CERT CBOR，重建 TBS，计算 `certFingerprint` / `certBlobHash`，验证 Intermediate 与 Root 信任关系。
 - 按当前时间检查 `iat/exp`，验证用户 Ed25519 SIG 与 `timeSalt ±1`，再应用 Root/Intermediate CRL。
 - JOINT 缓存只保存有上限的 SH、身份与截止时间；EVENT 必须匹配来源、UID、哈希和期限后才能进入业务层。
 - CRL 不可用、未知 issuer、过期、吊销、呼号不匹配、签名失败、重放与配对超时均使用不同验证结果；不得以“收藏”或缓存历史提升可信度。
 
 ### 5. 聚合、缓存与收藏
+
+**状态（2026-08-06）：Implemented。** 已建立有上限的台站、服务器、事件、去重集合与 JOINT 缓存；事件采用最近 24 小时且最多 200 条的双重上限。呼号和公共服务器收藏使用两个 SwiftData 模型，与短期 APRS 快照独立。
 
 - 建立可信事件 reducer，以验证时间、消息时间窗口和稳定身份去重；乱序旧帧不得覆盖更新状态。
 - `VOCAL` 只生成 `RecentVoiceActivity`，不生成当前说话人；展示 TTL 与签名窗口使用不同可注入策略。
@@ -74,12 +78,13 @@ status: in-progress
 
 ### 6. 原生 UI
 
-**状态（2026-08-06）：Identity/session slice implemented。** 已移除重复 Hero 与 0.6 消息占位，完成无身份引导、单层身份 Sheet、紧凑会话条及连接/重连/暂停状态。地图、目录、事件、搜索和收藏等待阶段 4/5 的可信领域数据后实现。
+**状态（2026-08-06）：Implemented，等待体验验收。** 已完成无身份引导、单层身份 Sheet、紧凑会话条、零数据也可见的地图、最新事件、类型/收藏筛选、台站/服务器/收藏目录、直接搜索、普通详情和星标共享状态；证书链、CRL 与可信等级仅作为内部准入，不进入用户界面。0.6 消息、发送凭据和远控入口未进入原生 0.4。
 
 - FMO 网络首页呈现只读身份/连接状态、地图摘要、过滤器与最新可信事件；点击身份条以底部 Sheet 原地编辑呼号和 App SSID，不增加导航层级。
+- 导航栏提供全网与 `50...5000 km` 的本地范围 Menu，默认 `500 km`；首次进入已配置页面时自动取得一次手机位置，失败回退全网，此后有限范围按需定位并统一裁剪地图、目录和事件。地图左下提供默认开启的追踪开关，右下提供一次性本机定位按钮。这些控件不继承或修改盒子距离过滤器，也不改变 APRS 数据订阅。
 - 目录支持台站/服务器/收藏分段、搜索、数据年龄和验证状态；星标行与详情共享同一收藏状态。
-- 事件流支持全部、CQ、OMCQ、VOCAL、ONLINE、BEACON、STATION 与收藏过滤；JOINT/EVENT 以验证后的业务事件呈现。
-- 验证详情展示证书链、有效期、CRL、签名、timeSalt 与 JOINT/EVENT 关系，但不暴露原始证书、帧或精确诊断秘密。
+- 事件流支持全部、CQ、OMCQ、VOCAL、ONLINE、BEACON、STATION 与收藏过滤；JOINT/EVENT 以验证后的业务事件呈现；首页显示最新 3 条并可见 `24h · 200` 保留边界。
+- 证书链、有效期、CRL、签名、timeSalt 与 JOINT/EVENT 关系保留在内部类型化验证与测试中，不提供普通用户入口，也不暴露原始证书、帧或精确诊断秘密。
 - 消息、发送凭据、远控和通知页面不进入 0.4 原生实现；HTML 中保留它们只是最终产品导航参考。
 
 ### 7. 验证与真机验收
@@ -87,7 +92,7 @@ status: in-progress
 - 单元测试：身份优先级、登录/过滤行、绝不发送数据帧、分帧/粘包、行长与取消。
 - 协议测试：每种消息的有效/畸形/边界向量、确定性 CBOR、证书链、CRL、签名、timeSalt 与 JOINT 配对。
 - 模型测试：去重、乱序、TTL、过期、断线恢复、身份切换与收藏独立性。
-- UI 测试：无身份引导、身份 Sheet 保存/取消和只读连接状态已覆盖；第二层凭据 Sheet 属于 0.6，不进入本里程碑。地图/目录/事件导航、搜索、收藏与验证详情待可信领域层完成后覆盖。
+- UI 测试：无身份引导、身份 Sheet 保存/取消、只读连接状态、地图、目录、搜索、事件和普通台站详情已覆盖，并断言技术验证与 CRL 状态不出现在用户界面；第二层凭据 Sheet 属于 0.6，不进入本里程碑。
 - 网络集成：连接 APRS-IS 过滤端口，证明只收到/处理 `APFMO4`，且测试 transport 证明没有 APRS 数据帧从 App 发出。
 
 ## 明确不包含
@@ -100,8 +105,8 @@ status: in-progress
 ## 开发前门槛
 
 - [x] 用户确认更新后的 FMO 网络/身份 Sheet 原型。
-- [ ] 官方根/中间证书、CRL schema、许可证和更新策略完成 checkpoint。
-- [ ] 选定确定性 CBOR 方案并用官方向量证明字节级兼容。
+- [x] 官方根/中间证书、CRL schema/TBS 与更新策略完成开发 checkpoint；独立证书许可证 URL 留作发布前确认。
+- [x] 选定严格最小确定性 CBOR，并用官方 CA 签名和人工完整链路证明兼容；官方完整 APRS 报文字节向量留作发布前交叉验证。
 - [x] 建立 `feat/fmo-aprs-readonly` 分支。
 
-阶段 2/3 的严格未验证基础已按用户确认先行；剩余两个信任门槛关闭前，不实现阶段 4、不产生 trusted domain event，也不把 APRS 数据接入 Release UI。
+阶段 2–6 已进入 Release composition；下一步是阶段 7 的真实 APRS-IS 只读连接、界面/收藏真机验收和全套回归。未通过 `FMOV4Verifier` 的输入仍不得进入可见网络内容。

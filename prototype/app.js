@@ -757,12 +757,13 @@
       toggleFavorite(actionTarget);
     } else if (action === "show-directory-item") {
       showToast(`已选择：${actionTarget.dataset.itemLabel}`, "›");
+    } else if (action === "locate-on-map") {
+      document.getElementById("mapOwnLocation").hidden = false;
+      showToast("已定位到我的位置", "⌖");
     } else if (action === "toggle-favorite") {
       actionTarget.classList.toggle("is-selected");
       actionTarget.textContent = actionTarget.classList.contains("is-selected") ? "显示全部" : "仅看收藏";
       showToast(actionTarget.classList.contains("is-selected") ? "已仅显示收藏服务器" : "已显示全部服务器", "★");
-    } else if (action === "simulate-check") {
-      await simulateSimpleCheck(actionTarget, "正在更新 CRL 并验证…", "信任材料已更新，验证通过");
     } else if (action === "refresh-server") {
       await simulateSimpleCheck(actionTarget, "刷新中…", "服务器状态已刷新");
     } else if (action === "confirm-admin") {
@@ -810,6 +811,12 @@
     if (!range) return;
     const output = document.querySelector(`#${range.dataset.output}`);
     output.textContent = `${range.value}${range.dataset.suffix || ""}`;
+  });
+
+  document.getElementById("networkRange")?.addEventListener("change", (event) => {
+    const value = event.target.value;
+    if (value !== "all") document.getElementById("mapOwnLocation").hidden = false;
+    showToast(value === "all" ? "已显示全网" : `已显示当前位置 ${value} km 内`, "◎");
   });
 
   document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {

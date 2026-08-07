@@ -72,6 +72,50 @@ final class FMOcUITests: XCTestCase {
     }
 
     @MainActor
+    func testFMONetworkShowsMapSearchableDirectoryAndEvents() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "aprs-network-content"
+        app.launch()
+
+        app.buttons["FMO 网络"].tap()
+        XCTAssertTrue(
+            app.descendants(matching: .any)["aprs-network-map"].waitForExistence(timeout: 5)
+        )
+        XCTAssertTrue(
+            app.descendants(matching: .any)["aprs-map-auto-tracking"].exists
+        )
+        XCTAssertTrue(app.buttons["aprs-map-my-location"].exists)
+        let distanceScopeMenu = app.buttons["aprs-distance-scope-menu"]
+        XCTAssertTrue(distanceScopeMenu.exists)
+        XCTAssertEqual(distanceScopeMenu.value as? String, "当前位置 500 公里内")
+        XCTAssertTrue(app.staticTexts["1 个台站"].exists)
+        XCTAssertTrue(app.staticTexts["保留最近 24 小时，最多 200 条"].exists)
+        XCTAssertFalse(app.staticTexts["吊销信息待更新"].exists)
+        XCTAssertFalse(app.staticTexts["身份验证"].exists)
+        XCTAssertTrue(app.staticTexts["BG0AAA · CQ"].exists)
+
+        app.swipeUp()
+        XCTAssertTrue(distanceScopeMenu.exists)
+
+        let directory = app.buttons["aprs-station-directory-entry"]
+        if !directory.exists { app.swipeUp() }
+        XCTAssertTrue(directory.waitForExistence(timeout: 2))
+        directory.tap()
+        XCTAssertTrue(app.navigationBars["台站与服务器"].waitForExistence(timeout: 2))
+
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 2))
+        search.tap()
+        search.typeText("BG0AAA")
+        let station = app.staticTexts["BG0AAA-10"]
+        XCTAssertTrue(station.exists)
+        station.tap()
+        XCTAssertTrue(app.navigationBars["台站详情"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.staticTexts["身份验证"].exists)
+        XCTAssertFalse(app.staticTexts["吊销信息待更新"].exists)
+    }
+
+    @MainActor
     func testLocalNetworkDenialOffersSettingsRecovery() throws {
         let app = XCUIApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "local-network-denied"

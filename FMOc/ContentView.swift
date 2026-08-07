@@ -5,6 +5,7 @@ struct ContentView: View {
     @State private var locationAutomationModel: LocationAutomationModel
     @State private var officialWebModel: OfficialWebModel
     @State private var fmoNetworkModel: FmoNetworkModel
+    private let fmoNetworkLocationProvider: any PhoneLocationProviding
     @Environment(\.scenePhase) private var scenePhase
 
     @MainActor
@@ -13,6 +14,7 @@ struct ContentView: View {
         _locationAutomationModel = State(initialValue: models.locationAutomation)
         _officialWebModel = State(initialValue: models.officialWeb)
         _fmoNetworkModel = State(initialValue: models.fmoNetwork)
+        fmoNetworkLocationProvider = models.fmoNetworkLocationProvider
     }
 
     var body: some View {
@@ -29,7 +31,10 @@ struct ContentView: View {
 
             Tab("FMO 网络", systemImage: "globe.asia.australia") {
                 NavigationStack {
-                    FmoNetworkView(model: fmoNetworkModel)
+                    FmoNetworkView(
+                        model: fmoNetworkModel,
+                        locationProvider: fmoNetworkLocationProvider
+                    )
                 }
             }
 

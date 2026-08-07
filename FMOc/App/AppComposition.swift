@@ -7,6 +7,7 @@ enum AppComposition {
         let locationAutomation: LocationAutomationModel
         let officialWeb: OfficialWebModel
         let fmoNetwork: FmoNetworkModel
+        let fmoNetworkLocationProvider: any PhoneLocationProviding
     }
 
     @MainActor
@@ -19,6 +20,8 @@ enum AppComposition {
         let modeStore: any LocationSyncModeStoring
         let aprsIdentityStore: any ReceiveOnlyAPRSIdentityStoring
         let aprsReceiver: any APRSISReceiving
+        let aprsNetworkProcessor: any FMOV4NetworkProcessing
+        let fmoNetworkLocationProvider: any PhoneLocationProviding
 
 #if DEBUG
         switch processInfo.environment["FMO_UI_TEST_SCENARIO"] {
@@ -68,14 +71,18 @@ enum AppComposition {
             : UITestLocationSyncModeStore()
 
         if let scenario = processInfo.environment["FMO_UI_TEST_SCENARIO"] {
-            let identity = scenario == "aprs-receiving"
+            let identity = ["aprs-receiving", "aprs-network-content"].contains(scenario)
                 ? try? ReceiveOnlyAPRSIdentity(callsign: "BG0TST", ssid: 10)
                 : nil
             aprsIdentityStore = UITestAPRSIdentityStore(identity: identity)
             aprsReceiver = UITestAPRSReceiver()
+            aprsNetworkProcessor = DiscardingFMOV4NetworkProcessor()
+            fmoNetworkLocationProvider = UITestPhoneLocationProvider()
         } else {
             aprsIdentityStore = UserDefaultsReceiveOnlyAPRSIdentityStore()
             aprsReceiver = makeLiveAPRSReceiver()
+            aprsNetworkProcessor = makeLiveAPRSNetworkProcessor()
+            fmoNetworkLocationProvider = CoreLocationProvider()
         }
 #else
         endpointStore = UserDefaultsFmoEndpointStore()
@@ -86,6 +93,8 @@ enum AppComposition {
         modeStore = UserDefaultsLocationSyncModeStore()
         aprsIdentityStore = UserDefaultsReceiveOnlyAPRSIdentityStore()
         aprsReceiver = makeLiveAPRSReceiver()
+        aprsNetworkProcessor = makeLiveAPRSNetworkProcessor()
+        fmoNetworkLocationProvider = CoreLocationProvider()
 #endif
 
         let device = DeviceHomeModel(
@@ -109,14 +118,17 @@ enum AppComposition {
         )
         let fmoNetwork = FmoNetworkModel(
             receiver: aprsReceiver,
-            identityStore: aprsIdentityStore
+            identityStore: aprsIdentityStore,
+            networkProcessor: aprsNetworkProcessor,
+            initialSnapshot: makeInitialAPRSNetworkSnapshot(processInfo: processInfo)
         )
 
         return Models(
             device: device,
             locationAutomation: locationAutomation,
             officialWeb: OfficialWebModel(),
-            fmoNetwork: fmoNetwork
+            fmoNetwork: fmoNetwork,
+            fmoNetworkLocationProvider: fmoNetworkLocationProvider
         )
     }
 
@@ -137,6 +149,77 @@ enum AppComposition {
         }
         return APRSISReceiveOnlyClient(aprsISProtocol: aprsISProtocol)
     }
+
+    private static func makeLiveAPRSNetworkProcessor() -> any FMOV4NetworkProcessing {
+        let verifier = FMOV4Verifier(
+            trustMaterial: .official,
+            revocationChecker: OfficialFMOV4CRLStore()
+        )
+        return FMOV4NetworkStore(verifier: verifier)
+    }
+
+    private static func makeInitialAPRSNetworkSnapshot(
+        processInfo: ProcessInfo
+    ) -> FMOV4NetworkSnapshot {
+#if DEBUG
+        guard processInfo.environment["FMO_UI_TEST_SCENARIO"] == "aprs-network-content" else {
+            return .empty
+        }
+        let date = Date(timeIntervalSince1970: 1_800_000_000)
+        let rootCRL = FMOV4CRLFreshness.notPublished
+        let intermediateCRL = FMOV4CRLFreshness.current(
+            number: 5,
+            nextUpdate: date.addingTimeInterval(86_400)
+        )
+        let station = FMOV4StationRecord(
+            id: "BG0AAA-10",
+            callsign: "BG0AAA",
+            ssid: 10,
+            latitude: 31.2304,
+            longitude: 121.4737,
+            serverUID: 123,
+            frequency: "438.5000",
+            lastActivity: .cq,
+            observedAt: date,
+            certificateExpiresAt: date.addingTimeInterval(365 * 86_400),
+            issuerSerialNumber: 1_001,
+            trustLevel: .trusted,
+            rootCRL: rootCRL,
+            intermediateCRL: intermediateCRL
+        )
+        let server = FMOV4ServerRecord(
+            uid: 123,
+            name: "华东测试服务器",
+            countryCode: "CN",
+            host: "fmo.example.invalid",
+            port: 1_883,
+            filterKilometers: 500,
+            onlineUserCount: 24,
+            peakUserCount: 37,
+            latitude: station.latitude,
+            longitude: station.longitude,
+            broadcasterCallsign: station.id,
+            observedAt: date,
+            trustLevel: .trusted
+        )
+        let event = FMOV4NetworkEvent(
+            id: "ui-test-cq",
+            kind: .cq,
+            callsign: station.callsign,
+            ssid: station.ssid,
+            latitude: station.latitude,
+            longitude: station.longitude,
+            serverUID: server.uid,
+            topic: nil,
+            content: nil,
+            observedAt: date,
+            trustLevel: .trusted
+        )
+        return FMOV4NetworkSnapshot(stations: [station], servers: [server], events: [event])
+#else
+        return .empty
+#endif
+    }
 }
 
 #if DEBUG
@@ -153,6 +236,16 @@ private nonisolated struct EmptyDeviceDiscovery: FmoDeviceDiscovering {
         AsyncThrowingStream { continuation in
             continuation.finish()
         }
+    }
+}
+
+private nonisolated struct UITestPhoneLocationProvider: PhoneLocationProviding {
+    func currentLocation() throws -> PhoneLocationSample {
+        PhoneLocationSample(
+            coordinate: try GeoCoordinate(latitude: 31.2304, longitude: 121.4737),
+            horizontalAccuracy: 5,
+            isAccuracyLimited: false
+        )
     }
 }
 

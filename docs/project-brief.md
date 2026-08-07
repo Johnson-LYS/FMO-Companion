@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-06
+last-reviewed: 2026-08-07
 ---
 
 # 项目简报
@@ -12,15 +12,23 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 当前状态
 
-- **阶段：** 0.3 设备仪表盘基础已完成；0.4 FMO APRS 只读传输与未验证解析基础开发中
+- **阶段：** 0.3 设备仪表盘基础已完成；0.4 FMO APRS 只读网络功能进入联调与真机验收
 - **已完成：** 0.1 局域网真机闭环；0.2 可靠定位真机闭环；0.3 首页卡、共享快照、本地只读状态、讲话事件、设备恢复/切换与断线恢复真机闭环
-- **进行中：** 0.4 已实现只读身份持久化/继承、前台生命周期、登录超时、自动重连、Network.framework 接收、固定 `pass -1 / u/APFMO4` 登录、严格 CRLF/TNC2 与全部规划 V4 消息解析；身份 Sheet 和真实会话状态现可测试，生产信任验证仍等待有效 CRL、签名 TBS、许可证与完整官方字节向量
+- **进行中：** 0.4 已实现只读 APRS-IS 会话、全部规划 V4 解析、严格确定性 CBOR、官方 Root/Intermediate 验证、官方 CRL 获取与状态区分、用户证书/消息签名/timeSalt/JOINT+EVENT 验证、可信聚合、地图、事件流、可搜索目录和 SwiftData 收藏；当前剩余真实 APRS-IS 数据联调、UI 真机验收，以及发布前许可证/完整官方报文字节向量确认
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
 
 ## 最近变更
 
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-07 | 修正 FMO 网络身份条在浅色 grouped background 上缺少层级的问题，改用系统语义卡片底色与轻描边并保持深色模式适配 | `docs/design/ui-design-system.md` |
+| 2026-08-07 | FMO 网络本地展示范围默认改为 500 km；首次进入自动取得手机位置，失败则回退全网，定位依赖纳入正式组合根与 UI 测试替身 | `docs/spec/product-spec.md`、`docs/architecture/modules/aprs.md` |
+| 2026-08-06 | FMO 网络增加右上角全网/公里范围过滤，统一裁剪地图、目录和事件；追踪移到地图左下，事件采用最近 24 小时且最多 200 条的双上限并在界面可见 | `docs/spec/product-spec.md`、`docs/architecture/modules/aprs.md` |
+| 2026-08-06 | FMO 网络地图增加默认开启的自动追踪开关与一次性“我的位置”按钮；明确公网 `APFMO4` 数据不继承盒子距离过滤器，地图控件不改变事件范围或写入设备 | `docs/spec/product-spec.md`、`docs/architecture/modules/aprs.md` |
+| 2026-08-06 | 按真机体验反馈隐藏 FMO 网络的可信、身份验证与 CRL 技术状态，地图、目录、事件和详情统一展示已通过内部准入的业务数据；底层证书链、签名、吊销与类型化拒绝保持不变 | `docs/design/prototype-implementation-guide.md`、`docs/architecture/modules/aprs.md` |
+| 2026-08-06 | 真机联调修正 APRS 未压缩位置边界：FMO 注释紧跟 symbol code，不存在额外空格；公开完整 STATION 报文的解析、官方证书链与消息签名临时端到端验证通过，真实报文未写入仓库 | `docs/architecture/modules/aprs.md` |
+| 2026-08-06 | 完成 0.4 可信网络主体：官方证书链与 CRL、严格 CBOR/Ed25519 验证、可信聚合、地图、目录搜索、事件筛选、信任详情及呼号/服务器收藏；完整单元测试新增覆盖已通过 | `docs/architecture/modules/aprs.md`、`docs/plans/0007-milestone-0.4-fmo-aprs.md` |
+| 2026-08-06 | 官方 SAS 源码已公开 Root/Intermediate CA 与两类 CRL 的确定性 CBOR TBS；开发验证门槛解除，独立证书许可证链接和完整 APRS 字节向量仍为发布前事项 | `docs/references/fmo-aprs-v4-readiness.md` |
 | 2026-08-06 | 完成 0.4 可测试身份/会话切片：手动优先与 FMO 呼号继承、前台生命周期、登录超时、自动重连、身份 Sheet 和真实连接状态；未验证帧继续隔离 | `docs/architecture/modules/aprs.md`、`docs/plans/0007-milestone-0.4-fmo-aprs.md` |
 | 2026-08-06 | 完成 0.4 首个代码切片：只读 APRS-IS transport、身份/登录、CRLF/TNC2 与全部规划 FMO V4 未验证解析；30 项新增测试通过，可信验证与 UI 继续阻塞 | `docs/architecture/modules/aprs.md`、`docs/plans/0007-milestone-0.4-fmo-aprs.md` |
 | 2026-08-06 | 完成 FMO V4 官方材料核对：解析格式可冻结，生产验签因 CRL、许可证、CA/CRL 签名规则和完整向量暂时阻塞 | `docs/references/fmo-aprs-v4-readiness.md` |
@@ -106,4 +114,4 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 1. 阅读 `docs/plans/0003-product-roadmap.md` 的 0.4 范围。
 2. 阅读 `docs/spec/product-spec.md` 的 SPEC-006、SPEC-007；涉及仪表盘复用时回看 SPEC-014。
 3. 继续遵循 `docs/design/ui-design-system.md` 与 `docs/design/prototype-implementation-guide.md`。
-4. 按 `docs/plans/0007-milestone-0.4-fmo-aprs.md` 继续等待并关闭信任材料 checkpoint；关闭前不得开始可信验证或把 `UnverifiedFMOV4Frame` 接入地图、目录和事件 UI，也不得用 0.3 本地事件替代 0.4 APRS 可信事件。
+4. 按 `docs/plans/0007-milestone-0.4-fmo-aprs.md` 完成真实 APRS-IS 只读联调和 UI/真机验收；只有 `FMOV4Verifier` 完整接受的数据可进入地图、目录和事件，0.3 本地事件不得冒充 0.4 APRS 可信事件。

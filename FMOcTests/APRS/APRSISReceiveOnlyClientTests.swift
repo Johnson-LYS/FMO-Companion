@@ -91,7 +91,7 @@ struct APRSISReceiveOnlyClientTests {
     private var validActivityLine: String {
         let certificate = base64URL(Data(repeating: 0x01, count: 125))
         let signature = base64URL(Data(repeating: 0x02, count: 64))
-        return "ZZ0TST-15>APFMO4,TCPIP*:=0000.00N/00000.00EI FMO-V4,VOCAL,CERT:\(certificate),S123,SIG:\(signature)"
+        return "ZZ0TST-15>APFMO4,TCPIP*:=0000.00N/00000.00EiFMO-V4,VOCAL,CERT:\(certificate),S123,SIG:\(signature)"
     }
 
     private func base64URL(_ data: Data) -> String {

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct FMOcApp: App {
@@ -13,5 +14,6 @@ struct FMOcApp: App {
         WindowGroup {
             ContentView(models: AppComposition.makeModels())
         }
+        .modelContainer(for: [FavoriteCallsign.self, FavoriteServer.self])
     }
 }

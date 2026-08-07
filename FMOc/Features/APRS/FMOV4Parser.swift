@@ -101,9 +101,8 @@ nonisolated struct FMOV4Parser: Sendable {
     ) throws -> UnverifiedFMOV4PositionFrame {
         let bytes = Array(packet.information.utf8)
         guard
-            bytes.count > 21,
+            bytes.count > 20,
             bytes[0] == 0x3D,
-            bytes[20] == 0x20,
             Self.isPrintableASCII(bytes[9]),
             Self.isPrintableASCII(bytes[19])
         else {
@@ -119,7 +118,8 @@ nonisolated struct FMOV4Parser: Sendable {
             throw FMOV4ParserError.invalidPosition
         }
 
-        let payload = String(decoding: bytes[21...], as: UTF8.self)
+        // APRS 的位置注释紧跟在 symbol code 后；FMO 实际报文不会插入分隔空格。
+        let payload = String(decoding: bytes[20...], as: UTF8.self)
         let tokens = payload.split(
             separator: ",",
             omittingEmptySubsequences: false

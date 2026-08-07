@@ -21,7 +21,7 @@ struct FMOV4ParserTests {
         #expect(position.latitudeText == "0000.00N")
         #expect(position.longitudeText == "00000.00E")
         #expect(position.symbolTable == "/")
-        #expect(position.symbolCode == "I")
+        #expect(position.symbolCode == "i")
         #expect(activity == FMOV4Activity(type: .vocal, serverUID: 123))
         #expect(position.certificateBlob == Data(repeating: 0x01, count: 125))
         #expect(position.signature == Data(repeating: 0x02, count: 64))
@@ -100,10 +100,10 @@ struct FMOV4ParserTests {
     }
 
     @Test(arguments: [
-        "ZZ0TST-15>APFM00,TCPIP*:=0000.00N/00000.00EI FMO-V4,CQ,CERT:x,S1,SIG:x",
-        "ZZ0TST-15>APFMO4,qAS:=0000.00N/00000.00EI FMO-V4,CQ,CERT:x,S1,SIG:x",
-        "ZZ0TST-15>APFMO4,TCPIP*:=9060.00N/00000.00EI FMO-V4,CQ,CERT:x,S1,SIG:x",
-        "ZZ0TST-15>APFMO4,TCPIP*:=0000.00N/00000.00EI FMO-V4,UNKNOWN,CERT:x,S1,SIG:x",
+        "ZZ0TST-15>APFM00,TCPIP*:=0000.00N/00000.00EiFMO-V4,CQ,CERT:x,S1,SIG:x",
+        "ZZ0TST-15>APFMO4,qAS:=0000.00N/00000.00EiFMO-V4,CQ,CERT:x,S1,SIG:x",
+        "ZZ0TST-15>APFMO4,TCPIP*:=9060.00N/00000.00EiFMO-V4,CQ,CERT:x,S1,SIG:x",
+        "ZZ0TST-15>APFMO4,TCPIP*:=0000.00N/00000.00EiFMO-V4,UNKNOWN,CERT:x,S1,SIG:x",
     ])
     func rejectsFramesOutsideStrictFMOV4Boundary(_ line: String) throws {
         let packet = try tnc2Parser.parse(line)
@@ -116,7 +116,7 @@ struct FMOV4ParserTests {
     @Test
     func rejectsSignatureWithWrongDecodedLength() throws {
         let packet = try tnc2Parser.parse(
-            "ZZ0TST-15>APFMO4,TCPIP*:=0000.00N/00000.00EI FMO-V4,CQ,CERT:\(certificate),S1,SIG:AQ"
+            "ZZ0TST-15>APFMO4,TCPIP*:=0000.00N/00000.00EiFMO-V4,CQ,CERT:\(certificate),S1,SIG:AQ"
         )
 
         #expect(throws: FMOV4ParserError.invalidSignature) {
@@ -128,7 +128,7 @@ struct FMOV4ParserTests {
         _ payload: String
     ) throws -> UnverifiedFMOV4Frame {
         let packet = try tnc2Parser.parse(
-            "ZZ0TST-15>APFMO4,TCPIP*,qAS,T2TEST:=0000.00N/00000.00EI \(payload)"
+            "ZZ0TST-15>APFMO4,TCPIP*,qAS,T2TEST:=0000.00N/00000.00Ei\(payload)"
         )
         return try sut.parse(packet)
     }
