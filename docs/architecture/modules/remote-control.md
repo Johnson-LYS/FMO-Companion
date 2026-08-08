@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-07
+last-reviewed: 2026-08-08
 ---
 
 # 模块：FMO 远程控制
@@ -79,4 +79,4 @@ protocol FmoRemoteSecretStoring: Sendable {
 - 非法目标和 SECRET 失败关闭。
 - LocalAuthentication 失败不消耗 Counter、不发送命令。
 - 三种动作单次发送、目标来源 ACK 和超时未确认。
-- 真机需按 `NORMAL → STANDBY → REBOOT` 分级验收；只有用户明确准备后才测试 REBOOT。
+- 用户已完成 `NORMAL → STANDBY → REBOOT` 分级真机验收；动作结果只按实际设备反馈记录，不由 App 推断。

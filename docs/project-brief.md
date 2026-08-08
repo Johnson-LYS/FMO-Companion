@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-07
+last-reviewed: 2026-08-08
 ---
 
 # 项目简报
@@ -12,8 +12,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 当前状态
 
-- **阶段：** 0.1–0.4 已完成；0.6 前台消息与 FMO 远控已完成首轮原生实现，正在进行自动化与真机验收
-- **已完成：** 0.1 局域网真机闭环；0.2 可靠定位真机闭环；0.3 设备仪表盘；0.4 只读 APRS-IS、完整 FMO V4 信任验证、地图、事件、目录、搜索与收藏真机闭环
+- **阶段：** 0.1–0.6 已完成；下一阶段为 0.8 QSO 导入、查询、验签与 ADIF
+- **已完成：** 0.1 局域网真机闭环；0.2 可靠定位真机闭环；0.3 设备仪表盘；0.4 只读 APRS-IS 与可信 FMO 网络；0.6 前台 APRS 消息、ACK 与 FMO 公网远控
 - **发布前跟踪：** 官方信任锚独立许可证、完整官方 APRS CERT/SIG 字节向量与 Intermediate CRL 轮换；这些事项不回退已完成的 0.4 里程碑，但正式发布前必须关闭或明确处理
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
 
@@ -21,6 +21,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-08 | 用户复验 APRS 消息与远控真机链路通过；结合首轮 162 项单元测试、11 条 XCUITest、修正后源码兼容向量与测试目标编译，0.6 转为 Complete。收尾时测试宿主受同机其他 Xcode 测试任务影响未能再次启动，无代码断言失败 | `docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` |
 | 2026-08-07 | 修正后的 `APFMO0 + 60 字节 UTF-8` 普通消息已完成真机互发与 ACK 验收；0.6 消息、远控真机闭环均通过，剩余门槛为新增兼容向量的完整自动化回归 | `docs/architecture/modules/aprs.md`、`docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` |
 | 2026-08-07 | 0.6 远控真机链路通过；普通消息首轮互发失败定位到 FMO 兼容边界，已把 `APFMC0 + 7-bit ASCII/67` 修正为 `APFMO0 + 60 字节 UTF-8`，保留无效草稿并等待复验 | `docs/architecture/modules/aprs.md`、`docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` |
 | 2026-08-07 | 0.6 首轮实现通过 162 项单元测试与 11 条主流程 XCUITest；同时修复冷启动 ScenePhase 竞态，确保稍后配置身份后只读/写 APRS 会话均可进入前台连接 | `docs/architecture/modules/aprs.md`、`docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` |
@@ -118,7 +119,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 本轮开发入口
 
-1. 以 `docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` 为当前计划。
-2. 完成消息/ACK 自动化回归后，使用用户合法身份验证前台收发、ACK、断网、后台停止与重启历史恢复。
-3. 再按 `NORMAL → STANDBY → REBOOT` 分级真机验收远控；只有用户明确准备后测试重启。
-4. 官方未公开的远控 ACK 只按目标来源做设备级确认，不推测 Time Slot/Counter 关联字段；公网远控不复用局域网管理 WebSocket 写命令。
+1. 0.6 已关闭；下一阶段先为 0.8 建立独立计划，不直接沿用 0.6 实现计划。
+2. 先取得用户从 `qso.html` 下载的脱敏 SQLite、签名及必要元数据样本，确认 schema、更新方式和验签输入。
+3. 0.8 第一版仍按用户主动下载或 Files 导入设计；除非确认公开、稳定且授权的下载接口，否则不宣称与 FMO 实时同步。
+4. 完成 QSO 文档与原型评审后，再实现只读导入、查询、地图、P-256 验签和 ADIF 导出。

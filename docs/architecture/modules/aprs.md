@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-07
+last-reviewed: 2026-08-08
 ---
 
 # 模块：APRS
@@ -147,7 +147,7 @@ App active + APRS identity
 ## 发布前跟踪
 
 - 0.4 已使用用户合法呼号完成真实 APRS-IS `APFMO4` 数据接收、地图/目录/事件与收藏真机验收；146 项单元测试与 14 项 XCUITest 通过。
-- 0.6 消息、ACK/REJ、隔离写会话、SwiftData 历史与消息 UI 已实现。首轮消息真机反馈暴露 `APFMC0` 与 7-bit ASCII 假设不兼容 FMO，按 `APFMO0 + 60 字节 UTF-8` 修正后，消息与远控真机闭环均已通过；新增兼容向量仍需完成一次可运行的全量自动化回归。
+- 0.6 消息、ACK/REJ、隔离写会话、SwiftData 历史与消息 UI 已完成。首轮消息真机反馈暴露 `APFMC0` 与 7-bit ASCII 假设不兼容 FMO，按 `APFMO0 + 60 字节 UTF-8` 修正；首轮 162 项单元测试与 11 条 XCUITest、修正后实际源码兼容向量、测试目标编译及用户消息/远控真机复验共同关闭该里程碑。
 - 补充官方未省略的 APRS CERT/SIG 字节向量，作为第二实现交叉验证。
 - 发布前确认官方 Root/Intermediate 证书所声明的独立许可证 URL；当前两个 URL 仍为 404。
 - Intermediate CRL #4 当前已过 `nextUpdate`；内部保留过期状态但 UI 暂不展示，等待官方轮换后验证自动刷新路径。

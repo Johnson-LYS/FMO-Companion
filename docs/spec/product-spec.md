@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-07
+last-reviewed: 2026-08-08
 ---
 
 # 产品规格
@@ -189,7 +189,7 @@ App 应验证 CERT blob、呼号绑定、证书链、证书有效期、Ed25519 �
 #### SPEC-009：APRS 短消息
 
 **优先级：** Should
-**状态：** In Progress
+**状态：** Complete
 
 用户配置自己的呼号和 SSID 后，App 在前台活跃期间发送、接收标准 APRS 消息与 ACK。消息使用 App 独立的 `呼号-SSID` 身份；呼号可继承最近一次可信 FMO 呼号，手动身份始终优先且不因设备切换被覆盖。APRS-IS PASSCODE 由规范化基础呼号本地确定性计算，SSID 不参与；用户无需输入，App 不持久化计算值。
 
@@ -209,7 +209,7 @@ App 应验证 CERT blob、呼号绑定、证书链、证书有效期、Ed25519 �
 #### SPEC-010：FMO 远程控制
 
 **优先级：** Must
-**状态：** In Progress
+**状态：** Complete
 
 App 应按固定版本的官方格式生成 `NORMAL`、`STANDBY`、`REBOOT`，实现 Time Slot、Counter、HMAC-SHA1 截断签名和 ACK 等待。远控目标为设备页当前或用户此前可信保存的 FMO 身份，SECRET 按目标设备隔离保存。
 
