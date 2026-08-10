@@ -103,7 +103,7 @@ For normal code changes, run the narrowest relevant tests first, then the full s
 ```bash
 xcodebuild \
   -project FMOc.xcodeproj \
-  -scheme FMOc \
+  -scheme 'FMO 助手' \
   -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' \
   -configuration Debug \
@@ -117,7 +117,7 @@ Tests require a concrete installed simulator. Find an available device with `xcr
 ```bash
 xcodebuild \
   -project FMOc.xcodeproj \
-  -scheme FMOc \
+  -scheme 'FMO 助手' \
   -destination 'platform=iOS Simulator,id=<SIMULATOR_UDID>' \
   -configuration Debug \
   -derivedDataPath /tmp/FMOcDerivedData \

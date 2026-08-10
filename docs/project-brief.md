@@ -21,6 +21,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-10 | 冻结首版发布标识与商店配置：中文显示名“FMO 助手”、`com.bi8syn.fmoassistant` Bundle ID、1024 × 1024 App Icon、工具主分类及仅使用 Apple OS 豁免加密的出口合规声明 | `docs/spec/product-spec.md`、`FMOc/Assets.xcassets/AppIcon.appiconset/` |
 | 2026-08-10 | 用户真机复验确认修正后的 QSO 详情、网格地图与 ADIF 导出正常；0.8 剩余验收收敛为多设备切换、离线缓存和补充自动化矩阵 | `docs/plans/0009-milestone-0.8-qso-sync.md` |
 | 2026-08-09 | 真机发现 QSO 列表可用但详情与 ADIF 失败；核对当前设备官方 `qsoService.js` 并以只读脱敏键/类型请求确认详情位于 `data.log`，修正此前错误的直接 `data` 解码并补充嵌套回归测试 | `FMOc/Features/QSO/FmoQSOProtocol.swift`、`docs/architecture/modules/qso.md` |
 | 2026-08-08 | 完成 0.8 原生候选版本：固定只读 QSO 客户端、按设备 SwiftData 缓存、前台自动同步、失败保留、查询/筛选/详情/网格地图与原子 ADIF 导出；177 项单元测试、16 项 XCUITest 与通用模拟器构建全部通过，10,000 条摘要基线约 4.5 秒，进入真实 iPhone + FMO 验收 | `docs/architecture/modules/qso.md`、`docs/plans/0009-milestone-0.8-qso-sync.md` |

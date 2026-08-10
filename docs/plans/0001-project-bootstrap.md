@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-03
+last-reviewed: 2026-08-10
 status: completed
 ---
 
@@ -20,7 +20,7 @@ status: completed
 - [x] 添加 README、`.gitignore`、`.editorconfig` 和第三方许可说明。
 - [x] 把 FMO iOS 功能规划与公开能力边界写入仓库。
 - [x] 将最低部署版本确定为 iOS 26.0，不兼容旧系统。
-- [x] 将 App 显示名称设为 `FMO Companion`，保留当前工程/Target 名 `FMOc`。
+- [x] 初始化时将 App 显示名称设为 `FMO Companion`，并保留工程/Target 名 `FMOc`；中文显示名已在 2026-08-10 的发布标识决策中调整为“FMO 助手”。
 - [x] 初始化 `main` Git 仓库。
 - [x] 完成一次无签名 Simulator 构建验证。
 - [x] 在 iOS 26 Simulator 上完成初始单元测试与 UI 测试。
