@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-08
+last-reviewed: 2026-08-10
 ---
 
 # 架构总览
@@ -17,11 +17,13 @@ flowchart LR
         DEVICE["Device + Location"]
         APRS["APRS + Trust"]
         QSO["QSO"]
+        SETTINGS["Settings"]
         SERVER["Server Ops"]
         CORE["Core Services"]
         UI --> DEVICE
         UI --> APRS
         UI --> QSO
+        UI --> SETTINGS
         UI --> SERVER
         DEVICE --> CORE
         APRS --> CORE
@@ -79,6 +81,10 @@ flowchart LR
 通过与 Dashboard 分离的 ADR-0007 类型化只读会话，从用户所选 FMO 分页同步 QSO 摘要，并按查看或导出需要串行补齐详情。缓存按设备稳定身份隔离；离线展示最后完整成功快照，普通界面不把局域网同步记录表述为经过数据库签名验证。
 
 实现由严格白名单的 `FmoQSOReadClient`、SwiftData 缓存、前台生命周期协调和 SwiftUI/MapKit/ADIF 投影组成；完整分页成功前不执行删除对账。详细边界见 `docs/architecture/modules/qso.md`。
+
+### Settings
+
+负责首版真实可用的全局外观、隐私政策、系统权限与关于。外观偏好通过 `AppStorage` 投影到根视图；产品元数据从 Bundle 读取；公网隐私政策仅接受集中配置的 HTTPS 地址，未配置的开发构建回退到 App 内政策。设置模块不读取业务数据或秘密，也不为通知、自建服务器、快捷指令和小组件创建占位入口。详细边界见 `docs/architecture/modules/settings.md`。
 
 ### ServerOps
 

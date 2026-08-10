@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="FMO 助手隐私政策">
+  <title>FMO 助手隐私政策</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --accent: #ff8800;
+      --background: #f6f6f3;
+      --surface: #ffffff;
+      --text: #101114;
+      --secondary: #5f6066;
+      --border: #deded8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #111215;
+        --surface: #1d1e22;
+        --text: #f7f7f2;
+        --secondary: #b6b6ba;
+        --border: #38393e;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.7;
+    }
+    main {
+      width: min(760px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 56px 0 72px;
+    }
+    header { margin-bottom: 32px; }
+    .mark {
+      display: inline-grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      margin-bottom: 18px;
+      background: color-mix(in srgb, var(--accent) 15%, transparent);
+      color: var(--accent);
+      font-size: 25px;
+      font-weight: 750;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 7vw, 3.25rem);
+      line-height: 1.15;
+      letter-spacing: -0.035em;
+    }
+    .meta, .summary { color: var(--secondary); }
+    .summary { max-width: 44rem; font-size: 1.05rem; }
+    section {
+      margin: 16px 0;
+      padding: 22px 24px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+    }
+    h2 { margin: 0 0 10px; font-size: 1.2rem; }
+    h3 { margin: 18px 0 6px; font-size: 1rem; }
+    p { margin: 8px 0; }
+    ul { margin: 8px 0; padding-left: 1.25rem; }
+    li + li { margin-top: 8px; }
+    a { color: #a45000; text-underline-offset: 3px; }
+    @media (prefers-color-scheme: dark) { a { color: #ffad4d; } }
+    footer { padding: 18px 4px; color: var(--secondary); font-size: .9rem; }
+    @media (max-width: 520px) {
+      main { padding-top: 32px; }
+      section { padding: 18px; border-radius: 16px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="mark" aria-hidden="true">FM</div>
+    <h1>FMO 助手隐私政策</h1>
+    <p class="meta">版本 1.0 · 生效日期：2026 年 8 月 10 日</p>
+    <p class="summary">FMO 助手是一款连接用户自有 FMO 设备和 APRS 网络的 iOS 工具。本政策说明 App 处理哪些数据、为什么需要这些数据，以及数据保存在何处。</p>
+  </header>
+
+  <section>
+    <h2>我们的原则</h2>
+    <p>FMO 助手不提供广告，不使用行为分析或跨 App 跟踪，不出售个人数据，也没有开发者运营的用户账户或消息云存档。</p>
+    <p>App 不访问通讯录、照片或麦克风，不获取 FMO 私钥，不收发未公开的 FMO 音频，也不模拟设备身份。</p>
+  </section>
+
+  <section>
+    <h2>App 使用的数据</h2>
+    <h3>本地网络与设备信息</h3>
+    <p>App 使用本地网络权限发现并连接你选择的 FMO。设备地址、最后选择的设备及必要设置保存在本机，用于下次恢复连接。</p>
+
+    <h3>位置</h3>
+    <p>使用期间位置用于显示地图范围以及由你主动同步到所选 FMO。只有在你明确启用低功耗或车载模式后，App 才会申请后台位置权限，并按照系统交付的位置事件同步坐标。精确位置不会发送到开发者服务器。</p>
+
+    <h3>APRS 身份、消息与远程控制</h3>
+    <p>你的呼号、SSID、APRS 消息和远控命令会通过 APRS-IS 公网传输，并可能被 APRS-IS 基础设施及其他无线电用户接收。APRS 通信不应被视为私密、端到端加密或保证送达的通信。</p>
+    <p>APRS-IS PASSCODE 根据基础呼号在本机临时计算，仅在建立可发送会话时使用，不持久化。远控 SECRET 按目标设备保存在本机 Keychain 中；App 使用它在本机生成命令签名，SECRET 原文不会随命令上传。</p>
+
+    <h3>消息、收藏与 QSO</h3>
+    <p>收藏、消息历史和从用户所选 FMO 读取的 QSO 缓存在本机保存，不上传到开发者服务。ADIF 文件只在你主动导出后生成，并交由 iOS 系统分享面板处理。</p>
+
+    <h3>系统认证</h3>
+    <p>发送设备重启命令前，App 可请求 Face ID、Touch ID 或设备密码确认。生物特征由 iOS 处理，App 只接收认证是否成功的结果，无法读取生物特征数据。</p>
+  </section>
+
+  <section>
+    <h2>第三方网络与系统服务</h2>
+    <p>使用相关功能时，数据可能经过 APRS-IS 节点、FMO 官方证书与吊销信息服务，以及 Apple 提供的系统服务。这些服务的运营者可能获得连接 IP、时间和必要的协议流量，并依据各自政策处理。</p>
+    <p>托管本隐私政策的 Web 服务器也可能按照其标准配置记录 IP、访问时间、浏览器类型等基础访问日志。本页面本身不使用 Cookie、分析脚本、第三方字体、远程图片或广告组件。</p>
+  </section>
+
+  <section>
+    <h2>保存、删除与系统备份</h2>
+    <ul>
+      <li>设备、收藏、消息历史和远控 SECRET 可从 App 中对应的设备、目录、消息或远控设置入口删除。</li>
+      <li>QSO 缓存用于离线浏览；App 不删除或修改 FMO 盒子上的原始 QSO。</li>
+      <li>App 不提供自己的云同步。iOS 设备备份行为由 Apple、系统设置及用户选择管理。</li>
+      <li>远控 SECRET 使用仅限本设备的 Keychain 保护，不跨设备同步；卸载后的具体保留行为由 iOS 管理。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>儿童隐私</h2>
+    <p>FMO 助手面向依法使用业余无线电及自有 FMO 设备的用户，不以儿童为目标，也不会有意收集儿童个人信息。</p>
+  </section>
+
+  <section>
+    <h2>政策更新</h2>
+    <p>当功能、数据用途或适用要求发生变化时，我们会更新本页面的版本和生效日期。重大变化将在适当位置提示。</p>
+  </section>
+
+  <section>
+    <h2>联系我们</h2>
+    <p>开发者呼号：<strong>BI8SYN</strong></p>
+    <p>联系邮箱：<a href="mailto:BI8SYN@163.com">BI8SYN@163.com</a></p>
+  </section>
+
+  <footer>© 2026 BI8SYN · FMO 助手</footer>
+</main>
+</body>
+</html>

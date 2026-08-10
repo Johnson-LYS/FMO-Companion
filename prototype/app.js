@@ -77,7 +77,6 @@
     diagnosticsModal: document.querySelector("#diagnosticsModal"),
     rebootModal: document.querySelector("#rebootModal"),
     webPreviewModal: document.querySelector("#webPreviewModal"),
-    adminConfirmModal: document.querySelector("#adminConfirmModal"),
     favoriteCount: document.querySelector("#favoriteCount"),
     favoriteEmpty: document.querySelector("#favoriteEmpty"),
     diagnosticSummary: document.querySelector("#diagnosticSummary"),
@@ -840,13 +839,8 @@
       actionTarget.classList.toggle("is-selected");
       actionTarget.textContent = actionTarget.classList.contains("is-selected") ? "显示全部" : "仅看收藏";
       showToast(actionTarget.classList.contains("is-selected") ? "已仅显示收藏服务器" : "已显示全部服务器", "★");
-    } else if (action === "refresh-server") {
-      await simulateSimpleCheck(actionTarget, "刷新中…", "服务器状态已刷新");
-    } else if (action === "confirm-admin") {
-      showModal(elements.adminConfirmModal);
-    } else if (action === "confirm-admin-final") {
-      hideModal(elements.adminConfirmModal);
-      showToast("管理员认证演示完成，未执行操作", "⌑");
+    } else if (action === "simulate-system-settings") {
+      showToast("正式 App 将打开 iOS 系统设置", "↗");
     } else if (action === "save-aprs-identity") {
       await simulateSimpleCheck(actionTarget, "正在保存…", "APRS 身份已保存");
       hideModal(elements.aprsIdentityModal);
@@ -864,14 +858,6 @@
       await simulateQsoSync(actionTarget);
     } else if (action === "simulate-export") {
       await simulateSimpleCheck(actionTarget, "正在准备并生成…", "示例 ADIF 已生成，可通过系统分享");
-    } else if (action === "test-notification") {
-      await simulateSimpleCheck(actionTarget, "正在请求测试通知…", "测试通知已模拟发送");
-    } else if (action === "run-shortcut") {
-      showToast(`已运行：${actionTarget.querySelector("strong").textContent}`, "◇");
-    } else if (action === "export-diagnostics") {
-      await simulateSimpleCheck(actionTarget, "正在检查敏感字段…", "脱敏诊断预览已生成");
-    } else if (action === "show-future") {
-      showToast("该能力将在后续里程碑实现", "◇");
     } else if (action === "close-modal") {
       hideModal(actionTarget.closest(".modal-backdrop"));
     }
