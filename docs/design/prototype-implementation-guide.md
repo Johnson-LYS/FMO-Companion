@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-08
+last-reviewed: 2026-08-10
 status: approved
 ---
 
@@ -39,9 +39,17 @@ status: approved
 | 设备 | 独立 `NavigationStack` | 发现、连接、坐标同步、诊断、位置自动化、远控、官方页面 |
 | FMO 网络 | 独立 `NavigationStack` | 地图、台站、事件与 APRS 消息 |
 | QSO | 独立 `NavigationStack` | 当前 FMO 自动同步、离线缓存、查询、网格地图、ADIF |
-| 设置 | 独立 `NavigationStack` | 外观、通知、管理员功能、系统集成、隐私与关于 |
+| 设置 | 独立 `NavigationStack` | 外观、隐私政策、系统权限与关于；只显示首版已实现能力 |
 
-不要新增“通讯”顶层标签。消息从 FMO 网络的台站、事件或消息入口进入；远控属于当前 FMO 设备；服务器运维属于设置中的管理员功能。
+不要新增“通讯”顶层标签。消息从 FMO 网络的台站、事件或消息入口进入；远控属于当前 FMO 设备。自建服务器运维、通知和系统集成在实现前不得以占位入口出现在设置中。
+
+### 设置与隐私政策
+
+- `SettingsHomeView` 只保留真实的全局外观选择、隐私政策、系统权限和关于。外观用持久化枚举投影到根视图的 `preferredColorScheme`，未知存储值回退跟随系统。
+- 版本与构建从 Bundle 读取；关于页显示开发者 `BI8SYN` 与 `mailto:BI8SYN@163.com`，不硬编码技术栈或最低系统说明。
+- 隐私政策 HTTPS 地址只从集中配置读取。未配置地址的开发构建打开 App 内政策；Release 发布门槛要求最终 URL 已配置且与 App Store Connect 一致。
+- `privacy/index.html` 是可独立部署的政策正文，不依赖 JavaScript、Cookie、分析、第三方字体、远程图片或 CDN。网页和 App 内摘要必须保持数据用途与联系方式一致。
+- `UIApplication.openSettingsURLString` 是“系统权限”的唯一行为；不要伪造权限状态、隐私评分、诊断导出或未来功能反馈。
 
 ## 页面与状态映射
 

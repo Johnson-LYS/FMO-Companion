@@ -1,0 +1,18 @@
+services:
+  caddy:
+    image: docker.1ms.run/library/caddy:2-alpine
+    container_name: fmo-companion-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../index.html:/srv/privacy/index.html:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -234,17 +234,15 @@
             <div class="settings-group">
               <h4>外观</h4>
               <div class="segmented-control" role="group" aria-label="外观模式">
-                <button class="is-selected" type="button" data-theme="light">浅色</button>
+                <button class="is-selected" type="button" data-theme="system">系统</button>
+                <button type="button" data-theme="light">浅色</button>
                 <button type="button" data-theme="dark">深色</button>
-                <button type="button" data-theme="system">系统</button>
               </div>
             </div>
             <div class="settings-list">
-              <button type="button" data-action="open-detail" data-target="server-dashboard"><span>管理员功能</span><small>配置自建服务器后显示运维入口</small><b>›</b></button>
-              <button type="button" data-action="open-detail" data-target="notifications"><span>通知</span><small>APNs、本地通知与事件过滤</small><b>›</b></button>
-              <button type="button" data-action="open-detail" data-target="system-integrations"><span>系统集成</span><small>Siri 与快捷指令</small><b>›</b></button>
-              <button type="button" data-action="open-detail" data-target="privacy-accessibility"><span>隐私与无障碍</span><small>精确位置、凭据、诊断与 VoiceOver</small><b>›</b></button>
-              <button type="button" data-action="open-detail" data-target="product-boundaries"><span>关于与产品边界</span><small>公开协议、明确排除与版本</small><b>›</b></button>
+              <button type="button" data-action="open-detail" data-target="privacy-policy"><span>隐私政策</span><b>›</b></button>
+              <button type="button" data-action="simulate-system-settings"><span>系统权限</span><b>↗</b></button>
+              <button type="button" data-action="open-detail" data-target="about-app"><span>关于 FMO 助手</span><small>版本、开发者与联系方式</small><b>›</b></button>
             </div>
           </section>
 
@@ -339,33 +337,6 @@
               <article><span class="event-mark gray">ST</span><div><strong>STATION 服务广播</strong><small>在线 24 · 覆盖 60 km</small></div><time>8 分</time></article>
               <article><span class="event-mark orange">EV</span><div><strong>动态事件</strong><small>10 分钟前</small></div><time>10 分</time></article>
             </div>
-            <button class="primary-button full-width" type="button" data-action="open-detail" data-target="notifications">配置事件通知</button>
-          </section>
-
-          <section class="screen detail-screen" data-detail="server-dashboard" data-title="服务器运维" aria-labelledby="screenTitle">
-            <div class="server-hero"><div><span class="live-dot"></span><span>示例服务器</span></div><h3>所有核心服务正常</h3><p>通过独立 HTTPS API 获取 · 12 秒前</p><button type="button" data-action="refresh-server">刷新</button></div>
-            <div class="metric-grid"><div><span>在线连接</span><strong>24</strong><small>峰值 37</small></div><div><span>CPU</span><strong>18%</strong><small>正常</small></div><div><span>内存</span><strong>42%</strong><small>1.7 GB</small></div><div><span>运行时间</span><strong>18d</strong><small>无中断</small></div></div>
-            <div class="detail-card service-health">
-              <div><span class="check good">✓</span><span><strong>DNS</strong><small>解析正常</small></span><b>22 ms</b></div>
-              <div><span class="check good">✓</span><span><strong>MQTT 443</strong><small>TLS 可达</small></span><b>31 ms</b></div>
-              <div><span class="check good">✓</span><span><strong>EMQX</strong><small>集群健康</small></span><b>3 节点</b></div>
-              <div><span class="check good">✓</span><span><strong>SAS</strong><small>鉴权服务正常</small></span><b>v1.4</b></div>
-              <div><span class="check good">✓</span><span><strong>STATION 广播</strong><small>最近发送 32 秒前</small></span><b>正常</b></div>
-            </div>
-            <div class="section-heading compact-heading"><div><h3>脱敏日志</h3><p>不显示令牌、精确位置或 QSO 内容</p></div></div>
-            <div class="log-list"><code>14:36 INFO  station broadcast accepted</code><code>14:35 INFO  sas authorization healthy</code><code>14:34 WARN  mqtt reconnect recovered</code></div>
-            <button class="danger-outline-button full-width" type="button" data-action="open-detail" data-target="server-admin">管理员写操作</button>
-          </section>
-
-          <section class="screen detail-screen" data-detail="server-admin" data-title="管理员操作" aria-labelledby="screenTitle">
-            <div class="status-banner warning-banner"><span>!</span><div><strong>写操作单独授权</strong><small>正式版需要服务器写权限与 LocalAuthentication 二次确认。</small></div></div>
-            <div class="detail-card admin-actions">
-              <button type="button" data-action="confirm-admin"><span>↻</span><span><strong>重启 SAS 服务</strong><small>预计中断鉴权约 10 秒</small></span><b>›</b></button>
-              <button type="button" data-action="confirm-admin"><span>≋</span><span><strong>立即广播 STATION</strong><small>向 APRS-IS 发送最新公开状态</small></span><b>›</b></button>
-              <button type="button" data-action="confirm-admin"><span>◫</span><span><strong>刷新公开证书材料</strong><small>不涉及任何设备私钥</small></span><b>›</b></button>
-            </div>
-            <div class="detail-card"><h3>授权范围</h3><div class="key-value"><span>身份</span><b>owner@example.invalid</b><span>会话</span><b>剩余 8 分钟</b><span>能力</span><b>server.write</b></div></div>
-            <p class="prototype-disclaimer">原型不会连接服务器或执行任何写操作。</p>
           </section>
 
           <section class="screen detail-screen" data-detail="conversation" data-title="APRS 消息" aria-labelledby="screenTitle">
@@ -408,36 +379,16 @@
             <p class="prototype-disclaimer">正式版通过系统分享面板导出，原型不会创建真实文件。</p>
           </section>
 
-          <section class="screen detail-screen" data-detail="notifications" data-title="通知" aria-labelledby="screenTitle">
-            <div class="status-banner info-banner"><span>i</span><div><strong>通知来源可区分</strong><small>APNs、自建服务器推送和本地系统事件分别标注。</small></div></div>
-            <div class="detail-card option-list notification-options">
-              <label><span><strong>CQ / OMCQ</strong><small>附近或收藏呼号发起呼叫</small></span><input type="checkbox" checked></label>
-              <label><span><strong>VOCAL</strong><small>仅代表语音活跃事件</small></span><input type="checkbox"></label>
-              <label><span><strong>上线与离线</strong><small>收藏台站和自建服务器</small></span><input type="checkbox" checked></label>
-              <label><span><strong>连接与坐标同步失败</strong><small>本地通知，不包含精确位置</small></span><input type="checkbox" checked></label>
-              <label><span><strong>服务器告警</strong><small>DNS、MQTT、EMQX、SAS 与资源阈值</small></span><input type="checkbox" checked></label>
-            </div>
-            <div class="detail-card"><h3>勿扰与过滤</h3><div class="key-value"><span>时间</span><b>23:00–07:00</b><span>距离</span><b>50 km 内</b><span>呼号</span><b>收藏优先</b><span>聚合</span><b>5 分钟</b></div></div>
-            <button class="secondary-button full-width" type="button" data-action="test-notification">发送原型测试通知</button>
+          <section class="screen detail-screen" data-detail="privacy-policy" data-title="隐私政策" aria-labelledby="screenTitle">
+            <div class="detail-card"><h3>我们如何使用数据</h3><p>FMO 助手仅为连接你选择的 FMO、同步位置、接入 APRS 网络以及在本机保存消息与 QSO 记录而处理必要数据。我们不提供广告，不进行跨 App 跟踪，也不出售个人数据。</p></div>
+            <div class="detail-card"><h3>公开网络</h3><p>呼号、APRS 消息和远控命令会经过 APRS-IS 公网传输，不应被视为私密或端到端加密通信。远控凭据原文只保存在本机。</p></div>
+            <div class="detail-card"><h3>位置与本地数据</h3><p>位置仅用于地图范围和向你选择的 FMO 同步。收藏、消息历史和 QSO 缓存保存在本机；ADIF 只在你主动导出时生成。</p></div>
+            <a class="primary-button full-width" href="../privacy/index.html" target="_blank" rel="noopener">查看完整网页</a>
           </section>
 
-          <section class="screen detail-screen" data-detail="system-integrations" data-title="系统集成" aria-labelledby="screenTitle">
-            <div class="section-heading top-heading"><div><span class="eyebrow">SHORTCUTS</span><h3>Siri 与快捷指令</h3></div></div>
-            <div class="shortcut-list"><button type="button" data-action="run-shortcut"><span>↗</span><div><strong>同步 FMO 位置</strong><small>需要解锁并确认位置访问</small></div><b>运行</b></button><button type="button" data-action="run-shortcut"><span>⌖</span><div><strong>查看附近 FMO 台站</strong><small>打开网络地图并应用距离过滤</small></div><b>运行</b></button><button type="button" data-action="run-shortcut"><span>▤</span><div><strong>打开最近 QSO</strong><small>跳转到最近一次同步记录</small></div><b>运行</b></button></div>
-          </section>
-
-          <section class="screen detail-screen" data-detail="privacy-accessibility" data-title="隐私与无障碍" aria-labelledby="screenTitle">
-            <div class="privacy-score"><span>隐私状态</span><strong>A</strong><small>所有敏感数据均保持在预期边界内</small></div>
-            <div class="detail-card permission-status"><div><span class="check good">✓</span><span><strong>本地网络</strong><small>仅发现和连接 FMO</small></span><b>使用时</b></div><div><span class="check good">✓</span><span><strong>精确位置</strong><small>仅同步到当前盒子</small></span><b>使用时</b></div><div><span class="check good">✓</span><span><strong>Keychain</strong><small>远控信息与服务器令牌</small></span><b>已保护</b></div></div>
-            <button class="feature-row standalone-row" type="button" data-action="export-diagnostics"><span class="feature-glyph">↗</span><span><strong>预览并导出脱敏诊断</strong><small>导出前再次检查敏感字段</small></span><b>›</b></button>
-            <div class="detail-card"><div class="card-heading"><div><h3>可访问性预览</h3><p>正式版纳入发布验收</p></div></div><div class="accessibility-grid"><span>动态字体</span><b>支持</b><span>VoiceOver</span><b>语义分组</b><span>减少动态</span><b>支持</b><span>触控区域</span><b>≥ 44 pt</b><span>深色模式</span><b>支持</b></div><label class="range-row"><span><strong>文字大小预览</strong><small><output id="textSizeOutput">100%</output></small></span><input type="range" min="90" max="160" step="10" value="100" data-output="textSizeOutput" data-suffix="%"></label></div>
-          </section>
-
-          <section class="screen detail-screen" data-detail="product-boundaries" data-title="产品边界" aria-labelledby="screenTitle">
-            <div class="detail-hero dark-detail"><span class="detail-icon">FM</span><h3>只使用公开接口和用户授权数据</h3><p>产品能力边界与安全模型同等重要。</p></div>
-            <div class="boundary-section allowed"><h3><span>✓</span>计划内能力</h3><ul><li>Bonjour/mDNS 与官方 GEO WebSocket</li><li>公开 FMO V4 APRS 与标准 APRS-IS</li><li>官方 APRS 远控格式</li><li>用户授权的本地只读 QSO</li><li>独立认证的自建服务器 HTTPS API</li></ul></div>
-            <div class="boundary-section excluded"><h3><span>×</span>明确排除</h3><ul><li>解码或收发未公开 MQTT 语音</li><li>抓包、固件逆向或模拟盒子身份</li><li>获取、导出、复制或使用设备私钥</li><li>映射未公开设置、OTA 或自动设备激活</li><li>未经实机验证即保证个人热点反向访问</li></ul></div>
-            <div class="detail-card"><div class="key-value"><span>最低系统</span><b>iOS 26.0</b><span>界面技术</span><b>SwiftUI</b><span>设备状态</span><b>仅公开只读接口</b><span>敏感凭据</span><b>Keychain</b></div></div>
+          <section class="screen detail-screen" data-detail="about-app" data-title="关于" aria-labelledby="screenTitle">
+            <div class="detail-hero orange-detail"><span class="detail-icon">FM</span><h3>FMO 助手</h3><p>连接 FMO、查看网络动态、收发 APRS 消息并管理通联记录。</p></div>
+            <div class="detail-card"><div class="key-value"><span>开发者</span><b>BI8SYN</b><span>联系邮箱</span><b><a href="mailto:BI8SYN@163.com">BI8SYN@163.com</a></b><span>版本</span><b>0.1.0 (10)</b></div></div>
           </section>
         </div>
 
@@ -601,20 +552,10 @@
           </section>
         </div>
 
-        <div class="modal-backdrop" id="adminConfirmModal" hidden>
-          <section class="bottom-sheet danger-sheet" role="alertdialog" aria-modal="true" aria-labelledby="adminConfirmTitle">
-            <div class="sheet-handle" aria-hidden="true"></div>
-            <span class="danger-symbol">⌑</span>
-            <h2 id="adminConfirmTitle">确认管理员写操作？</h2>
-            <p>正式版会显示具体影响、请求服务器写权限并调用生物认证。原型只演示确认层级。</p>
-            <div class="sheet-actions"><button class="secondary-button" type="button" data-action="close-modal">取消</button><button class="danger-button" type="button" data-action="confirm-admin-final">模拟确认</button></div>
-          </section>
-        </div>
-
         <div class="toast" id="toast" role="status" aria-live="polite"><span>✓</span><p>操作已完成</p></div>
       </div>
     </main>
   </div>
-  <script src="app.js?v=20260807e"></script>
+  <script src="app.js?v=20260810a"></script>
 </body>
 </html>

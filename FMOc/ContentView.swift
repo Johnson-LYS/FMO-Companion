@@ -3,6 +3,7 @@ import SwiftData
 import UIKit
 
 struct ContentView: View {
+    @AppStorage(AppAppearance.storageKey) private var appearanceRawValue = AppAppearance.system.rawValue
     @State private var deviceModel: DeviceHomeModel
     @State private var locationAutomationModel: LocationAutomationModel
     @State private var officialWebModel: OfficialWebModel
@@ -61,6 +62,9 @@ struct ContentView: View {
             }
         }
         .tint(.accentColor)
+        .preferredColorScheme(
+            (AppAppearance(rawValue: appearanceRawValue) ?? .system).colorScheme
+        )
         .task {
             locationAutomationModel.refreshAuthorization()
             await locationAutomationModel.restoreIfNeeded()
