@@ -1,6 +1,6 @@
 # FMO Companion
 
-FMO Companion 是面向 FMO（NFM Over Internet）盒子的原生 iOS 伴侣应用。项目只使用公开协议和用户授权的接口。0.1–0.4 已完成局域网设备、可靠定位、设备仪表盘和只读 FMO APRS 网络；下一阶段为 0.6 通讯与远控。
+FMO Companion 是面向 FMO（NFM Over Internet）盒子的原生 iOS 伴侣应用。项目只使用公开协议和用户授权的接口。0.1–0.6 已完成局域网设备、可靠定位、设备仪表盘、可信 FMO APRS 网络、前台消息与远控；0.8 正在设计从用户所选 FMO 自动、只读同步 QSO。
 
 ## 技术基线
 

@@ -5,6 +5,7 @@ struct DeviceHomeView: View {
     @Bindable var model: DeviceHomeModel
     @Bindable var locationAutomationModel: LocationAutomationModel
     @Bindable var officialWebModel: OfficialWebModel
+    @Bindable var remoteControlModel: FmoRemoteControlModel
     @State private var actionTask: Task<Void, Never>?
     @State private var showsDevicePicker = false
     @State private var showsDiagnostics = false
@@ -35,7 +36,7 @@ struct DeviceHomeView: View {
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
         .background(Color(uiColor: .systemGroupedBackground))
-        .navigationTitle("首页")
+        .navigationTitle("设备")
         .task { await model.start() }
         .onDisappear {
             actionTask?.cancel()
@@ -79,6 +80,18 @@ struct DeviceHomeView: View {
 
     private var deviceFeaturesSection: some View {
         Section("设备功能") {
+            NavigationLink {
+                FmoRemoteControlView(model: remoteControlModel)
+            } label: {
+                featureRow(
+                    title: "远程控制",
+                    subtitle: "切换运行模式或重启设备",
+                    symbol: "dot.radiowaves.up.forward",
+                    showsDisclosureIndicator: false
+                )
+            }
+            .accessibilityIdentifier("remote-control-entry")
+
             NavigationLink {
                 LocationAutomationView(model: locationAutomationModel)
             } label: {
