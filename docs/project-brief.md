@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-07
+last-reviewed: 2026-08-10
 ---
 
 # 项目简报
@@ -21,6 +21,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-10 | 冻结首版发布标识与商店配置：中文显示名“FMO 助手”、`com.bi8syn.fmoassistant` Bundle ID、1024 × 1024 App Icon、工具主分类及仅使用 Apple OS 豁免加密的出口合规声明 | `docs/spec/product-spec.md`、`FMOc/Assets.xcassets/AppIcon.appiconset/` |
 | 2026-08-07 | 用户完成 0.4 真实 iPhone + APRS-IS 真机验收；146 项单元测试与 14 项 XCUITest 通过，里程碑转为 Complete | `docs/plans/0007-milestone-0.4-fmo-aprs.md` |
 | 2026-08-07 | 修正 FMO 网络身份条在浅色 grouped background 上缺少层级的问题，改用系统语义卡片底色与轻描边并保持深色模式适配 | `docs/design/ui-design-system.md` |
 | 2026-08-07 | FMO 网络本地展示范围默认改为 500 km；首次进入自动取得手机位置，失败则回退全网，定位依赖纳入正式组合根与 UI 测试替身 | `docs/spec/product-spec.md`、`docs/architecture/modules/aprs.md` |

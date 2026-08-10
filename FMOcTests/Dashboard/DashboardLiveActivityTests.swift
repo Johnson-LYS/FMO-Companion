@@ -143,7 +143,7 @@ struct DashboardLiveActivityModelTests {
 
         #expect(model.phase == .failed)
         #expect(model.issue?.title == "实时活动权限未开启")
-        #expect(model.issue?.suggestion?.contains("设置 > FMO Companion") == true)
+        #expect(model.issue?.suggestion?.contains("设置 > FMO 助手") == true)
     }
 
     @Test
