@@ -182,6 +182,34 @@ final class FMOcUITests: XCTestCase {
     }
 
     @MainActor
+    func testSettingsContainsOnlyWorkingReleaseEntries() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "empty"
+        app.launch()
+
+        app.buttons["设置"].tap()
+        XCTAssertTrue(app.navigationBars["设置"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.descendants(matching: .any)["appearance-picker"].exists)
+        XCTAssertTrue(app.buttons["privacy-policy-link"].exists)
+        XCTAssertTrue(app.buttons["system-permissions-link"].exists)
+        XCTAssertTrue(app.buttons["about-entry"].exists)
+        XCTAssertFalse(app.staticTexts["通知与系统集成"].exists)
+        XCTAssertFalse(app.staticTexts["管理员功能"].exists)
+        XCTAssertFalse(app.staticTexts["诊断数据"].exists)
+
+        app.buttons["about-entry"].tap()
+        XCTAssertTrue(app.navigationBars["关于"].waitForExistence(timeout: 2))
+        let developer = app.descendants(matching: .any)["developer-callsign"]
+        XCTAssertTrue(developer.exists)
+        XCTAssertTrue(app.buttons["developer-email"].exists)
+        let version = app.descendants(matching: .any)["about-version"]
+        XCTAssertTrue(version.exists)
+        XCTAssertFalse(app.staticTexts["SwiftUI"].exists)
+        XCTAssertFalse(app.staticTexts["Swift 6"].exists)
+        XCTAssertFalse(app.staticTexts["iOS 26"].exists)
+    }
+
+    @MainActor
     func testConnectedDashboardUsesGeoDerivedMaidenheadWithoutDeferredFixtures() throws {
         let app = XCUIApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "dashboard-connected"

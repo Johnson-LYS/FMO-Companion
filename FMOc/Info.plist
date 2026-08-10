@@ -20,6 +20,8 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FMOPrivacyPolicyURL</key>
+	<string>https://fmo-companion.bi8syo.com/privacy/</string>
 	<key>CLRequireExplicitServiceSession</key>
 	<true/>
 	<key>LSRequiresIPhoneOS</key>
