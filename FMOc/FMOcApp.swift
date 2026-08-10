@@ -18,6 +18,8 @@ struct FMOcApp: App {
             FavoriteCallsign.self,
             FavoriteServer.self,
             APRSMessageRecord.self,
+            FmoQSORecord.self,
+            FmoQSOSyncMetadata.self,
         ])
     }
 }

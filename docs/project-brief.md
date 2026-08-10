@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-08
+last-reviewed: 2026-08-10
 ---
 
 # 项目简报
@@ -8,11 +8,11 @@ last-reviewed: 2026-08-08
 
 FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它把 iPhone 作为 FMO 盒子的局域网伴侣、GPS 来源、APRS 信息终端、远程控制器、QSO 日志工具和自建服务器运维入口。
 
-项目坚持公开接口边界：使用官方 GEO WebSocket、FMO V4 APRS、官方 APRS 远控示例、用户导出的 QSO 文件及用户自建 HTTPS API，不逆向核心语音协议或设备私钥。
+项目坚持公开与用户授权接口边界：使用官方 GEO WebSocket、FMO V4 APRS、官方 APRS 远控示例、ADR-0007 固定的本地只读 QSO 列表/详情及用户自建 HTTPS API，不逆向核心语音协议或设备私钥。
 
 ## 当前状态
 
-- **阶段：** 0.1–0.6 已完成；下一阶段为 0.8 QSO 导入、查询、验签与 ADIF
+- **阶段：** 0.1–0.6 已完成；0.8 自动同步 QSO 已进入原生实现与验收阶段
 - **已完成：** 0.1 局域网真机闭环；0.2 可靠定位真机闭环；0.3 设备仪表盘；0.4 只读 APRS-IS 与可信 FMO 网络；0.6 前台 APRS 消息、ACK 与 FMO 公网远控
 - **发布前跟踪：** 官方信任锚独立许可证、完整官方 APRS CERT/SIG 字节向量与 Intermediate CRL 轮换；这些事项不回退已完成的 0.4 里程碑，但正式发布前必须关闭或明确处理
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
@@ -21,6 +21,10 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-10 | 用户真机复验确认修正后的 QSO 详情、网格地图与 ADIF 导出正常；0.8 剩余验收收敛为多设备切换、离线缓存和补充自动化矩阵 | `docs/plans/0009-milestone-0.8-qso-sync.md` |
+| 2026-08-09 | 真机发现 QSO 列表可用但详情与 ADIF 失败；核对当前设备官方 `qsoService.js` 并以只读脱敏键/类型请求确认详情位于 `data.log`，修正此前错误的直接 `data` 解码并补充嵌套回归测试 | `FMOc/Features/QSO/FmoQSOProtocol.swift`、`docs/architecture/modules/qso.md` |
+| 2026-08-08 | 完成 0.8 原生候选版本：固定只读 QSO 客户端、按设备 SwiftData 缓存、前台自动同步、失败保留、查询/筛选/详情/网格地图与原子 ADIF 导出；177 项单元测试、16 项 XCUITest 与通用模拟器构建全部通过，10,000 条摘要基线约 4.5 秒，进入真实 iPhone + FMO 验收 | `docs/architecture/modules/qso.md`、`docs/plans/0009-milestone-0.8-qso-sync.md` |
+| 2026-08-08 | 用户确认只有自动同步才保留 QSO；真机只读核对确认 `qso/getList` 分页摘要与 `qso/getDetail` 完整详情可用，0.8 改为所选 FMO 前台自动同步、离线缓存、查询/地图和 ADIF | `docs/adr/0007-local-read-only-qso-sync.md`、`docs/plans/0009-milestone-0.8-qso-sync.md` |
 | 2026-08-08 | 用户复验 APRS 消息与远控真机链路通过；结合首轮 162 项单元测试、11 条 XCUITest、修正后源码兼容向量与测试目标编译，0.6 转为 Complete。收尾时测试宿主受同机其他 Xcode 测试任务影响未能再次启动，无代码断言失败 | `docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` |
 | 2026-08-07 | 修正后的 `APFMO0 + 60 字节 UTF-8` 普通消息已完成真机互发与 ACK 验收；0.6 消息、远控真机闭环均通过，剩余门槛为新增兼容向量的完整自动化回归 | `docs/architecture/modules/aprs.md`、`docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` |
 | 2026-08-07 | 0.6 远控真机链路通过；普通消息首轮互发失败定位到 FMO 兼容边界，已把 `APFMC0 + 7-bit ASCII/67` 修正为 `APFMO0 + 60 字节 UTF-8`，保留无效草稿并等待复验 | `docs/architecture/modules/aprs.md`、`docs/plans/0008-milestone-0.6-aprs-messaging-remote-control.md` |
@@ -116,10 +120,11 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 - [ADR-0003：最低部署版本采用 iOS 26](adr/0003-ios-26-minimum-deployment.md)
 - [ADR-0004：采用 Swift 6 严格并发](adr/0004-swift-6-strict-concurrency.md)
 - [ADR-0005：采用用户授权的本地只读状态接口](adr/0005-user-authorized-local-read-only-status.md)
+- [ADR-0007：采用 FMO 本地只读 QSO 自动同步](adr/0007-local-read-only-qso-sync.md)
 
 ## 本轮开发入口
 
-1. 0.6 已关闭；下一阶段先为 0.8 建立独立计划，不直接沿用 0.6 实现计划。
-2. 先取得用户从 `qso.html` 下载的脱敏 SQLite、签名及必要元数据样本，确认 schema、更新方式和验签输入。
-3. 0.8 第一版仍按用户主动下载或 Files 导入设计；除非确认公开、稳定且授权的下载接口，否则不宣称与 FMO 实时同步。
-4. 完成 QSO 文档与原型评审后，再实现只读导入、查询、地图、P-256 验签和 ADIF 导出。
+1. 0.8 以 ADR-0007 的类型化 `qso/getList`、`qso/getDetail` 为唯一自动同步来源；不调用备份、恢复、清空、密钥或签名管理命令。
+2. 真机自动出现、详情地图与 ADIF 已通过；继续确认多设备切换和离线缓存，自动化补齐离线、切换、部分失败与空日志矩阵。
+3. 同步继续先取全部分页摘要，最近记录优先取详情；旧记录详情按查看或导出需要可取消地补齐，避免一次连接对盒子发出无界请求。
+4. 用户导出 SQLite 与 P-256 签名归档不再是 0.8 主流程；若后续保留，作为单独评审的可选归档能力，不得阻塞日常 QSO 浏览。

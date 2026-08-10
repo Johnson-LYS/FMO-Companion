@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-07
+last-reviewed: 2026-08-09
 ---
 
 # FMO 已公开能力与来源
@@ -17,8 +17,8 @@ last-reviewed: 2026-08-07
 | APRS FMO V4 | 官方报文格式公开 CQ、OMCQ、VOCAL、ONLINE、BEACON、STATION、JOINT/EVENT；VOCAL 由 PTT ≥ 3 秒触发并携带呼号、位置与 serverUID，但没有会话目标或结束状态 | 可解析、展示与验证；VOCAL 只表述为最近语音活动 |
 | FMO V4 信任验证 | CERT CBOR、Ed25519、timeSalt、根/中间证书与 CRL；官方 SAS 源码公开固定顺序 CBOR TBS | 0.4 已实现并通过真机验收；独立许可证与完整官方字节向量保留为发布前事项 |
 | APRS 远控 | 官方示例公开 NORMAL、STANDBY、REBOOT、HMAC、Counter、ACK | 可原生实现 |
-| QSO 数据 | Web UI 备份 SQLite，官方脚本读取 `qso_logs` 并导出 ADIF | 可由用户导入处理 |
-| QSO 验签 | 官方工具公开 SHA-256 + ECDSA P-256 验证 | 可用 CryptoKit 实现 |
+| QSO 数据 | 官方 Web UI 以 `/ws` `qso/getList` 分页读取摘要、`qso/getDetail` 读取完整详情；另有 SQLite 备份与官方 ADIF 脚本 | ADR-0007 用户授权只读自动同步；SQLite 归档不再是日常主流程 |
+| QSO 验签 | 官方工具公开完整 SQLite 快照的 SHA-256 + ECDSA P-256 验证 | 只适用于配对数据库归档；不得把逐条 WebSocket 同步记录显示为“已验证” |
 | 自建服务器状态 | 用户控制 EMQX/SAS/主机 | 通过自建 HTTPS API 实现 |
 | MQTT 语音客户端 | 完整语音帧、编码器和设备客户端 SDK 未公开 | 不实现 |
 | 设备私钥 | 身份安全依赖设备持有私钥 | 不提取、不复制、不模拟 |
@@ -33,13 +33,16 @@ last-reviewed: 2026-08-07
 | `/ws` `station/getCurrent` | 当前服务器名称与 UID；完整观察 A → B → A 切换后的重新读取 | ADR-0005 白名单；0.3 连接期间可低频重新读取，不包含切换写操作 |
 | `/ws` `config/getServerFilter` | 枚举 `0...7`：禁用、50、100、200、500、1000、2000、5000 km | ADR-0005 白名单；未知值拒绝 |
 | `/ws` `config/getUserPhyFreq` | 单一工作频率 | ADR-0005 白名单；不得拆成 TX/RX |
-| `/ws` `qso/getList` | 日志总数与分页日志条目 | ADR-0005 只请求第 0 页 20 条且只解码 `count`；不是实时通联数 |
+| `/ws` `qso/getList` | `count/page/pageSize/list`；摘要含 `logId/timestamp/toCallsign/grid`，真机确认页大小 20 与 100 均回显 | ADR-0007 允许自动分页同步；不是实时通联数或变更推送 |
+| `/ws` `qso/getDetail` | 按 `logId` 读取 `data.log` 中的双方呼号/网格、频率、模式、服务器、管理员、备注与时间 | ADR-0007 按最近记录、用户查看或 ADIF 导出需要串行补齐；不得按 `data.{fields}` 解码 |
 | `/events` `qso/callsign` | 当前讲话状态、呼号、可选网格、连接内 `seq/ts` | ADR-0005 白名单；与 APRS `VOCAL` 分离 |
 | `/events` `qso/history` | 最近最多 20 条呼号与 `utcTime` | ADR-0005 白名单；不是完整 QSO 数据库或 0.4 APRS 事件流 |
 | `/ws` 配置与控制写操作 | 官方 Web UI 可在局域网内配置盒子，用户授权样本中观察到多种写入行为，但没有公开版本、鉴权或错误契约 | ADR-0005 明确排除；App 继续打开官方 Web UI，不实现、枚举或代理观察到的写命令 |
 | `/audio` | 存在独立 WebSocket 端点 | 明确排除；不分析、不实现 |
 
 握手样本未出现 Cookie、Authorization、TLS 或 WebSocket 子协议，而 `/ws` 同时存在读取 PASSCODE 的命令。若未来获准接入，必须使用只读命令与字段双重白名单，不得实现通用命令代理，不得请求、解码、保存或记录 PASSCODE，并为原始帧大小、畸形数据、未知字段和秘密字段丢弃建立测试。
+
+2026-08-08 的 QSO 只读核对从页面刷新开始，未观察到日志变更推送、版本令牌或增量游标。自动同步因此只在连接、前台、页面出现及页面可见期间低频检查；缓存以设备稳定身份和 `logId` 隔离，完整分页成功后才删除对账。官方页面存在备份、恢复、清空、签名、公钥和密钥重置能力，但均不在 ADR-0007 白名单内。
 
 FMO V4 解析格式和 CA/CRL 签名 TBS 已由官方 v1.0 文档与 SAS 源码明确，0.4 已完成生产形态的信任验证和真机联调。CRL 新鲜度继续按内部状态处理；独立许可证与完整官方字节向量仍是发布前门槛。核对记录见 `docs/references/fmo-aprs-v4-readiness.md`。
 

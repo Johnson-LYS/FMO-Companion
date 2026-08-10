@@ -242,6 +242,29 @@ final class FMOcUITests: XCTestCase {
     }
 
     @MainActor
+    func testQSOAutomaticallyShowsCurrentDeviceRecordsAndDetails() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "qso-synced"
+        app.launch()
+
+        app.buttons["QSO"].tap()
+        XCTAssertTrue(app.navigationBars["QSO"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["FMO Test"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["BH0TST"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["PM01AB"].exists)
+
+        app.staticTexts["BH0TST"].tap()
+        XCTAssertTrue(app.navigationBars["QSO 详情"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["网格中心仅表示大致区域"].exists)
+        app.swipeUp()
+        let relayName = app.staticTexts["qso-relay-name"]
+        XCTAssertTrue(relayName.waitForExistence(timeout: 2))
+        XCTAssertTrue(relayName.label.contains("示例中继"))
+        XCTAssertFalse(app.staticTexts["已验证"].exists)
+        XCTAssertFalse(app.staticTexts["SQLite"].exists)
+    }
+
+    @MainActor
     func testLocationAutomationExplainsAutomaticModeBeforeEnabling() throws {
         let app = XCUIApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "saved-device"

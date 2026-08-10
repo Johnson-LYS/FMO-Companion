@@ -107,7 +107,7 @@
             <div class="feature-stack">
               <button class="feature-row" type="button" data-action="open-detail" data-target="location-automation"><span class="feature-glyph">◔</span><span><strong>位置自动化</strong><small>同步模式、后台权限与网络恢复</small></span><b>›</b></button>
               <button class="feature-row" type="button" data-action="open-detail" data-target="remote-control"><span class="feature-glyph">●</span><span><strong>设备远程控制</strong><small>NORMAL、STANDBY 与安全重启</small></span><b>›</b></button>
-              <button class="feature-row" type="button" data-action="open-detail" data-target="official-portals"><span class="feature-glyph">↗</span><span><strong>打开官方页面</strong><small>设备后台与 QSO 下载页面</small></span><b>›</b></button>
+              <button class="feature-row" type="button" data-action="open-detail" data-target="official-portals"><span class="feature-glyph">↗</span><span><strong>打开官方页面</strong><small>设备后台与 QSO 官方页面</small></span><b>›</b></button>
             </div>
           </section>
 
@@ -204,28 +204,25 @@
           </section>
 
           <section class="screen" data-screen="qso" aria-labelledby="screenTitle">
-            <div class="section-heading top-heading">
-              <div><span class="eyebrow">LOGBOOK</span><h3>通联日志</h3></div>
-            </div>
+            <button class="qso-sync-card" type="button" data-action="simulate-qso-sync" aria-label="FMO-7C2A，刚刚同步 6 条，点击刷新">
+              <span class="qso-device-mark">FM</span>
+              <span><strong>FMO-7C2A</strong><small id="qsoSyncStatus">刚刚同步 · 6 条</small></span>
+              <span class="qso-sync-action" id="qsoSyncAction" aria-hidden="true">↻</span>
+            </button>
             <div class="qso-summary">
-              <span class="summary-kicker">本月通联</span>
-              <strong>24</strong>
-              <div><span>已验证 22</span><span>待检查 2</span></div>
+              <span class="summary-kicker">本机 QSO</span>
+              <strong id="qsoTotalCount">6</strong>
+              <div><span>本月 4</span><span>最近 今天 14:32</span></div>
               <div class="bar-chart" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
             </div>
-            <button class="import-card" type="button" data-action="open-detail" data-target="qso-import">
-              <span class="import-icon">＋</span>
-              <span><strong>导入 QSO 数据库</strong><small>从“文件”选择用户主动导出的 SQLite</small></span>
-              <span aria-hidden="true">›</span>
-            </button>
-            <div class="section-heading compact-heading"><div><h3>最近通联</h3></div><button class="text-button" type="button">全部</button></div>
+            <div class="section-heading compact-heading"><div><h3>最近通联</h3></div><button class="text-button" type="button" data-action="open-detail" data-target="qso-browser">全部</button></div>
             <div class="qso-list">
-              <article><span class="verified-mark">✓</span><div><strong>BH4XYZ</strong><small>示例服务器 · 8 分钟</small></div><time>今天 14:32</time></article>
-              <article><span class="verified-mark">✓</span><div><strong>BG0AAA</strong><small>示例服务器 · 3 分钟</small></div><time>昨天 20:18</time></article>
-              <article><span class="pending-mark">!</span><div><strong>BD7ABC</strong><small>签名待检查 · 原型数据</small></div><time>8 月 1 日</time></article>
+              <button type="button" data-action="open-qso-detail" data-qso-id="bh4xyz"><span class="qso-row-mark">BH</span><span><strong>BH4XYZ</strong><small>PM01AB · 示例华东</small></span><time>今天 14:32</time></button>
+              <button type="button" data-action="open-qso-detail" data-qso-id="bg0aaa"><span class="qso-row-mark alt">BG</span><span><strong>BG0AAA</strong><small>ON80CA · 示例西北</small></span><time>昨天 20:18</time></button>
+              <button type="button" data-action="open-qso-detail" data-qso-id="bd7abc"><span class="qso-row-mark soft">BD</span><span><strong>BD7ABC</strong><small>OL63NA · 示例华南</small></span><time>8 月 1 日</time></button>
             </div>
             <div class="feature-link-grid qso-actions">
-              <button class="feature-link" type="button" data-action="open-detail" data-target="qso-browser"><span class="feature-glyph">⌕</span><strong>查询与详情</strong><small>过滤、地图和验签</small><b>›</b></button>
+              <button class="feature-link" type="button" data-action="open-detail" data-target="qso-browser"><span class="feature-glyph">⌕</span><strong>查询与详情</strong><small>呼号、网格与服务器</small><b>›</b></button>
               <button class="feature-link" type="button" data-action="open-detail" data-target="qso-export"><span class="feature-glyph">↗</span><strong>ADIF 导出</strong><small>含 APP_FMO 字段</small><b>›</b></button>
             </div>
           </section>
@@ -286,7 +283,7 @@
               <span class="portal-icon">FM</span><div><strong>FMO 官方后台</strong><small>http://fmo.local · 仅局域网</small></div><button type="button" data-action="open-web-preview" data-portal="admin">打开</button>
             </div>
             <div class="portal-card">
-              <span class="portal-icon qso-icon">Q</span><div><strong>QSO 下载页面</strong><small>用户主动导出数据库与签名文件</small></div><button type="button" data-action="open-web-preview" data-portal="qso">打开</button>
+              <span class="portal-icon qso-icon">Q</span><div><strong>QSO 官方页面</strong><small>查看盒子原始日志与备份</small></div><button type="button" data-action="open-web-preview" data-portal="qso">打开</button>
             </div>
             <div class="detail-card">
               <h3>打开方式</h3>
@@ -397,28 +394,16 @@
             <div class="command-result" id="commandResult"><span>—</span><div><strong>尚未发送操作</strong><small>发送后会在这里显示设备是否确认。</small></div></div>
           </section>
 
-          <section class="screen detail-screen" data-detail="qso-import" data-title="导入 QSO" aria-labelledby="screenTitle">
-            <div class="detail-hero orange-detail"><span class="detail-icon">＋</span><h3>导入用户主动导出的文件</h3><p>只读检查 SQLite、签名与完整性，不修改原始文件。</p></div>
-            <div class="import-drop"><span>▤</span><strong>选择 QSO SQLite 与签名文件</strong><small>支持从“文件”App 选择 · 原型不读取本地文件</small><button type="button" data-action="simulate-import">选择示例文件</button></div>
-            <div class="import-progress" id="importProgress" hidden><div><span>导入与验证</span><b id="importPercent">0%</b></div><progress value="0" max="100"></progress></div>
-            <div class="detail-card import-steps">
-              <div data-import-step="schema"><span class="check neutral">—</span><span><strong>Schema 检查</strong><small>表与字段结构</small></span></div>
-              <div data-import-step="hash"><span class="check neutral">—</span><span><strong>SHA-256 完整性</strong><small>数据库摘要</small></span></div>
-              <div data-import-step="signature"><span class="check neutral">—</span><span><strong>ECDSA P-256 验签</strong><small>用户导出签名</small></span></div>
-              <div data-import-step="index"><span class="check neutral">—</span><span><strong>建立查询索引</strong><small>可取消的批处理</small></span></div>
-            </div>
-          </section>
-
-          <section class="screen detail-screen" data-detail="qso-browser" data-title="QSO 查询" aria-labelledby="screenTitle">
-            <div class="search-field"><span>⌕</span><input type="search" placeholder="搜索呼号、日期或服务器" aria-label="搜索 QSO"></div>
-            <div class="filter-chips"><button class="chip is-selected" type="button">全部</button><button class="chip" type="button">已验证</button><button class="chip" type="button">待检查</button><button class="chip" type="button">本月</button></div>
-            <div class="qso-detail-card"><div class="qso-call"><span class="verified-mark">✓</span><div><span class="eyebrow">VERIFIED QSO</span><h3>BH4XYZ</h3></div><time>今天 14:32</time></div><div class="mini-map"><span class="route-point start"></span><span class="route-line"></span><span class="route-point end"></span><small>示意线路 · 不含真实位置</small></div><div class="key-value"><span>时长</span><b>8 分钟</b><span>服务器</span><b>示例华东</b><span>完整性</span><b>SHA-256 通过</b><span>签名</span><b>P-256 有效</b></div></div>
-            <div class="qso-list compact-qso-list"><article><span class="verified-mark">✓</span><div><strong>BG0AAA</strong><small>昨天 · 3 分钟</small></div><time>20:18</time></article><article><span class="pending-mark">!</span><div><strong>BD7ABC</strong><small>签名待检查</small></div><time>8 月 1 日</time></article></div>
+          <section class="screen detail-screen" data-detail="qso-browser" data-title="QSO" aria-labelledby="screenTitle">
+            <div class="search-field"><span>⌕</span><input id="qsoSearch" type="search" placeholder="搜索呼号、日期或服务器" aria-label="搜索 QSO"></div>
+            <div class="filter-chips"><button class="chip is-selected" type="button">全部</button><button class="chip" type="button">本月</button><button class="chip" type="button">有位置</button></div>
+            <div class="qso-detail-card"><div class="qso-call"><span class="qso-row-mark" id="qsoDetailMark">BH</span><div><span class="eyebrow">QSO</span><h3 id="qsoDetailCallsign">BH4XYZ</h3></div><time id="qsoDetailTime">今天 14:32</time></div><div class="mini-map" id="qsoDetailMap" role="img" aria-label="PM01AB 到 PM01CD 的网格区域示意"><span class="route-point start"></span><span class="route-line"></span><span class="route-point end"></span><small id="qsoDetailGrid">PM01AB ↔ PM01CD</small></div><div class="key-value"><span>频率</span><b id="qsoDetailFrequency">145.8000 MHz</b><span>模式</span><b id="qsoDetailMode">FM</b><span>服务器</span><b id="qsoDetailServer">示例华东</b><span>管理员</span><b id="qsoDetailAdmin">BH4ADM</b><span>备注</span><b id="qsoDetailComment">便携测试</b></div></div>
+            <div class="qso-list compact-qso-list" id="qsoSearchResults"><button type="button" data-action="open-qso-detail" data-qso-id="bg0aaa" data-qso-search="BG0AAA ON80CA 示例西北 昨天"><span class="qso-row-mark alt">BG</span><span><strong>BG0AAA</strong><small>ON80CA · 示例西北</small></span><time>昨天 20:18</time></button><button type="button" data-action="open-qso-detail" data-qso-id="bd7abc" data-qso-search="BD7ABC OL63NA 示例华南 8月"><span class="qso-row-mark soft">BD</span><span><strong>BD7ABC</strong><small>OL63NA · 示例华南</small></span><time>8 月 1 日</time></button></div>
           </section>
 
           <section class="screen detail-screen" data-detail="qso-export" data-title="ADIF 导出" aria-labelledby="screenTitle">
             <div class="detail-card"><span class="eyebrow">EXPORT RANGE</span><h3>选择导出范围</h3><div class="selectable-list" data-choice-group="export-range"><button class="selectable-option is-selected" type="button"><span>◉</span><span><strong>当前筛选结果</strong><small>24 条记录</small></span><b>✓</b></button><button class="selectable-option" type="button"><span>▤</span><span><strong>全部记录</strong><small>1,284 条记录</small></span><b>✓</b></button></div></div>
-            <div class="detail-card option-list"><label><span><strong>包含标准 ADIF 字段</strong><small>CALL、QSO_DATE、TIME_ON 等</small></span><input type="checkbox" checked></label><label><span><strong>包含 APP_FMO_* 字段</strong><small>服务器、验签与 FMO 扩展信息</small></span><input type="checkbox" checked></label><label><span><strong>导出前再次验证</strong><small>更新摘要与签名状态</small></span><input type="checkbox" checked></label></div>
+            <div class="detail-card option-list"><label><span><strong>包含标准 ADIF 字段</strong><small>CALL、QSO_DATE、TIME_ON 等</small></span><input type="checkbox" checked></label><label><span><strong>包含 APP_FMO_* 字段</strong><small>服务器与 FMO 扩展信息</small></span><input type="checkbox" checked></label><label><span><strong>只导出当前结果</strong><small>应用搜索与时间筛选</small></span><input type="checkbox"></label></div>
             <button class="primary-button full-width" type="button" data-action="simulate-export">生成示例 ADIF</button>
             <p class="prototype-disclaimer">正式版通过系统分享面板导出，原型不会创建真实文件。</p>
           </section>
@@ -438,7 +423,7 @@
 
           <section class="screen detail-screen" data-detail="system-integrations" data-title="系统集成" aria-labelledby="screenTitle">
             <div class="section-heading top-heading"><div><span class="eyebrow">SHORTCUTS</span><h3>Siri 与快捷指令</h3></div></div>
-            <div class="shortcut-list"><button type="button" data-action="run-shortcut"><span>↗</span><div><strong>同步 FMO 位置</strong><small>需要解锁并确认位置访问</small></div><b>运行</b></button><button type="button" data-action="run-shortcut"><span>⌖</span><div><strong>查看附近 FMO 台站</strong><small>打开网络地图并应用距离过滤</small></div><b>运行</b></button><button type="button" data-action="run-shortcut"><span>▤</span><div><strong>打开最近 QSO</strong><small>跳转到最近一条已验证记录</small></div><b>运行</b></button></div>
+            <div class="shortcut-list"><button type="button" data-action="run-shortcut"><span>↗</span><div><strong>同步 FMO 位置</strong><small>需要解锁并确认位置访问</small></div><b>运行</b></button><button type="button" data-action="run-shortcut"><span>⌖</span><div><strong>查看附近 FMO 台站</strong><small>打开网络地图并应用距离过滤</small></div><b>运行</b></button><button type="button" data-action="run-shortcut"><span>▤</span><div><strong>打开最近 QSO</strong><small>跳转到最近一次同步记录</small></div><b>运行</b></button></div>
           </section>
 
           <section class="screen detail-screen" data-detail="privacy-accessibility" data-title="隐私与无障碍" aria-labelledby="screenTitle">
@@ -450,7 +435,7 @@
 
           <section class="screen detail-screen" data-detail="product-boundaries" data-title="产品边界" aria-labelledby="screenTitle">
             <div class="detail-hero dark-detail"><span class="detail-icon">FM</span><h3>只使用公开接口和用户授权数据</h3><p>产品能力边界与安全模型同等重要。</p></div>
-            <div class="boundary-section allowed"><h3><span>✓</span>计划内能力</h3><ul><li>Bonjour/mDNS 与官方 GEO WebSocket</li><li>公开 FMO V4 APRS 与标准 APRS-IS</li><li>官方 APRS 远控格式</li><li>用户导出的 QSO SQLite 与签名</li><li>独立认证的自建服务器 HTTPS API</li></ul></div>
+            <div class="boundary-section allowed"><h3><span>✓</span>计划内能力</h3><ul><li>Bonjour/mDNS 与官方 GEO WebSocket</li><li>公开 FMO V4 APRS 与标准 APRS-IS</li><li>官方 APRS 远控格式</li><li>用户授权的本地只读 QSO</li><li>独立认证的自建服务器 HTTPS API</li></ul></div>
             <div class="boundary-section excluded"><h3><span>×</span>明确排除</h3><ul><li>解码或收发未公开 MQTT 语音</li><li>抓包、固件逆向或模拟盒子身份</li><li>获取、导出、复制或使用设备私钥</li><li>映射未公开设置、OTA 或自动设备激活</li><li>未经实机验证即保证个人热点反向访问</li></ul></div>
             <div class="detail-card"><div class="key-value"><span>最低系统</span><b>iOS 26.0</b><span>界面技术</span><b>SwiftUI</b><span>设备状态</span><b>仅公开只读接口</b><span>敏感凭据</span><b>Keychain</b></div></div>
           </section>

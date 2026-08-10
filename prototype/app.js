@@ -35,6 +35,12 @@
     { kind: "history", title: "BG0AAA", occurredAt: Date.now() - 64_000 },
   ];
 
+  const qsoFixtures = {
+    bh4xyz: { callsign: "BH4XYZ", mark: "BH", time: "今天 14:32", fromGrid: "PM01AB", toGrid: "PM01CD", frequency: "145.8000 MHz", mode: "FM", server: "示例华东", admin: "BH4ADM", comment: "便携测试" },
+    bg0aaa: { callsign: "BG0AAA", mark: "BG", time: "昨天 20:18", fromGrid: "PM01AB", toGrid: "ON80CA", frequency: "439.8000 MHz", mode: "FM", server: "示例西北", admin: "BG0ADM", comment: "晚间通联" },
+    bd7abc: { callsign: "BD7ABC", mark: "BD", time: "8 月 1 日", fromGrid: "PM01AB", toGrid: "OL63NA", frequency: "145.5000 MHz", mode: "FM", server: "示例华南", admin: "BD7ADM", comment: "移动台测试" },
+  };
+
   const elements = {
     phone: document.querySelector("#phoneFrame"),
     content: document.querySelector("#appContent"),
@@ -573,9 +579,9 @@
     const isQso = portal === "qso";
     document.querySelector("#webPreviewURL").textContent = isQso ? "http://fmo.local/qso.html" : "http://fmo.local";
     document.querySelector("#webPreviewIcon").textContent = isQso ? "Q" : "FM";
-    document.querySelector("#webPreviewTitle").textContent = isQso ? "QSO 下载页面" : "FMO 官方后台";
+    document.querySelector("#webPreviewTitle").textContent = isQso ? "QSO 官方页面" : "FMO 官方后台";
     document.querySelector("#webPreviewDescription").textContent = isQso
-      ? "用户可主动下载 SQLite 数据库与签名文件，随后回到 App 导入。"
+      ? "用于查看盒子原始日志与备份；App 中的通联日志会在连接后自动同步。"
       : "受限浏览器预览。不会注入脚本或模拟未公开接口。";
     showModal(elements.webPreviewModal);
   }
@@ -627,33 +633,36 @@
     showToast("本地会话已删除", "⌫");
   }
 
-  async function simulateImport(button) {
-    const wrapper = document.querySelector("#importProgress");
-    const progress = wrapper.querySelector("progress");
-    const percent = document.querySelector("#importPercent");
-    const stepKeys = ["schema", "hash", "signature", "index"];
-    wrapper.hidden = false;
+  function openQsoDetail(id) {
+    const qso = qsoFixtures[id] || qsoFixtures.bh4xyz;
+    const mark = document.querySelector("#qsoDetailMark");
+    mark.textContent = qso.mark;
+    mark.className = `qso-row-mark${id === "bg0aaa" ? " alt" : id === "bd7abc" ? " soft" : ""}`;
+    document.querySelector("#qsoDetailCallsign").textContent = qso.callsign;
+    document.querySelector("#qsoDetailTime").textContent = qso.time;
+    document.querySelector("#qsoDetailGrid").textContent = `${qso.fromGrid} ↔ ${qso.toGrid}`;
+    document.querySelector("#qsoDetailMap").setAttribute("aria-label", `${qso.fromGrid} 到 ${qso.toGrid} 的网格区域示意`);
+    document.querySelector("#qsoDetailFrequency").textContent = qso.frequency;
+    document.querySelector("#qsoDetailMode").textContent = qso.mode;
+    document.querySelector("#qsoDetailServer").textContent = qso.server;
+    document.querySelector("#qsoDetailAdmin").textContent = qso.admin;
+    document.querySelector("#qsoDetailComment").textContent = qso.comment;
+    if (state.detail !== "qso-browser") showDetail("qso-browser");
+  }
+
+  async function simulateQsoSync(button) {
+    const status = document.querySelector("#qsoSyncStatus");
+    const action = document.querySelector("#qsoSyncAction");
     button.disabled = true;
-    button.textContent = "正在读取示例文件";
-    for (let value = 0; value <= 100; value += 10) {
-      progress.value = value;
-      percent.textContent = `${value}%`;
-      const completedSteps = Math.min(stepKeys.length, Math.floor(value / 25));
-      stepKeys.forEach((key, index) => {
-        const badge = document.querySelector(`[data-import-step="${key}"] .check`);
-        badge.className = `check ${index < completedSteps ? "good" : "neutral"}`;
-        badge.textContent = index < completedSteps ? "✓" : "—";
-      });
-      await wait(130);
-    }
-    stepKeys.forEach((key) => {
-      const badge = document.querySelector(`[data-import-step="${key}"] .check`);
-      badge.className = "check good";
-      badge.textContent = "✓";
-    });
+    button.setAttribute("aria-label", "FMO-7C2A，正在同步");
+    status.textContent = "正在同步…";
+    action.classList.add("is-spinning");
+    await wait(900);
+    status.textContent = "刚刚同步 · 6 条";
+    action.classList.remove("is-spinning");
     button.disabled = false;
-    button.textContent = "重新选择示例文件";
-    showToast("已导入 1,284 条示例 QSO");
+    button.setAttribute("aria-label", "FMO-7C2A，刚刚同步 6 条，点击刷新");
+    showToast("QSO 已更新");
   }
 
   async function sendMessage() {
@@ -743,6 +752,8 @@
     const action = actionTarget.dataset.action;
     if (action === "back") {
       navigateBack();
+    } else if (action === "open-qso-detail") {
+      openQsoDetail(actionTarget.dataset.qsoId);
     } else if (action === "open-detail") {
       closeAllModals();
       showDetail(actionTarget.dataset.target);
@@ -849,10 +860,10 @@
       await sendMessage();
     } else if (action === "simulate-command") {
       await simulateCommand(actionTarget.dataset.command);
-    } else if (action === "simulate-import") {
-      await simulateImport(actionTarget);
+    } else if (action === "simulate-qso-sync") {
+      await simulateQsoSync(actionTarget);
     } else if (action === "simulate-export") {
-      await simulateSimpleCheck(actionTarget, "正在验证并生成…", "示例 ADIF 已生成，可通过系统分享");
+      await simulateSimpleCheck(actionTarget, "正在准备并生成…", "示例 ADIF 已生成，可通过系统分享");
     } else if (action === "test-notification") {
       await simulateSimpleCheck(actionTarget, "正在请求测试通知…", "测试通知已模拟发送");
     } else if (action === "run-shortcut") {
@@ -875,6 +886,13 @@
   });
 
   document.addEventListener("input", (event) => {
+    if (event.target.matches("#qsoSearch")) {
+      const query = event.target.value.trim().toUpperCase();
+      document.querySelectorAll("#qsoSearchResults [data-qso-search]").forEach((row) => {
+        row.hidden = query.length > 0 && !row.dataset.qsoSearch.toUpperCase().includes(query);
+      });
+      return;
+    }
     const range = event.target.closest("input[type='range'][data-output]");
     if (!range) return;
     const output = document.querySelector(`#${range.dataset.output}`);

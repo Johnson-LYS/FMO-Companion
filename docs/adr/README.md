@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-07
+last-reviewed: 2026-08-08
 ---
 
 # 架构决策记录
@@ -12,6 +12,7 @@ last-reviewed: 2026-08-07
 | 0004 | [采用 Swift 6 严格并发](0004-swift-6-strict-concurrency.md) | Accepted | 2026-08-03 |
 | 0005 | [采用用户授权的本地只读状态接口](0005-user-authorized-local-read-only-status.md) | Accepted | 2026-08-05 |
 | 0006 | [隔离 APRS 只读与写会话](0006-isolated-aprs-write-session.md) | Accepted | 2026-08-07 |
+| 0007 | [采用 FMO 本地只读 QSO 自动同步](0007-local-read-only-qso-sync.md) | Accepted | 2026-08-08 |
 
 ## 规则
 

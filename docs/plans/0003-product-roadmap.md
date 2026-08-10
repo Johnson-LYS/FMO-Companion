@@ -12,7 +12,7 @@ status: active
 | 0.3 | 设备仪表盘基础 | 共享快照、GEO/Maidenhead、局部降级与最终交互原型 | Complete |
 | 0.4 | FMO APRS | V4 解析、证书链、签名/CRL、地图、服务器目录、事件流 | Complete |
 | 0.6 | 通讯与远控 | APRS 短消息、ACK、NORMAL/STANDBY/REBOOT、Keychain | Complete |
-| 0.8 | QSO | SQLite 导入、查询、P-256 验签、ADIF 导出 | Planned |
+| 0.8 | QSO | 所选 FMO 自动只读同步、离线缓存、查询/地图、ADIF | In Progress |
 | 1.0 | 完整伴侣 | 自建服务器 API、APNs、小组件、快捷指令、可访问性 | Planned |
 
 ## 0.2 可靠定位
@@ -32,7 +32,7 @@ status: active
 - 启动自动扫描并优先恢复上一次成功连接的设备；设备列表从设备页移入呼号右侧按钮打开的选择 Sheet，扫描结果只用于用户显式切换。
 - 类型化快照驱动设备页；每个字段保留来源、观测时间、可信度和过期状态。
 - 实时活动、锁屏与 Dynamic Island 从 0.3 移除，已有 ActivityKit 实现只作为后续 checkpoint，不提供入口或计入完成度。
-- 0.3 不前移完整 APRS-IS、QSO 导入或 APNs，也不把这些来源的“最后观测”冒充设备内部实时状态。
+- 0.3 不前移完整 APRS-IS、QSO 自动同步或 APNs，也不把这些来源的“最后观测”冒充设备内部实时状态。
 
 ## 0.4 FMO APRS
 
@@ -52,10 +52,11 @@ status: active
 
 ## 0.8 QSO
 
-- 用户主动从 `qso.html` 下载或 Files 导入。
-- SQLite schema 检查和查询。
-- SHA-256 与 ECDSA P-256 验签。
-- ADIF 与 `APP_FMO_*` 字段。
+- 连接/切换所选 FMO、进入前台或打开 QSO 页面时，通过 ADR-0007 白名单自动分页同步摘要；页面可见期间低频检查并允许手动刷新。
+- 缓存按设备隔离，完整同步后对账；离线显示上次同步，部分失败不删除既有记录。
+- 最近记录优先、详情按查看或导出需要串行补齐；支持呼号/日期/服务器搜索与 Maidenhead 网格区域地图。
+- 从规范化缓存生成 ADIF 与可选 `APP_FMO_*` 字段。SQLite/P-256 签名归档移出日常主流程，后续单独评审。
+- 不实现 QSO 删除/恢复、设备端备份/ADIF 触发、签名密钥管理、后台持续同步或云同步。
 
 ## 1.0 完整伴侣
 

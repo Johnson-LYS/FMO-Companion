@@ -19,10 +19,10 @@ FMO Companion is a native iOS companion app for FMO (NFM Over Internet) hardware
 - The strictly allowlisted, user-authorized local read-only status API described by ADR-0005.
 - Public FMO V4 APRS frames and standard APRS-IS behavior.
 - The documented APRS remote-control format.
-- User-exported QSO SQLite databases and signature files.
+- The user-authorized, strictly read-only local QSO list/detail contract fixed by ADR-0007, plus user-exported QSO archives when explicitly chosen.
 - A separately authenticated HTTPS API for the user's own FMO server.
 
-The app must not perform runtime packet sniffing or rely on firmware reverse engineering, private-key extraction, undocumented audio frames, or impersonating an FMO device. The ADR-0005 status client is limited to sanitized, typed, read-only behavior observed in the official UI; it must never expose generic management commands, secrets, write operations, or `/audio`.
+The app must not perform runtime packet sniffing or rely on firmware reverse engineering, private-key extraction, undocumented audio frames, or impersonating an FMO device. The ADR-0005 status client and ADR-0007 QSO client are limited to sanitized, typed, read-only behavior observed in the official UI; they must never expose generic management commands, secrets, write operations, backup/restore triggers, or `/audio`.
 
 ## Documentation Map
 
@@ -64,7 +64,7 @@ At the beginning of a development session:
 - Treat all network and location operations as asynchronous and cancellation-aware.
 - Keep protocol parsing and cryptographic verification independent from UI code.
 - Use dependency injection through protocols for network, location, clock, storage, and APRS transports.
-- Never log APRS PASSCODEs, remote-control secrets, bearer tokens, precise location, or imported QSO contents in production logs.
+- Never log APRS PASSCODEs, remote-control secrets, bearer tokens, precise location, or synchronized/exported QSO contents in production logs.
 - Store secrets only in Keychain. Do not put secrets in source, UserDefaults, test fixtures, screenshots, or documentation.
 - Do not weaken certificate, signature, replay-window, or CRL validation to make tests pass.
 - Use localized user-facing strings; do not hard-code visible copy deep in service layers.

@@ -1,22 +1,5 @@
 import SwiftUI
 
-struct QsoHomeView: View {
-    var body: some View {
-        ContentUnavailableView {
-            Label("尚未导入 QSO", systemImage: "book.closed")
-        } description: {
-            Text("从 FMO 官方后台导出数据库后，可在这里验签、查询和导出 ADIF。")
-        } actions: {
-            Button("选择导出文件") {}
-                .buttonStyle(.borderedProminent)
-                .tint(.accentColor)
-                .foregroundStyle(.black)
-                .disabled(true)
-        }
-        .navigationTitle("QSO")
-    }
-}
-
 struct SettingsHomeView: View {
     var body: some View {
         List {

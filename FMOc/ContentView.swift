@@ -9,6 +9,7 @@ struct ContentView: View {
     @State private var fmoNetworkModel: FmoNetworkModel
     @State private var aprsMessageModel: APRSMessageModel
     @State private var remoteControlModel: FmoRemoteControlModel
+    @State private var qsoModel: QSOModel
     private let fmoNetworkLocationProvider: any PhoneLocationProviding
     @Environment(\.modelContext) private var modelContext
 
@@ -20,6 +21,7 @@ struct ContentView: View {
         _fmoNetworkModel = State(initialValue: models.fmoNetwork)
         _aprsMessageModel = State(initialValue: models.aprsMessages)
         _remoteControlModel = State(initialValue: models.remoteControl)
+        _qsoModel = State(initialValue: models.qso)
         fmoNetworkLocationProvider = models.fmoNetworkLocationProvider
     }
 
@@ -48,7 +50,7 @@ struct ContentView: View {
 
             Tab("QSO", systemImage: "book.closed") {
                 NavigationStack {
-                    QsoHomeView()
+                    QsoHomeView(model: qsoModel)
                 }
             }
 
@@ -63,6 +65,11 @@ struct ContentView: View {
             locationAutomationModel.refreshAuthorization()
             await locationAutomationModel.restoreIfNeeded()
             aprsMessageModel.configure(modelContext: modelContext)
+            qsoModel.configure(modelContext: modelContext)
+            await qsoModel.setDevice(
+                endpoint: deviceModel.selectedEndpoint,
+                isConnected: deviceModel.isConnected
+            )
             await fmoNetworkModel.restoreIfNeeded(isActive: true)
             await aprsMessageModel.setIdentity(fmoNetworkModel.identity)
             await aprsMessageModel.setActive(true)
@@ -75,17 +82,36 @@ struct ContentView: View {
             Task {
                 await fmoNetworkModel.setActive(true)
                 await aprsMessageModel.setActive(true)
+                await qsoModel.setActive(true)
+                await qsoModel.setDevice(
+                    endpoint: deviceModel.selectedEndpoint,
+                    isConnected: deviceModel.isConnected
+                )
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
             Task {
                 await fmoNetworkModel.setActive(false)
                 await aprsMessageModel.setActive(false)
+                await qsoModel.setActive(false)
             }
         }
         .onChange(of: deviceModel.dashboardSnapshot.callsign.currentValue) { _, _ in
             Task {
                 await adoptCurrentFMOCallsignIfAvailable()
+            }
+        }
+        .onChange(of: deviceModel.selectedEndpoint) { _, endpoint in
+            Task {
+                await qsoModel.setDevice(endpoint: endpoint, isConnected: deviceModel.isConnected)
+            }
+        }
+        .onChange(of: deviceModel.phase) { _, _ in
+            Task {
+                await qsoModel.setDevice(
+                    endpoint: deviceModel.selectedEndpoint,
+                    isConnected: deviceModel.isConnected
+                )
             }
         }
         .onChange(of: fmoNetworkModel.identity) { _, identity in

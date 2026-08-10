@@ -9,6 +9,7 @@ enum AppComposition {
         let fmoNetwork: FmoNetworkModel
         let aprsMessages: APRSMessageModel
         let remoteControl: FmoRemoteControlModel
+        let qso: QSOModel
         let fmoNetworkLocationProvider: any PhoneLocationProviding
     }
 
@@ -24,6 +25,7 @@ enum AppComposition {
         let aprsReceiver: any APRSISReceiving
         let aprsNetworkProcessor: any FMOV4NetworkProcessing
         let messagingClient: any APRSISMessaging
+        let qsoReader: any FmoQSOReading
         let fmoNetworkLocationProvider: any PhoneLocationProviding
 
 #if DEBUG
@@ -43,6 +45,13 @@ enum AppComposition {
             localEventStream = UITestLocalEventStream()
         case "dashboard-connected":
             let endpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+            endpointStore = UITestEndpointStore(endpoint: endpoint)
+            discovery = EmptyDeviceDiscovery()
+            geoClient = UITestGeoClient()
+            localStatusProvider = UITestLocalStatusProvider()
+            localEventStream = UITestLocalEventStream()
+        case "qso-synced":
+            let endpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual, name: "FMO Test")
             endpointStore = UITestEndpointStore(endpoint: endpoint)
             discovery = EmptyDeviceDiscovery()
             geoClient = UITestGeoClient()
@@ -143,16 +152,23 @@ enum AppComposition {
             preconditionFailure("Invalid static APRS-IS messaging identity")
         }
 #if DEBUG
-        if processInfo.environment["FMO_UI_TEST_SCENARIO"] != nil {
+        if processInfo.environment["FMO_UI_TEST_SCENARIO"] == "qso-synced" {
             messagingClient = UITestAPRSMessagingClient()
+            qsoReader = UITestQSOReader()
+        } else if processInfo.environment["FMO_UI_TEST_SCENARIO"] != nil {
+            messagingClient = UITestAPRSMessagingClient()
+            qsoReader = UnavailableFmoQSOReader()
         } else {
             messagingClient = APRSISMessagingClient(messagingProtocol: messagingProtocol)
+            qsoReader = FmoQSOReadClient()
         }
 #else
         messagingClient = APRSISMessagingClient(messagingProtocol: messagingProtocol)
+        qsoReader = FmoQSOReadClient()
 #endif
         let aprsMessages = APRSMessageModel(client: messagingClient)
         let remoteControl = FmoRemoteControlModel(client: messagingClient)
+        let qso = QSOModel(reader: qsoReader)
         aprsMessages.controlMessageHandler = { [weak remoteControl] envelope in
             remoteControl?.handleControlMessage(envelope) ?? false
         }
@@ -164,6 +180,7 @@ enum AppComposition {
             fmoNetwork: fmoNetwork,
             aprsMessages: aprsMessages,
             remoteControl: remoteControl,
+            qso: qso,
             fmoNetworkLocationProvider: fmoNetworkLocationProvider
         )
     }
@@ -381,6 +398,65 @@ private actor UITestGeoClient: FmoGeoClient {
     }
     func setCoordinate(_ coordinate: GeoCoordinate) {}
     func disconnect() {}
+}
+
+private actor UITestQSOReader: FmoQSOReading {
+    private var isConnected = false
+
+    func connect(to endpoint: FmoDeviceEndpoint) { isConnected = true }
+
+    func list(page: Int, pageSize: Int) throws -> FmoQSOListPage {
+        guard isConnected else { throw FmoDeviceError.disconnected }
+        let summaries = page == 0 ? details.map {
+            FmoQSOSummary(
+                logID: $0.logID,
+                timestamp: $0.timestamp,
+                toCallsign: $0.toCallsign,
+                toGrid: $0.toGrid
+            )
+        } : []
+        return FmoQSOListPage(totalCount: details.count, page: page, pageSize: pageSize, summaries: summaries)
+    }
+
+    func detail(logID: Int64) throws -> FmoQSODetail {
+        guard isConnected, let detail = details.first(where: { $0.logID == logID }) else {
+            throw FmoDeviceError.protocolViolation
+        }
+        return detail
+    }
+
+    func disconnect() { isConnected = false }
+
+    private var details: [FmoQSODetail] {
+        [
+            FmoQSODetail(
+                logID: 2,
+                timestamp: Date(timeIntervalSince1970: 1_800_000_120),
+                fromCallsign: "BG0OWN",
+                toCallsign: "BH0TST",
+                fromGrid: "OM89AA",
+                toGrid: "PM01AB",
+                frequencyRaw: 1_458_000,
+                mode: "FM",
+                relayName: "示例中继",
+                relayAdmin: "BG0ADM",
+                comment: "73"
+            ),
+            FmoQSODetail(
+                logID: 1,
+                timestamp: Date(timeIntervalSince1970: 1_800_000_000),
+                fromCallsign: "BG0OWN",
+                toCallsign: "BD0TST",
+                fromGrid: "OM89AA",
+                toGrid: "OL72AA",
+                frequencyRaw: 1_458_000,
+                mode: "FM",
+                relayName: "示例中继",
+                relayAdmin: nil,
+                comment: nil
+            ),
+        ]
+    }
 }
 
 private actor UITestLocalStatusProvider: FmoLocalStatusProviding {
