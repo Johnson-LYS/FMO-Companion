@@ -193,7 +193,7 @@ struct LocationAutomationView: View {
 
         return switch model.snapshot.phase {
         case .stopped:
-            "只有你在首页点击同步时才会更新 FMO。"
+            "只有你在设备页点击同步时才会更新 FMO。"
         case .starting:
             "正在建立系统定位与网络状态会话。"
         case .waitingForLocation:
@@ -263,7 +263,7 @@ private extension LocationSyncMode {
 
     var subtitle: LocalizedStringResource {
         switch self {
-        case .manual: "只在首页点击同步时更新"
+        case .manual: "只在设备页点击同步时更新"
         case .lowPower: "15 分钟或 1 公里 · 较省电"
         case .vehicle: "2 分钟或 250 米 · 耗电较高"
         }
@@ -309,7 +309,7 @@ private extension AutomaticLocationSyncPauseReason {
     var message: LocalizedStringResource {
         switch self {
         case .networkUnavailable: "当前网络不可用；恢复后会发送内存中的最新位置。"
-        case .noDevice: "尚未保存 FMO 设备；请先返回首页连接一次。"
+        case .noDevice: "尚未保存 FMO 设备；请先返回设备页连接一次。"
         case .location(let reason): reason.message
         case .locationStreamFailed: "系统定位会话已中断，请重新尝试。"
         }

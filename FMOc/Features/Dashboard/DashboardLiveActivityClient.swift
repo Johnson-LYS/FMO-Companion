@@ -142,7 +142,7 @@ nonisolated enum DashboardLiveActivityError: LocalizedError, Equatable {
     var recoverySuggestion: String? {
         switch self {
         case .disabled: String(localized: "请在系统设置中允许 FMO 助手使用实时活动。")
-        case .noCurrentDeviceState: String(localized: "等待首页显示呼号、服务器或动态信息后重试。")
+        case .noCurrentDeviceState: String(localized: "等待设备页显示呼号、服务器或动态信息后重试。")
         case .notRegistered: String(localized: "请锁屏后再次查看；若仍未显示，请重新打开 App 后重试。")
         case .unsupported: String(localized: "请使用支持实时活动的 iPhone 真机测试。")
         case .denied: String(localized: "请在“设置 > FMO 助手”中打开“实时活动”。")

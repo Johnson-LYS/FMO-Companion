@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-06
+last-reviewed: 2026-08-08
 ---
 
 # 架构总览
@@ -34,7 +34,8 @@ flowchart LR
     SERVER -->|"HTTPS"| API["自建 App API"]
     API --> EMQX["EMQX"]
     API --> SAS["FMO SAS"]
-    QSO -->|"用户导入"| FILES["SQLite + 签名 JSON"]
+    QSO -->|"ADR-0007 只读同步"| BOX
+    QSO -->|"用户导出"| FILES["ADIF"]
 ```
 
 ## 技术栈
@@ -51,7 +52,7 @@ flowchart LR
 | 后续系统投影 checkpoint | ActivityKit、WidgetKit | 支持源码保留；扩展不被主 App 依赖或嵌入，0.3 不运行 |
 | 地图 | MapKit | FMO/APRS 节点与 QSO 地图 |
 | 安全 | CryptoKit、Keychain、LocalAuthentication | 签名、哈希、秘密与二次确认 |
-| 数据 | SwiftData、SQLite | App 状态与导入日志 |
+| 数据 | SwiftData | App 状态、消息与按设备隔离的 QSO 缓存 |
 | 通知 | UserNotifications、APNs | 本地与远程通知 |
 | 测试 | Swift Testing、XCUITest | 单元与用户流程 |
 
@@ -75,7 +76,9 @@ flowchart LR
 
 ### QSO
 
-读取用户选择的文件，保持原件只读，构建 App 内索引，执行哈希/签名验证并生成 ADIF。
+通过与 Dashboard 分离的 ADR-0007 类型化只读会话，从用户所选 FMO 分页同步 QSO 摘要，并按查看或导出需要串行补齐详情。缓存按设备稳定身份隔离；离线展示最后完整成功快照，普通界面不把局域网同步记录表述为经过数据库签名验证。
+
+实现由严格白名单的 `FmoQSOReadClient`、SwiftData 缓存、前台生命周期协调和 SwiftUI/MapKit/ADIF 投影组成；完整分页成功前不执行删除对账。详细边界见 `docs/architecture/modules/qso.md`。
 
 ### ServerOps
 
@@ -119,11 +122,12 @@ APRS-IS line
 ### QSO
 
 ```text
-Files picker
-→ sandboxed read-only copy
-→ schema validation
-→ optional SHA-256 + P-256 signature verification
-→ query/index
+selected FMO endpoint
+→ typed qso/getList pages
+→ device-scoped summary cache + index
+→ recent/on-demand qso/getDetail hydration
+→ query / Maidenhead region map
+→ cancellable detail completion
 → ADIF export
 ```
 
