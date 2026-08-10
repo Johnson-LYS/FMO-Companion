@@ -1,8 +1,17 @@
 ---
-last-reviewed: 2026-08-08
+last-reviewed: 2026-08-10
 ---
 
 # 产品规格
+
+## 发布标识
+
+- 中文显示名采用“FMO 助手”，避免与已有硬件产品“FMO 伴侣”混淆；“FMO 手机伴侣”可作为 App Store 中文副标题候选。
+- 英文产品与文档名继续使用 “FMO Companion”。
+- App Bundle ID 为 `com.bi8syn.fmoassistant`；测试 Target 与保留的实时活动 Target 使用同一命名空间下的后缀。
+- App Icon 使用无预制圆角、全幅不透明的 1024 × 1024 主图；系统负责最终蒙版，未提供的外观变体由系统生成。
+- App Store 主分类采用“工具”（Utilities）；副分类可采用“导航”（Navigation），不将 App 归类为社交网络或娱乐。
+- App 仅调用 Apple 操作系统提供的 CryptoKit（Ed25519 数字签名验证、SHA-256）与 URLSession HTTPS/TLS，不实现自研或随 App 分发的第三方密码算法；`ITSAppUsesNonExemptEncryption` 为 `NO`，无需提交非豁免加密文稿。
 
 ## 愿景
 
