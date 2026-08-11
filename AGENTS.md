@@ -41,6 +41,7 @@ All agents must use these paths. Update this table when documentation moves.
 | ADR index | `docs/adr/README.md` |
 | Implementation plans | `docs/plans/` |
 | FMO protocol references | `docs/references/` |
+| Xcode Cloud workflows | `docs/operations/xcode-cloud.md` |
 | Interactive HTML prototype | `prototype/` |
 | Loom project skills | `.claude/skills/` |
 | Loom project agents | `.claude/agents/` |
@@ -145,14 +146,23 @@ Loom templates mention the optional Superpowers plugin. If it is unavailable, us
 
 | Setting | Value |
 |---|---|
-| Branching model | GitHub Flow |
-| Main branch | `main` |
+| Branching model | Beta integration flow |
+| Stable branch | `main`（受保护，仅接受来自 `beta` 的发布 PR） |
+| Integration branch | `beta`（受保护、GitHub 默认分支、日常开发 PR 的唯一目标分支） |
 | Branch naming | `<type>/<short-description>` |
 | Commit format | Conventional Commits: `<type>: <description>` |
 | Merge strategy | Squash merge |
+| CI/CD platform | Xcode Cloud；工作流在 Xcode 或 App Store Connect 中管理 |
+| Beta delivery | Xcode Cloud Beta 工作流以 Branch Changes 监听精确分支 `beta` |
+| Production release | 将 `beta` 通过 PR 提升到 `main`，再推送 `release*` 标签，由 Xcode Cloud Release 工作流的 Tag Changes 触发 |
 
 Branch prefixes: `feat/`, `fix/`, `refactor/`, `docs/`, `test/`, `chore/`.
 
+- 不得直接向 `main` 或 `beta` push；不得绕过分支保护。所有日常开发分支从最新 `beta` 创建，并向 `beta` 提交 PR。
+- `main` 只保存已正式发布或准备立即正式发布的稳定代码；只接受从 `beta` 发起的发布 PR。
+- Beta 流水线是 Xcode Cloud 工作流，以 Branch Changes 精确监听 `beta`；正式流水线是独立的 Xcode Cloud 工作流，只以 Tag Changes 监听 `release*`。
+- 正式发布标签必须指向 `main` 上由 `beta` 提升而来的提交，建议采用 `release-<version>`，例如 `release-1.0.0`。
+- Xcode Cloud 工作流配置不存放在 GitHub Actions YAML 中。修改触发条件、构建动作、签名或分发设置时，应同步更新 `docs/operations/xcode-cloud.md`，且不得把密钥写入仓库。
 - Do not push or open a PR unless the user asks.
 - Keep commits atomic and do not mix unrelated user changes.
 - Never commit signing credentials, provisioning profiles, private keys, APRS secrets, server tokens, or precise-location exports.
