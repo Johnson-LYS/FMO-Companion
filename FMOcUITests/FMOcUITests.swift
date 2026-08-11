@@ -146,11 +146,7 @@ final class FMOcUITests: XCTestCase {
         XCTAssertTrue(deviceRow.waitForExistence(timeout: 5))
         deviceRow.swipeLeft()
         app.buttons["删除"].tap()
-
-        let confirmation = app.sheets["删除这台设备？"]
-        XCTAssertTrue(confirmation.waitForExistence(timeout: 2))
-        confirmation.buttons["删除设备"].tap()
-
+        XCTAssertFalse(app.sheets["删除这台设备？"].exists)
         XCTAssertTrue(deviceRow.waitForNonExistence(timeout: 2))
     }
 
