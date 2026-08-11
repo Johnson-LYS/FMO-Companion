@@ -9,7 +9,6 @@ struct DeviceHomeView: View {
     @State private var actionTask: Task<Void, Never>?
     @State private var showsDevicePicker = false
     @State private var showsDiagnostics = false
-    @State private var pendingRemoval: FmoDeviceEndpoint?
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -59,22 +58,6 @@ struct DeviceHomeView: View {
                 .ignoresSafeArea()
         }
         .alert(item: $model.issue, content: issueAlert)
-        .confirmationDialog(
-            "删除这台设备？",
-            isPresented: removalConfirmationIsPresented,
-            titleVisibility: .visible,
-            presenting: pendingRemoval
-        ) { endpoint in
-            Button("删除设备", role: .destructive) {
-                pendingRemoval = nil
-                run { await model.remove(endpoint) }
-            }
-            Button("取消", role: .cancel) {
-                pendingRemoval = nil
-            }
-        } message: { endpoint in
-            Text("将删除 \(endpoint.displayAddress) 并清除它的保存记录。如果设备仍在附近，下次发现时会重新出现。")
-        }
         .sensoryFeedback(.success, trigger: model.phase == .success)
     }
 
@@ -255,9 +238,9 @@ struct DeviceHomeView: View {
                     } else {
                         ForEach(model.endpoints) { endpoint in
                             deviceRow(endpoint)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button("删除", systemImage: "trash", role: .destructive) {
-                                        pendingRemoval = endpoint
+                                        run { await model.remove(endpoint) }
                                     }
                                     .labelStyle(.iconOnly)
                                     .accessibilityLabel("删除")
@@ -265,11 +248,11 @@ struct DeviceHomeView: View {
                                 }
                                 .contextMenu {
                                     Button("删除设备", systemImage: "trash", role: .destructive) {
-                                        pendingRemoval = endpoint
+                                        run { await model.remove(endpoint) }
                                     }
                                 }
                                 .accessibilityAction(named: Text("删除设备")) {
-                                    pendingRemoval = endpoint
+                                    run { await model.remove(endpoint) }
                                 }
                         }
                     }
@@ -445,15 +428,6 @@ struct DeviceHomeView: View {
     private func run(_ operation: @escaping @MainActor @Sendable () async -> Void) {
         actionTask?.cancel()
         actionTask = Task { await operation() }
-    }
-
-    private var removalConfirmationIsPresented: Binding<Bool> {
-        Binding(
-            get: { pendingRemoval != nil },
-            set: { isPresented in
-                if !isPresented { pendingRemoval = nil }
-            }
-        )
     }
 
     private func issueAlert(_ issue: DeviceHomeModel.Issue) -> Alert {
