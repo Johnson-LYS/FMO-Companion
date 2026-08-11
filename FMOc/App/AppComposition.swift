@@ -314,14 +314,17 @@ private nonisolated struct UITestSingleDeviceDiscovery: FmoDeviceDiscovering {
 }
 
 private actor UITestEndpointStore: FmoEndpointStoring {
-    private var endpoint: FmoDeviceEndpoint?
+    private var registry: FmoEndpointRegistry
 
     init(endpoint: FmoDeviceEndpoint?) {
-        self.endpoint = endpoint
+        registry = FmoEndpointRegistry(
+            endpoints: endpoint.map { [$0] } ?? [],
+            lastSuccessfulEndpointID: endpoint?.id
+        )
     }
 
-    func load() -> FmoDeviceEndpoint? { endpoint }
-    func save(_ endpoint: FmoDeviceEndpoint?) { self.endpoint = endpoint }
+    func loadRegistry() -> FmoEndpointRegistry { registry }
+    func saveRegistry(_ registry: FmoEndpointRegistry) { self.registry = registry }
 }
 
 private actor UITestLocationSyncModeStore: LocationSyncModeStoring {

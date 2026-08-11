@@ -185,10 +185,13 @@ struct DeviceHomeModelTests {
     }
 
     @Test
-    func failedStartupRestoreDoesNotAutomaticallyTryDiscoveredDevice() async throws {
+    func failedSavedDeviceFallsThroughToNewlyDiscoveredDevice() async throws {
         let saved = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual, name: "FMO A")
         let nearby = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual, name: "FMO B")
-        let geo = CountingFailingGeoClient()
+        let geo = SelectiveGeoClient(
+            coordinate: try GeoCoordinate(latitude: 30, longitude: 120),
+            failingEndpointIDs: [saved.id]
+        )
         let model = DeviceHomeModel(
             discovery: MultipleDeviceDiscovery(endpoints: [nearby]),
             geoClient: geo,
@@ -200,14 +203,14 @@ struct DeviceHomeModelTests {
         await model.waitForDiscovery()
         await model.waitForConnection()
 
-        #expect(model.endpoints == [saved, nearby])
-        #expect(model.selectedEndpoint == saved)
-        #expect(model.phase == .failure)
-        #expect(await geo.connectedEndpoints() == [saved])
+        #expect(model.endpoints == [nearby, saved])
+        #expect(model.selectedEndpoint == nearby)
+        #expect(model.isConnected)
+        #expect(await geo.connectedEndpoints() == [saved, nearby])
     }
 
     @Test
-    func discoveryWithoutSavedDeviceDoesNotAutomaticallyConnect() async throws {
+    func discoveryWithoutSavedDeviceConnectsFirstResultAndOnlyAppendsLaterResults() async throws {
         let first = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual, name: "FMO A")
         let second = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual, name: "FMO B")
         let geo = CountingGeoClient(coordinate: try GeoCoordinate(latitude: 30, longitude: 120))
@@ -220,11 +223,12 @@ struct DeviceHomeModelTests {
 
         await model.start()
         await model.waitForDiscovery()
+        await model.waitForConnection()
 
         #expect(model.endpoints == [first, second])
-        #expect(model.selectedEndpoint == nil)
-        #expect(model.phase == .found)
-        #expect((await geo.connectedEndpoints()).isEmpty)
+        #expect(model.selectedEndpoint == first)
+        #expect(model.isConnected)
+        #expect(await geo.connectedEndpoints() == [first])
     }
 
     @Test
@@ -245,8 +249,71 @@ struct DeviceHomeModelTests {
 
         #expect(model.selectedEndpoint == current)
         #expect(model.isConnected)
-        #expect(model.endpoints == [nearby])
+        #expect(model.endpoints == [current, nearby])
         #expect(await geo.connectedEndpoints() == [current])
+    }
+
+    @Test
+    func startupTriesSavedDevicesInOrderAndPromotesTheFirstSuccess() async throws {
+        let last = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual, name: "FMO A")
+        let second = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual, name: "FMO B")
+        let third = try FmoDeviceEndpoint(host: "192.0.2.12", source: .manual, name: "FMO C")
+        let store = MemoryEndpointStore(
+            endpoints: [second, third, last],
+            lastSuccessfulEndpointID: last.id
+        )
+        let geo = SelectiveGeoClient(
+            coordinate: try GeoCoordinate(latitude: 30, longitude: 120),
+            failingEndpointIDs: [last.id]
+        )
+        let model = DeviceHomeModel(
+            discovery: MultipleDeviceDiscovery(endpoints: []),
+            geoClient: geo,
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: store
+        )
+
+        await model.start()
+        await model.waitForDiscovery()
+        await model.waitForConnection()
+
+        #expect(await geo.connectedEndpoints() == [last, second])
+        #expect(model.selectedEndpoint == second)
+        #expect(model.endpoints == [second, last, third])
+        #expect(await store.loadRegistry() == FmoEndpointRegistry(
+            endpoints: [second, last, third],
+            lastSuccessfulEndpointID: second.id
+        ))
+    }
+
+    @Test
+    func removingCurrentDeviceDoesNotAutomaticallyFailOver() async throws {
+        let current = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual, name: "FMO A")
+        let other = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual, name: "FMO B")
+        let geo = CountingGeoClient(coordinate: try GeoCoordinate(latitude: 30, longitude: 120))
+        let store = MemoryEndpointStore(
+            endpoints: [current, other],
+            lastSuccessfulEndpointID: current.id
+        )
+        let model = DeviceHomeModel(
+            discovery: MultipleDeviceDiscovery(endpoints: []),
+            geoClient: geo,
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: store
+        )
+
+        await model.start()
+        await model.waitForConnection()
+        await model.remove(current)
+
+        #expect(model.endpoints == [other])
+        #expect(model.selectedEndpoint == nil)
+        #expect(!model.isConnected)
+        #expect(await geo.connectedEndpoints() == [current])
+        #expect(await store.loadRegistry() == FmoEndpointRegistry(
+            endpoints: [other],
+            lastSuccessfulEndpointID: nil
+        ))
     }
 
     @Test
@@ -287,6 +354,34 @@ struct DeviceHomeModelTests {
         #expect(model.selectedEndpoint == second)
         #expect(model.isConnected)
         #expect(await geo.connectedEndpoints() == [first, second])
+    }
+
+    @Test
+    func manualSelectionCancelsTheRemainingAutomaticQueue() async throws {
+        let saved = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual, name: "FMO A")
+        let queued = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual, name: "FMO B")
+        let manual = try FmoDeviceEndpoint(host: "192.0.2.12", source: .manual, name: "FMO C")
+        let geo = SuspendingFirstGeoClient(coordinate: try GeoCoordinate(latitude: 30, longitude: 120))
+        let model = DeviceHomeModel(
+            discovery: MultipleDeviceDiscovery(endpoints: []),
+            geoClient: geo,
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: MemoryEndpointStore(
+                endpoints: [saved, queued],
+                lastSuccessfulEndpointID: saved.id
+            )
+        )
+
+        await model.start()
+        for _ in 0..<100 where await geo.connectedEndpoints().isEmpty {
+            await Task.yield()
+        }
+        await model.connect(to: manual)
+
+        #expect(await geo.connectedEndpoints() == [saved, manual])
+        #expect(model.selectedEndpoint == manual)
+        #expect(model.endpoints == [manual, saved, queued])
+        #expect(model.isConnected)
     }
 
     @Test
@@ -358,6 +453,45 @@ struct DeviceHomeModelTests {
         #expect(model.dashboardSnapshot.currentServerName.currentValue == "服务器 B")
         #expect(await status.currentServerReadCount() >= 2)
         await model.disconnect()
+    }
+}
+
+struct FmoEndpointStoreTests {
+    @Test
+    func migratesLegacySelectedEndpointIntoTheRegistry() async throws {
+        let suiteName = "FmoEndpointStoreTests.\(UUID().uuidString)"
+        let endpoint = try FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+        try #require(UserDefaults(suiteName: suiteName)).set(
+            JSONEncoder().encode(endpoint),
+            forKey: "selectedFmoEndpoint"
+        )
+        let store = UserDefaultsFmoEndpointStore(suiteName: suiteName)
+
+        let registry = await store.loadRegistry()
+
+        #expect(registry == FmoEndpointRegistry(
+            endpoints: [endpoint],
+            lastSuccessfulEndpointID: endpoint.id
+        ))
+        #expect(UserDefaults(suiteName: suiteName)?.data(forKey: "fmoEndpointRegistry") != nil)
+    }
+
+    @Test
+    func registryRoundTripDeduplicatesAndMovesLastSuccessfulFirst() async throws {
+        let suiteName = "FmoEndpointStoreTests.\(UUID().uuidString)"
+        let first = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual)
+        let last = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual)
+        let store = UserDefaultsFmoEndpointStore(suiteName: suiteName)
+
+        await store.saveRegistry(FmoEndpointRegistry(
+            endpoints: [first, last, first],
+            lastSuccessfulEndpointID: last.id
+        ))
+
+        #expect(await store.loadRegistry() == FmoEndpointRegistry(
+            endpoints: [last, first],
+            lastSuccessfulEndpointID: last.id
+        ))
     }
 }
 
@@ -441,6 +575,48 @@ private actor CountingFailingGeoClient: FmoGeoClient {
     }
     func getCoordinate() throws -> GeoCoordinate { throw FmoDeviceError.disconnected }
     func setCoordinate(_ coordinate: GeoCoordinate) throws { throw FmoDeviceError.disconnected }
+    func disconnect() {}
+    func connectedEndpoints() -> [FmoDeviceEndpoint] { endpoints }
+}
+
+private actor SelectiveGeoClient: FmoGeoClient {
+    private let coordinate: GeoCoordinate
+    private let failingEndpointIDs: Set<String>
+    private var endpoints: [FmoDeviceEndpoint] = []
+
+    init(coordinate: GeoCoordinate, failingEndpointIDs: Set<String>) {
+        self.coordinate = coordinate
+        self.failingEndpointIDs = failingEndpointIDs
+    }
+
+    func connect(to endpoint: FmoDeviceEndpoint) throws {
+        endpoints.append(endpoint)
+        if failingEndpointIDs.contains(endpoint.id) {
+            throw FmoDeviceError.handshakeFailed
+        }
+    }
+    func getCoordinate() -> GeoCoordinate { coordinate }
+    func setCoordinate(_ coordinate: GeoCoordinate) {}
+    func disconnect() {}
+    func connectedEndpoints() -> [FmoDeviceEndpoint] { endpoints }
+}
+
+private actor SuspendingFirstGeoClient: FmoGeoClient {
+    private let coordinate: GeoCoordinate
+    private var endpoints: [FmoDeviceEndpoint] = []
+
+    init(coordinate: GeoCoordinate) {
+        self.coordinate = coordinate
+    }
+
+    func connect(to endpoint: FmoDeviceEndpoint) async throws {
+        endpoints.append(endpoint)
+        if endpoints.count == 1 {
+            try await Task.sleep(for: .seconds(30))
+        }
+    }
+    func getCoordinate() -> GeoCoordinate { coordinate }
+    func setCoordinate(_ coordinate: GeoCoordinate) {}
     func disconnect() {}
     func connectedEndpoints() -> [FmoDeviceEndpoint] { endpoints }
 }
@@ -537,12 +713,22 @@ private nonisolated struct DeniedLocationProvider: PhoneLocationProviding {
 }
 
 private actor MemoryEndpointStore: FmoEndpointStoring {
-    private var endpoint: FmoDeviceEndpoint?
+    private var registry: FmoEndpointRegistry
 
     init(endpoint: FmoDeviceEndpoint? = nil) {
-        self.endpoint = endpoint
+        registry = FmoEndpointRegistry(
+            endpoints: endpoint.map { [$0] } ?? [],
+            lastSuccessfulEndpointID: endpoint?.id
+        )
     }
 
-    func load() -> FmoDeviceEndpoint? { endpoint }
-    func save(_ endpoint: FmoDeviceEndpoint?) { self.endpoint = endpoint }
+    init(endpoints: [FmoDeviceEndpoint], lastSuccessfulEndpointID: String?) {
+        registry = FmoEndpointRegistry(
+            endpoints: endpoints,
+            lastSuccessfulEndpointID: lastSuccessfulEndpointID
+        )
+    }
+
+    func loadRegistry() -> FmoEndpointRegistry { registry }
+    func saveRegistry(_ registry: FmoEndpointRegistry) { self.registry = registry }
 }

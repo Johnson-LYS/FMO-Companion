@@ -54,30 +54,123 @@ nonisolated struct UnavailableFmoLocalEventStream: FmoLocalEventStreaming {
     func disconnect() {}
 }
 
+nonisolated struct FmoEndpointRegistry: Codable, Equatable, Sendable {
+    let endpoints: [FmoDeviceEndpoint]
+    let lastSuccessfulEndpointID: String?
+
+    init(endpoints: [FmoDeviceEndpoint], lastSuccessfulEndpointID: String?) {
+        var seen = Set<String>()
+        var uniqueEndpoints = endpoints.filter { seen.insert($0.id).inserted }
+        let validLastID = lastSuccessfulEndpointID.flatMap { candidate in
+            uniqueEndpoints.contains(where: { $0.id == candidate }) ? candidate : nil
+        }
+
+        if let validLastID,
+           let index = uniqueEndpoints.firstIndex(where: { $0.id == validLastID }),
+           index != uniqueEndpoints.startIndex {
+            uniqueEndpoints.insert(uniqueEndpoints.remove(at: index), at: 0)
+        }
+
+        self.endpoints = uniqueEndpoints
+        self.lastSuccessfulEndpointID = validLastID
+    }
+
+    var lastSuccessfulEndpoint: FmoDeviceEndpoint? {
+        guard let lastSuccessfulEndpointID else { return nil }
+        return endpoints.first { $0.id == lastSuccessfulEndpointID }
+    }
+}
+
 nonisolated protocol FmoEndpointStoring: Sendable {
-    func load() async -> FmoDeviceEndpoint?
-    func save(_ endpoint: FmoDeviceEndpoint?) async
+    func loadRegistry() async -> FmoEndpointRegistry
+    func saveRegistry(_ registry: FmoEndpointRegistry) async
+}
+
+extension FmoEndpointStoring {
+    func load() async -> FmoDeviceEndpoint? {
+        await loadRegistry().lastSuccessfulEndpoint
+    }
+
+    func save(_ endpoint: FmoDeviceEndpoint?) async {
+        var registry = await loadRegistry()
+        guard let endpoint else {
+            await saveRegistry(
+                FmoEndpointRegistry(
+                    endpoints: registry.endpoints,
+                    lastSuccessfulEndpointID: nil
+                )
+            )
+            return
+        }
+
+        registry = FmoEndpointRegistry(
+            endpoints: [endpoint] + registry.endpoints.filter { $0.id != endpoint.id },
+            lastSuccessfulEndpointID: endpoint.id
+        )
+        await saveRegistry(registry)
+    }
 }
 
 actor UserDefaultsFmoEndpointStore: FmoEndpointStoring {
     private let defaults: UserDefaults
-    private let key: String
+    private let registryKey: String
+    private let legacySelectedEndpointKey: String
 
-    init(defaults: UserDefaults = .standard, key: String = "selectedFmoEndpoint") {
+    init(
+        defaults: UserDefaults = .standard,
+        registryKey: String = "fmoEndpointRegistry",
+        legacySelectedEndpointKey: String = "selectedFmoEndpoint"
+    ) {
         self.defaults = defaults
-        self.key = key
+        self.registryKey = registryKey
+        self.legacySelectedEndpointKey = legacySelectedEndpointKey
     }
 
-    func load() -> FmoDeviceEndpoint? {
-        guard let data = defaults.data(forKey: key) else { return nil }
-        return try? JSONDecoder().decode(FmoDeviceEndpoint.self, from: data)
+    init(
+        suiteName: String,
+        registryKey: String = "fmoEndpointRegistry",
+        legacySelectedEndpointKey: String = "selectedFmoEndpoint"
+    ) {
+        defaults = UserDefaults(suiteName: suiteName) ?? .standard
+        self.registryKey = registryKey
+        self.legacySelectedEndpointKey = legacySelectedEndpointKey
     }
 
-    func save(_ endpoint: FmoDeviceEndpoint?) {
-        guard let endpoint, let data = try? JSONEncoder().encode(endpoint) else {
-            defaults.removeObject(forKey: key)
+    func loadRegistry() -> FmoEndpointRegistry {
+        if let data = defaults.data(forKey: registryKey),
+           let registry = try? JSONDecoder().decode(FmoEndpointRegistry.self, from: data) {
+            return FmoEndpointRegistry(
+                endpoints: registry.endpoints,
+                lastSuccessfulEndpointID: registry.lastSuccessfulEndpointID
+            )
+        }
+
+        guard let data = defaults.data(forKey: legacySelectedEndpointKey),
+              let endpoint = try? JSONDecoder().decode(FmoDeviceEndpoint.self, from: data) else {
+            return FmoEndpointRegistry(endpoints: [], lastSuccessfulEndpointID: nil)
+        }
+        let migrated = FmoEndpointRegistry(endpoints: [endpoint], lastSuccessfulEndpointID: endpoint.id)
+        saveRegistry(migrated)
+        return migrated
+    }
+
+    func saveRegistry(_ registry: FmoEndpointRegistry) {
+        let normalized = FmoEndpointRegistry(
+            endpoints: registry.endpoints,
+            lastSuccessfulEndpointID: registry.lastSuccessfulEndpointID
+        )
+
+        if normalized.endpoints.isEmpty {
+            defaults.removeObject(forKey: registryKey)
+        } else if let data = try? JSONEncoder().encode(normalized) {
+            defaults.set(data, forKey: registryKey)
+        }
+
+        guard let endpoint = normalized.lastSuccessfulEndpoint,
+              let data = try? JSONEncoder().encode(endpoint) else {
+            defaults.removeObject(forKey: legacySelectedEndpointKey)
             return
         }
-        defaults.set(data, forKey: key)
+        defaults.set(data, forKey: legacySelectedEndpointKey)
     }
 }

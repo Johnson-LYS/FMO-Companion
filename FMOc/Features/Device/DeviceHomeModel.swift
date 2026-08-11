@@ -38,6 +38,13 @@ final class DeviceHomeModel {
     private let currentServerRefreshInterval: Duration
     private var discoveryTask: Task<Void, Never>?
     private var discoveryID: UUID?
+    private var hasStarted = false
+    private var automaticConnectionEnabled = false
+    private var automaticConnectionCycleID = 0
+    private var automaticConnectionQueue: [FmoDeviceEndpoint] = []
+    private var attemptedAutomaticEndpointIDs = Set<String>()
+    private var lastAutomaticConnectionError: (any Error)?
+    private var lastSuccessfulEndpointID: String?
     private var connectionAttemptID = 0
     private var connectionTask: Task<Void, Never>?
     private var localStatusTask: Task<Void, Never>?
@@ -120,24 +127,38 @@ final class DeviceHomeModel {
     }
 
     func start() async {
-        let savedEndpoint = await restoreSavedEndpoint()
-        startDiscovery()
-        if let savedEndpoint {
-            startAutomaticConnection(to: savedEndpoint)
+        guard !hasStarted else {
+            startDiscovery()
+            return
         }
+
+        hasStarted = true
+        let savedEndpoints = await restoreSavedEndpoints()
+        beginAutomaticConnectionCycle(with: savedEndpoints)
+        startDiscovery()
+        startAutomaticConnectionQueueIfNeeded()
     }
 
     @discardableResult
-    func restoreSavedEndpoint() async -> FmoDeviceEndpoint? {
-        guard endpoints.isEmpty, let endpoint = await endpointStore.load() else { return nil }
-        endpoints = [endpoint]
-        selectedEndpoint = endpoint
+    func restoreSavedEndpoints() async -> [FmoDeviceEndpoint] {
+        guard endpoints.isEmpty else { return endpoints }
+        let registry = await endpointStore.loadRegistry()
+        endpoints = registry.endpoints
+        lastSuccessfulEndpointID = registry.lastSuccessfulEndpointID
+        selectedEndpoint = registry.lastSuccessfulEndpoint
+        guard !endpoints.isEmpty else { return [] }
         phase = .found
-        return endpoint
+        return endpoints
     }
 
     func startDiscovery() {
         guard discoveryTask == nil else { return }
+
+        issue = nil
+        isDiscovering = true
+        if !isConnected, phase != .connecting {
+            phase = .discovering
+        }
 
         let id = UUID()
         discoveryID = id
@@ -156,12 +177,6 @@ final class DeviceHomeModel {
     }
 
     private func performDiscovery(id: UUID) async {
-        issue = nil
-        isDiscovering = true
-        if !isConnected, phase != .connecting {
-            phase = .discovering
-        }
-
         defer {
             if discoveryID == id {
                 discoveryTask = nil
@@ -170,13 +185,18 @@ final class DeviceHomeModel {
                 if phase == .discovering {
                     phase = endpoints.isEmpty ? .idle : .found
                 }
+                finishAutomaticConnectionIfExhausted()
             }
         }
 
         do {
             for try await endpoint in discovery.discover(timeout: .seconds(10)) {
                 try Task.checkCancellation()
-                merge(endpoint)
+                let (mergedEndpoint, inserted) = merge(endpoint)
+                if inserted {
+                    await persistEndpointRegistry()
+                    enqueueAutomaticConnection(mergedEndpoint)
+                }
 
                 if phase == .discovering {
                     phase = .found
@@ -188,20 +208,19 @@ final class DeviceHomeModel {
                 present(error)
             }
         }
+
     }
 
     func connect(to endpoint: FmoDeviceEndpoint) async {
-        guard !isCurrentOrConnecting(endpoint) else { return }
-        await launchConnection(to: endpoint).value
+        let (mergedEndpoint, inserted) = merge(endpoint)
+        if inserted { await persistEndpointRegistry() }
+        guard !isCurrentOrConnecting(mergedEndpoint) else { return }
+        cancelAutomaticConnectionCycle()
+        await launchConnection(to: mergedEndpoint).value
     }
 
     func waitForConnection() async {
         await connectionTask?.value
-    }
-
-    private func startAutomaticConnection(to endpoint: FmoDeviceEndpoint) {
-        guard !isCurrentOrConnecting(endpoint) else { return }
-        launchConnection(to: endpoint)
     }
 
     @discardableResult
@@ -212,7 +231,11 @@ final class DeviceHomeModel {
 
         let task = Task { [weak self] in
             guard let self else { return }
-            await self.performConnection(to: endpoint, attemptID: attemptID)
+            _ = await self.performConnection(
+                to: endpoint,
+                attemptID: attemptID,
+                presentsFailure: true
+            )
             if self.connectionAttemptID == attemptID {
                 self.connectionTask = nil
             }
@@ -221,14 +244,19 @@ final class DeviceHomeModel {
         return task
     }
 
-    private func performConnection(to endpoint: FmoDeviceEndpoint, attemptID: Int) async {
+    @discardableResult
+    private func performConnection(
+        to endpoint: FmoDeviceEndpoint,
+        attemptID: Int,
+        presentsFailure: Bool
+    ) async -> Bool {
         let replacesActiveConnection = selectedEndpoint != nil && (isConnected || phase == .connecting)
 
         await stopLocalConnections()
         if replacesActiveConnection {
             await geoClient.disconnect()
         }
-        guard attemptID == connectionAttemptID, !Task.isCancelled else { return }
+        guard attemptID == connectionAttemptID, !Task.isCancelled else { return false }
 
         issue = nil
         selectedEndpoint = endpoint
@@ -237,24 +265,33 @@ final class DeviceHomeModel {
 
         do {
             try await geoClient.connect(to: endpoint)
-            guard attemptID == connectionAttemptID, !Task.isCancelled else { return }
+            guard attemptID == connectionAttemptID, !Task.isCancelled else { return false }
             let coordinate = try await geoClient.getCoordinate()
-            guard attemptID == connectionAttemptID, !Task.isCancelled else { return }
+            guard attemptID == connectionAttemptID, !Task.isCancelled else { return false }
             deviceCoordinate = coordinate
             dashboardSnapshot = await dashboardStore.recordGeoCoordinate(coordinate)
-            await endpointStore.save(endpoint)
-            guard attemptID == connectionAttemptID, !Task.isCancelled else { return }
+            markSuccessful(endpoint)
+            await persistEndpointRegistry()
+            guard attemptID == connectionAttemptID, !Task.isCancelled else { return false }
             phase = .connected
             lastOperationText = nil
             let hasCurrentServer = await refreshLocalStatus(from: endpoint)
-            guard attemptID == connectionAttemptID, !Task.isCancelled else { return }
+            guard attemptID == connectionAttemptID, !Task.isCancelled else { return false }
             startLocalStatusRefresh(from: endpoint, requiresFullSnapshot: !hasCurrentServer)
             startLocalEvents(from: endpoint)
+            return true
         } catch {
-            guard attemptID == connectionAttemptID else { return }
+            guard attemptID == connectionAttemptID else { return false }
             await geoClient.disconnect()
             dashboardSnapshot = await dashboardStore.recordGeoDisconnection()
-            present(error)
+            if presentsFailure {
+                present(error)
+            } else {
+                lastAutomaticConnectionError = error
+                issue = nil
+                phase = isDiscovering ? .discovering : (endpoints.isEmpty ? .idle : .found)
+            }
+            return false
         }
     }
 
@@ -269,9 +306,7 @@ final class DeviceHomeModel {
                 throw FmoDeviceEndpoint.ValidationError.invalidPort
             }
 
-            let endpoint = merge(
-                try FmoDeviceEndpoint(host: manualHost, port: port, source: .manual)
-            )
+            let endpoint = try FmoDeviceEndpoint(host: manualHost, port: port, source: .manual)
             await connect(to: endpoint)
         } catch {
             present(error, fallbackTitle: "设备地址格式不正确", suggestion: "请输入主机名或 IPv4 地址，不要包含 http:// 或路径。")
@@ -345,6 +380,7 @@ final class DeviceHomeModel {
         let removesSelectedEndpoint = selectedEndpoint?.id == endpoint.id
 
         if removesSelectedEndpoint {
+            cancelAutomaticConnectionCycle()
             cancelConnectionAttempt()
             await stopLocalConnections()
             await geoClient.disconnect()
@@ -357,10 +393,10 @@ final class DeviceHomeModel {
         }
 
         endpoints.removeAll { $0.id == endpoint.id }
-
-        if let storedEndpoint = await endpointStore.load(), storedEndpoint.id == endpoint.id {
-            await endpointStore.save(nil)
-        }
+        automaticConnectionQueue.removeAll { $0.id == endpoint.id }
+        attemptedAutomaticEndpointIDs.remove(endpoint.id)
+        if lastSuccessfulEndpointID == endpoint.id { lastSuccessfulEndpointID = nil }
+        await persistEndpointRegistry()
 
         if removesSelectedEndpoint || !isConnected {
             phase = endpoints.isEmpty ? .idle : .found
@@ -419,6 +455,116 @@ final class DeviceHomeModel {
         connectionAttemptID += 1
         connectionTask?.cancel()
         connectionTask = nil
+    }
+
+    private func beginAutomaticConnectionCycle(with candidates: [FmoDeviceEndpoint]) {
+        automaticConnectionCycleID += 1
+        automaticConnectionEnabled = true
+        automaticConnectionQueue = FmoEndpointRegistry(
+            endpoints: candidates,
+            lastSuccessfulEndpointID: lastSuccessfulEndpointID
+        ).endpoints
+        attemptedAutomaticEndpointIDs = []
+        lastAutomaticConnectionError = nil
+    }
+
+    private func enqueueAutomaticConnection(_ endpoint: FmoDeviceEndpoint) {
+        guard automaticConnectionEnabled,
+              !isConnected,
+              !attemptedAutomaticEndpointIDs.contains(endpoint.id),
+              !automaticConnectionQueue.contains(where: { $0.id == endpoint.id }) else {
+            return
+        }
+        automaticConnectionQueue.append(endpoint)
+        startAutomaticConnectionQueueIfNeeded()
+    }
+
+    private func startAutomaticConnectionQueueIfNeeded() {
+        guard automaticConnectionEnabled,
+              !isConnected,
+              connectionTask == nil,
+              !automaticConnectionQueue.isEmpty else {
+            return
+        }
+
+        issue = nil
+        let cycleID = automaticConnectionCycleID
+        let task = Task { [weak self] in
+            guard let self else { return }
+            await self.runAutomaticConnectionQueue(cycleID: cycleID)
+        }
+        connectionTask = task
+    }
+
+    private func runAutomaticConnectionQueue(cycleID: Int) async {
+        while automaticConnectionEnabled,
+              automaticConnectionCycleID == cycleID,
+              !isConnected,
+              !Task.isCancelled,
+              !automaticConnectionQueue.isEmpty {
+            let endpoint = automaticConnectionQueue.removeFirst()
+            attemptedAutomaticEndpointIDs.insert(endpoint.id)
+            connectionAttemptID += 1
+            let attemptID = connectionAttemptID
+            let connected = await performConnection(
+                to: endpoint,
+                attemptID: attemptID,
+                presentsFailure: false
+            )
+
+            guard automaticConnectionEnabled,
+                  automaticConnectionCycleID == cycleID,
+                  !Task.isCancelled else {
+                return
+            }
+
+            if connected {
+                automaticConnectionEnabled = false
+                automaticConnectionQueue = []
+                lastAutomaticConnectionError = nil
+                break
+            }
+        }
+
+        guard automaticConnectionCycleID == cycleID else { return }
+        connectionTask = nil
+        finishAutomaticConnectionIfExhausted()
+    }
+
+    private func finishAutomaticConnectionIfExhausted() {
+        guard automaticConnectionEnabled,
+              !isConnected,
+              !isDiscovering,
+              connectionTask == nil,
+              automaticConnectionQueue.isEmpty,
+              let lastAutomaticConnectionError else {
+            return
+        }
+        present(lastAutomaticConnectionError)
+    }
+
+    private func cancelAutomaticConnectionCycle() {
+        automaticConnectionCycleID += 1
+        automaticConnectionEnabled = false
+        automaticConnectionQueue = []
+        lastAutomaticConnectionError = nil
+        connectionTask?.cancel()
+        connectionTask = nil
+    }
+
+    private func markSuccessful(_ endpoint: FmoDeviceEndpoint) {
+        lastSuccessfulEndpointID = endpoint.id
+        endpoints.removeAll { $0.id == endpoint.id }
+        endpoints.insert(endpoint, at: 0)
+    }
+
+    private func persistEndpointRegistry() async {
+        await endpointStore.saveRegistry(
+            FmoEndpointRegistry(
+                endpoints: endpoints,
+                lastSuccessfulEndpointID: lastSuccessfulEndpointID
+            )
+        )
     }
 
     @discardableResult
@@ -532,11 +678,11 @@ final class DeviceHomeModel {
     }
 
     @discardableResult
-    private func merge(_ endpoint: FmoDeviceEndpoint) -> FmoDeviceEndpoint {
+    private func merge(_ endpoint: FmoDeviceEndpoint) -> (endpoint: FmoDeviceEndpoint, inserted: Bool) {
         if let existingEndpoint = endpoints.first(where: { $0.id == endpoint.id }) {
-            return existingEndpoint
+            return (existingEndpoint, false)
         }
         endpoints.append(endpoint)
-        return endpoint
+        return (endpoint, true)
     }
 }

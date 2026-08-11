@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-06
+last-reviewed: 2026-08-11
 ---
 
 # 模块：Dashboard
@@ -120,5 +120,5 @@ validated GeoCoordinate ─┘             └→ MaidenheadLocator
 - 客户端测试覆盖 `/events` 固定路径、帧大小上限与异常后会话失效。
 - `DeviceHomeModel` 把 GEO 和本地只读字段投影为 Dashboard 状态。
 - Debug-only UI 场景验证图标优先的完整首页投影，以及正式依赖组合不出现原型 fixture。
-- 0.3 设备模型测试已覆盖启动恢复上次设备、恢复失败不顺延、无保存端点时不自动连接、发现合并、手动切换和旧快照隔离；XCUITest 场景覆盖状态卡、设备选择 Sheet 与实时活动入口缺席。
+- 设备模型测试覆盖完整端点 Registry、启动串行连接队列、新发现端点顺延、成功设备置顶、手动切换优先和旧快照隔离；XCUITest 场景覆盖状态卡、设备选择 Sheet、即时删除与实时活动入口缺席。
 - ActivityKit 既有测试与联合构建记录只维护 checkpoint 健康，不作为 0.3 产品验收。
