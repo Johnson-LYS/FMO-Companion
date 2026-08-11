@@ -21,6 +21,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-11 | 建立受保护的 `beta` 集成分支与 Xcode Cloud 触发契约：日常开发 PR 统一进入 `beta`，由 Branch Changes 触发 Beta 工作流；正式发布由 `beta` 提升至受保护的 `main` 后，以 Tag Changes 监听的 `release*` 标签触发 | `AGENTS.md`、`docs/adr/0008-beta-integration-release-flow.md`、`docs/operations/xcode-cloud.md` |
 | 2026-08-11 | 首版设备体验打磨并通过用户真机验收：设备选择 Sheet 左滑立即删除；完整保存已知设备，并在启动扫描时按上次成功、其余保存、新发现的顺序串行连接，手动选择始终优先，成功后不自动切换 | `FMOc/Features/Device/`、`docs/architecture/modules/device-connectivity.md` |
 | 2026-08-10 | 隐私政策已部署至 `https://fmo-companion.bi8syo.com/privacy/`；采用独立 Caddy 容器提供静态页面、HTTP 至 HTTPS 跳转与自动证书续期，App 已改用该正式地址 | `privacy/`、`FMOc/Info.plist` |
 | 2026-08-10 | 首版设置页收敛为真实外观、隐私政策、系统权限与产品化关于；移除通知、服务器、系统集成等占位，并新增可独立部署的静态隐私政策与开发者 `BI8SYN` 联系方式 | `FMOc/Features/Settings/`、`privacy/`、`docs/spec/product-spec.md` |
@@ -125,6 +126,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 - [ADR-0004：采用 Swift 6 严格并发](adr/0004-swift-6-strict-concurrency.md)
 - [ADR-0005：采用用户授权的本地只读状态接口](adr/0005-user-authorized-local-read-only-status.md)
 - [ADR-0007：采用 FMO 本地只读 QSO 自动同步](adr/0007-local-read-only-qso-sync.md)
+- [ADR-0008：采用 Beta 集成与标签发布分支模型](adr/0008-beta-integration-release-flow.md)
 
 ## 本轮开发入口
 

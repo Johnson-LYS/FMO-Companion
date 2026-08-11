@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-08
+last-reviewed: 2026-08-11
 ---
 
 # 架构决策记录
@@ -7,12 +7,13 @@ last-reviewed: 2026-08-08
 | 编号 | 标题 | 状态 | 日期 |
 |---|---|---|---|
 | 0001 | [原生 iOS 与公开协议边界](0001-native-ios-public-protocol-boundary.md) | Accepted | 2026-08-03 |
-| 0002 | [采用 Loom 文档驱动的 Agent 工作流](0002-loom-document-driven-development.md) | Accepted | 2026-08-03 |
+| 0002 | [采用 Loom 文档驱动的 Agent 工作流](0002-loom-document-driven-development.md) | Accepted（Git 分支部分由 0008 取代） | 2026-08-03 |
 | 0003 | [最低部署版本采用 iOS 26](0003-ios-26-minimum-deployment.md) | Accepted | 2026-08-03 |
 | 0004 | [采用 Swift 6 严格并发](0004-swift-6-strict-concurrency.md) | Accepted | 2026-08-03 |
 | 0005 | [采用用户授权的本地只读状态接口](0005-user-authorized-local-read-only-status.md) | Accepted | 2026-08-05 |
 | 0006 | [隔离 APRS 只读与写会话](0006-isolated-aprs-write-session.md) | Accepted | 2026-08-07 |
 | 0007 | [采用 FMO 本地只读 QSO 自动同步](0007-local-read-only-qso-sync.md) | Accepted | 2026-08-08 |
+| 0008 | [采用 Beta 集成与标签发布分支模型](0008-beta-integration-release-flow.md) | Accepted | 2026-08-11 |
 
 ## 规则
 
