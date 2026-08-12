@@ -15,7 +15,7 @@ struct FmoRemoteControlView: View {
                         .frame(width: 44, height: 44)
                         .background(Color.accentColor.opacity(0.12), in: .rect(cornerRadius: 12))
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(model.target?.formatted ?? "尚未设置")
+                        Text(model.target?.formatted ?? String(localized: "尚未设置"))
                             .font(.headline.monospaced())
                         Text(targetStatusText)
                             .font(.subheadline)
@@ -69,7 +69,7 @@ struct FmoRemoteControlView: View {
         .alert("无法完成操作", isPresented: issueIsPresented) {
             Button("好") { model.issue = nil }
         } message: {
-            Text(model.issue ?? "请稍后再试")
+            Text(model.issue ?? String(localized: "请稍后再试"))
         }
     }
 
@@ -100,17 +100,20 @@ struct FmoRemoteControlView: View {
     private var statusText: (text: String, symbol: String, color: Color)? {
         switch model.phase {
         case .idle: nil
-        case let .sending(action): ("正在发送 \(actionTitle(action))", "paperplane", .secondary)
-        case let .confirmed(action): ("\(actionTitle(action)) 已确认", "checkmark.circle.fill", .green)
-        case let .unconfirmed(action): ("\(actionTitle(action)) 未确认，设备可能已执行", "exclamationmark.circle", .orange)
+        case let .sending(action):
+            (String(localized: "正在发送 \(actionTitle(action))"), "paperplane", .secondary)
+        case let .confirmed(action):
+            (String(localized: "\(actionTitle(action)) 已确认"), "checkmark.circle.fill", .green)
+        case let .unconfirmed(action):
+            (String(localized: "\(actionTitle(action)) 未确认，设备可能已执行"), "exclamationmark.circle", .orange)
         }
     }
 
     private func actionTitle(_ action: FmoRemoteAction) -> String {
         switch action {
-        case .normal: "正常运行"
-        case .standby: "进入待机"
-        case .reboot: "重启设备"
+        case .normal: String(localized: "正常运行")
+        case .standby: String(localized: "进入待机")
+        case .reboot: String(localized: "重启设备")
         }
     }
 

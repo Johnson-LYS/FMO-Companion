@@ -312,7 +312,11 @@ final class DeviceHomeModel {
             let endpoint = try FmoDeviceEndpoint(host: manualHost, port: port, source: .manual)
             await connect(to: endpoint)
         } catch {
-            present(error, fallbackTitle: "设备地址格式不正确", suggestion: "请输入主机名或 IPv4 地址，不要包含 http:// 或路径。")
+            present(
+                error,
+                fallbackTitle: String(localized: "设备地址格式不正确"),
+                suggestion: String(localized: "请输入主机名或 IPv4 地址，不要包含 http:// 或路径。")
+            )
         }
     }
 
@@ -323,7 +327,7 @@ final class DeviceHomeModel {
             deviceCoordinate = coordinate
             dashboardSnapshot = await dashboardStore.recordGeoCoordinate(coordinate)
             phase = .connected
-            lastOperationText = "FMO 坐标已刷新"
+            lastOperationText = String(localized: "FMO 坐标已刷新")
         } catch {
             await presentGeoOperationError(error)
         }
@@ -337,8 +341,8 @@ final class DeviceHomeModel {
             phoneLocation = try await locationProvider.currentLocation()
             phase = .connected
             lastOperationText = phoneLocation?.isAccuracyLimited == true
-                ? "已获取大致位置，可由你决定是否同步"
-                : "已获取 iPhone 位置"
+                ? String(localized: "已获取大致位置，可由你决定是否同步")
+                : String(localized: "已获取 iPhone 位置")
         } catch {
             phase = .connected
             present(error, keepConnection: true)
@@ -358,7 +362,7 @@ final class DeviceHomeModel {
             deviceCoordinate = confirmedCoordinate
             dashboardSnapshot = await dashboardStore.recordGeoCoordinate(confirmedCoordinate)
             phase = .success
-            lastOperationText = "坐标已同步，FMO 已回读确认"
+            lastOperationText = String(localized: "坐标已同步，FMO 已回读确认")
         } catch {
             await presentGeoOperationError(error)
         }
@@ -413,7 +417,7 @@ final class DeviceHomeModel {
 
     private func present(
         _ error: any Error,
-        fallbackTitle: String = "操作没有完成",
+        fallbackTitle: String = String(localized: "操作没有完成"),
         suggestion explicitSuggestion: String? = nil,
         keepConnection: Bool = false
     ) {

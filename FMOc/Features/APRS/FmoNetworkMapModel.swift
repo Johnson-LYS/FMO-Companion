@@ -103,7 +103,7 @@ final class FmoNetworkMapModel {
             return sample.coordinate
         } catch {
             locationErrorMessage = (error as? any LocalizedError)?.errorDescription
-                ?? "暂时无法获取当前位置"
+                ?? String(localized: "暂时无法获取当前位置")
             return nil
         }
     }

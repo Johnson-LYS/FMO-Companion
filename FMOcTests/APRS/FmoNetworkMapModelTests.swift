@@ -39,7 +39,7 @@ struct FmoNetworkMapModelTests {
 
         #expect(await model.prepareDefaultDistanceScope() == nil)
         #expect(model.distanceScope == .all)
-        #expect(model.locationErrorMessage == "定位访问已关闭")
+        #expect(model.locationErrorMessage == String(localized: "定位访问已关闭"))
     }
 
     @Test
@@ -50,7 +50,7 @@ struct FmoNetworkMapModelTests {
 
         #expect(await model.locate() == nil)
         #expect(model.ownCoordinate == nil)
-        #expect(model.locationErrorMessage == "定位访问已关闭")
+        #expect(model.locationErrorMessage == String(localized: "定位访问已关闭"))
 
         model.dismissLocationError()
         #expect(model.locationErrorMessage == nil)

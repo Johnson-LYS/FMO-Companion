@@ -17,7 +17,16 @@ nonisolated struct DashboardFullscreenTarget: Equatable, Sendable {
 
     var cardinalDirection: String? {
         guard let bearingDegrees else { return nil }
-        let directions = ["北", "东北", "东", "东南", "南", "西南", "西", "西北"]
+        let directions = [
+            String(localized: "北"),
+            String(localized: "东北"),
+            String(localized: "东"),
+            String(localized: "东南"),
+            String(localized: "南"),
+            String(localized: "西南"),
+            String(localized: "西"),
+            String(localized: "西北"),
+        ]
         let index = Int((bearingDegrees + 22.5) / 45).quotientAndRemainder(dividingBy: 8).remainder
         return directions[index]
     }

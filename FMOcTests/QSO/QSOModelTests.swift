@@ -91,7 +91,7 @@ struct QSOModelTests {
 
         #expect(model.records.first?.hasDetail == false)
         #expect(await model.makeADIF() == nil)
-        #expect(model.lastIssue == "QSO 详情暂时不可用，无法导出")
+        #expect(model.lastIssue == String(localized: "QSO 详情暂时不可用，无法导出"))
     }
 
     private func makeModel(

@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <meta name="description" content="FMO 助手隐私政策">
-  <title>FMO 助手隐私政策</title>
+  <meta name="description" content="FMO 助手 / FMO Companion 隐私政策">
+  <title>FMO 助手 / FMO Companion 隐私政策</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -75,6 +75,42 @@
     a { color: #a45000; text-underline-offset: 3px; }
     @media (prefers-color-scheme: dark) { a { color: #ffad4d; } }
     footer { padding: 18px 4px; color: var(--secondary); font-size: .9rem; }
+    .language-switch {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      z-index: 10;
+      display: flex;
+      justify-content: flex-end;
+      width: min(760px, calc(100% - 32px));
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .language-switch div {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      backdrop-filter: blur(18px);
+      pointer-events: auto;
+    }
+    .language-switch a {
+      display: inline-grid;
+      place-items: center;
+      min-width: 58px;
+      min-height: 34px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--secondary);
+      font: inherit;
+      font-size: .88rem;
+      text-decoration: none;
+    }
+    main[data-language] { scroll-margin-top: 64px; }
+    main + main { border-top: 1px solid var(--border); }
     @media (max-width: 520px) {
       main { padding-top: 32px; }
       section { padding: 18px; border-radius: 16px; }
@@ -82,7 +118,14 @@
   </style>
 </head>
 <body>
-<main>
+<nav class="language-switch" aria-label="Language / 语言">
+  <div>
+    <a href="#policy-zh-Hans" lang="zh-CN">中文</a>
+    <a href="#policy-en" lang="en">English</a>
+  </div>
+</nav>
+
+<main id="policy-zh-Hans" data-language="zh-Hans" lang="zh-CN">
   <header>
     <div class="mark" aria-hidden="true">FM</div>
     <h1>FMO 助手隐私政策</h1>
@@ -152,5 +195,77 @@
 
   <footer>© 2026 BI8SYN · FMO 助手</footer>
 </main>
+
+<main id="policy-en" data-language="en" lang="en">
+  <header>
+    <div class="mark" aria-hidden="true">FM</div>
+    <h1>FMO Companion Privacy Policy</h1>
+    <p class="meta">Version 1.1 · Effective August 11, 2026</p>
+    <p class="summary">FMO Companion is an iOS utility for connecting to your own FMO devices and the APRS network. This policy explains what data the app processes, why it is needed, and where it is stored.</p>
+  </header>
+
+  <section>
+    <h2>Our principles</h2>
+    <p>FMO Companion does not show ads, use behavioral analytics or cross-app tracking, sell personal data, or provide developer-operated user accounts or cloud message archives.</p>
+    <p>The app does not access contacts, photos, or the microphone. It does not obtain FMO private keys, process MQTT voice traffic, or impersonate an FMO device.</p>
+  </section>
+
+  <section>
+    <h2>Data used by the app</h2>
+    <h3>Local network and device information</h3>
+    <p>The app uses Local Network access to discover and connect to the FMO you select. Device addresses, the last selected device, and necessary settings are stored on your device so the connection can be restored later.</p>
+
+    <h3>Audio received from the device</h3>
+    <p>While the landscape dashboard is in the foreground, the app can receive audio from your selected FMO and generate a waveform on your device. Sound is off by default and plays through the device speaker only after you turn it on. The connection stops when you leave the dashboard, move the app to the background, or switch devices. Audio is not recorded, stored, uploaded to a developer server, or used to identify speakers.</p>
+
+    <h3>Location</h3>
+    <p>While using the app, location is used to set the map range and can be synced to your selected FMO when you choose to do so. The app requests background location only after you explicitly enable Low Power or Driving mode, and then syncs coordinates using location events delivered by iOS. Precise location is not sent to a developer server.</p>
+
+    <h3>APRS identity, messages, and remote control</h3>
+    <p>Your callsign, SSID, APRS messages, and remote-control commands travel over the public APRS-IS network and may be received by APRS-IS infrastructure and other radio users. APRS communication should not be considered private, end-to-end encrypted, or guaranteed delivery.</p>
+    <p>The APRS-IS passcode is calculated temporarily on your device from the base callsign, is used only to establish a send-capable session, and is not persisted. A remote-control secret is stored for each target in the iOS Keychain. The app uses it locally to sign commands; the original secret is never included with a command.</p>
+
+    <h3>Messages, favorites, and QSO records</h3>
+    <p>Favorites, message history, and QSO data read from your selected FMO are stored on your device and are not uploaded to a developer service. An ADIF file is created only when you export it and is then handled by the iOS share sheet.</p>
+
+    <h3>System authentication</h3>
+    <p>Before sending a device restart command, the app may request confirmation with Face ID, Touch ID, or the device passcode. Biometrics are handled by iOS. The app receives only the authentication result and cannot access biometric data.</p>
+  </section>
+
+  <section>
+    <h2>Third-party networks and system services</h2>
+    <p>When you use related features, data may pass through APRS-IS nodes, official FMO certificate and revocation-information services, and system services provided by Apple. Their operators may receive connection IP addresses, timestamps, and protocol traffic needed to provide the service, and process them under their own policies.</p>
+    <p>The web server hosting this policy may also record basic access logs such as IP address, access time, and browser type under its standard configuration. This page does not use cookies, analytics scripts, third-party fonts, remote images, or advertising components.</p>
+  </section>
+
+  <section>
+    <h2>Retention, deletion, and system backups</h2>
+    <ul>
+      <li>Devices, favorites, message history, and remote-control secrets can be removed from their corresponding device, directory, message, or remote-control settings in the app.</li>
+      <li>The QSO cache supports offline browsing. The app does not delete or modify original QSO records on the FMO device.</li>
+      <li>The app does not provide its own cloud sync. iOS device backups are managed by Apple, system settings, and your choices.</li>
+      <li>Remote-control secrets use ThisDeviceOnly Keychain protection and do not sync across devices. Their behavior after uninstalling the app is managed by iOS.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Children's privacy</h2>
+    <p>FMO Companion is intended for people who lawfully use amateur radio and their own FMO equipment. It is not directed to children and does not knowingly collect children's personal information.</p>
+  </section>
+
+  <section>
+    <h2>Policy updates</h2>
+    <p>We will update the version and effective date on this page when features, data use, or applicable requirements change. Material changes will be highlighted where appropriate.</p>
+  </section>
+
+  <section>
+    <h2>Contact us</h2>
+    <p>Developer callsign: <strong>BI8SYN</strong></p>
+    <p>Email: <a href="mailto:BI8SYN@163.com">BI8SYN@163.com</a></p>
+  </section>
+
+  <footer>© 2026 BI8SYN · FMO Companion</footer>
+</main>
+
 </body>
 </html>

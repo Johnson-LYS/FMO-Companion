@@ -198,21 +198,26 @@ struct QsoHomeView: View {
 
     private var syncStatusText: String {
         switch model.phase {
-        case .noDevice: "等待设备"
-        case .neverSynced: "尚未同步"
-        case let .offline(lastSync): lastSync.map { "离线 · \($0.formatted(.relative(presentation: .named)))" } ?? "设备离线"
-        case let .syncing(completed, total): total.map { "正在同步 \(completed)/\($0)" } ?? "正在同步"
-        case let .current(lastSync): "已同步 · \(lastSync.formatted(.relative(presentation: .named)))"
-        case .partial: "部分内容已更新"
-        case .failed: "更新失败 · 显示上次内容"
+        case .noDevice: String(localized: "等待设备")
+        case .neverSynced: String(localized: "尚未同步")
+        case let .offline(lastSync):
+            lastSync.map { String(localized: "离线 · \($0.formatted(.relative(presentation: .named)))") }
+                ?? String(localized: "设备离线")
+        case let .syncing(completed, total):
+            total.map { String(localized: "正在同步 \(completed)/\($0)") }
+                ?? String(localized: "正在同步")
+        case let .current(lastSync):
+            String(localized: "已同步 · \(lastSync.formatted(.relative(presentation: .named)))")
+        case .partial: String(localized: "部分内容已更新")
+        case .failed: String(localized: "更新失败 · 显示上次内容")
         }
     }
 
     private var emptyTitle: String {
         switch model.phase {
-        case .offline: "设备当前离线"
-        case .failed: "暂时无法同步"
-        default: "暂无 QSO"
+        case .offline: String(localized: "设备当前离线")
+        case .failed: String(localized: "暂时无法同步")
+        default: String(localized: "暂无 QSO")
         }
     }
 
@@ -226,9 +231,9 @@ struct QsoHomeView: View {
 
     private var emptyDescription: String {
         switch model.phase {
-        case .offline: "重新连接这台 FMO 后会自动同步。"
-        case .failed: "请确认 FMO 在线并在同一局域网。"
-        default: "这台 FMO 还没有通联记录。"
+        case .offline: String(localized: "重新连接这台 FMO 后会自动同步。")
+        case .failed: String(localized: "请确认 FMO 在线并在同一局域网。")
+        default: String(localized: "这台 FMO 还没有通联记录。")
         }
     }
 }
@@ -242,9 +247,9 @@ struct QsoBrowserView: View {
         var id: Self { self }
         var title: String {
             switch self {
-            case .all: "全部"
-            case .recent: "最近 30 天"
-            case .withGrid: "有网格"
+            case .all: String(localized: "全部")
+            case .recent: String(localized: "最近 30 天")
+            case .withGrid: String(localized: "有网格")
             }
         }
     }

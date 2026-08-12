@@ -2,6 +2,9 @@
 
 set -eu
 
+repository_path="${CI_PRIMARY_REPOSITORY_PATH:-$(cd "$(dirname "$0")/.." && pwd)}"
+python3 "$repository_path/ci_scripts/validate_localizations.py"
+
 if [ "${CI_XCODE_CLOUD:-}" != "TRUE" ]; then
     echo "Not running in Xcode Cloud; keeping the project build number."
     exit 0
@@ -19,7 +22,6 @@ if [ "$CI_BUILD_NUMBER" -lt 1 ]; then
     exit 1
 fi
 
-repository_path="${CI_PRIMARY_REPOSITORY_PATH:-}"
 if [ -z "$repository_path" ] || [ ! -d "$repository_path/FMOc.xcodeproj" ]; then
     echo "CI_PRIMARY_REPOSITORY_PATH does not contain FMOc.xcodeproj." >&2
     exit 1

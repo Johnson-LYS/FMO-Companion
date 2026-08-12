@@ -215,7 +215,7 @@ struct DeviceDashboardSummaryView: View {
                     id: "grid",
                     symbol: "location.fill",
                     value: maidenhead,
-                    accessibilityLabel: "梅登黑德网格",
+                    accessibilityLabel: String(localized: "梅登黑德网格"),
                     accessibilityValue: maidenhead,
                     accessibilityIdentifier: "dashboard-maidenhead-value"
                 )
@@ -230,8 +230,8 @@ struct DeviceDashboardSummaryView: View {
                         id: "filter",
                         symbol: "scope",
                         value: "OFF",
-                        accessibilityLabel: "服务器过滤距离",
-                        accessibilityValue: "已关闭",
+                        accessibilityLabel: String(localized: "服务器过滤距离"),
+                        accessibilityValue: String(localized: "已关闭"),
                         accessibilityIdentifier: "dashboard-filter-value"
                     )
                 )
@@ -240,9 +240,10 @@ struct DeviceDashboardSummaryView: View {
                     FactItem(
                         id: "filter",
                         symbol: "scope",
-                        value: "\(value) km",
-                        accessibilityLabel: "服务器过滤距离",
-                        accessibilityValue: "\(value) 公里",
+                        value: Measurement(value: Double(value), unit: UnitLength.kilometers)
+                            .formatted(.measurement(width: .abbreviated, usage: .asProvided)),
+                        accessibilityLabel: String(localized: "服务器过滤距离"),
+                        accessibilityValue: String(localized: "\(value) 公里"),
                         accessibilityIdentifier: "dashboard-filter-value"
                     )
                 )

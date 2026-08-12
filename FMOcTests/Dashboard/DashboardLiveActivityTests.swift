@@ -124,7 +124,7 @@ struct DashboardLiveActivityModelTests {
         await model.start()
 
         #expect(model.phase == .unavailable)
-        #expect(model.issue?.title == "系统已关闭实时活动")
+        #expect(model.issue?.title == String(localized: "系统已关闭实时活动"))
         #expect(await client.counts().starts == 0)
     }
 
@@ -142,8 +142,8 @@ struct DashboardLiveActivityModelTests {
         await model.start()
 
         #expect(model.phase == .failed)
-        #expect(model.issue?.title == "实时活动权限未开启")
-        #expect(model.issue?.suggestion?.contains("设置 > FMO 助手") == true)
+        #expect(model.issue?.title == String(localized: "实时活动权限未开启"))
+        #expect(model.issue?.suggestion == String(localized: "请在“设置 > FMO 助手”中打开“实时活动”。"))
     }
 
     @Test

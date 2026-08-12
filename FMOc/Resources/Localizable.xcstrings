@@ -1,1245 +1,8087 @@
 {
-  "sourceLanguage" : "zh-Hans",
-  "strings" : {
-    "" : {
-
-    },
-    "· %@" : {
-
-    },
-    "%@, %@" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@, %2$@"
+  "sourceLanguage": "en",
+  "strings": {
+    "": {},
+    "· %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "· %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "· %@"
           }
         }
       }
     },
-    "%@，%@" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@，%2$@"
+    "%@ 位于%@方向，%lld度": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ is %2$@ at %3$lld°"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 位于%2$@方向，%3$lld度"
           }
         }
       }
     },
-    "%lld 个台站" : {
-
-    },
-    "%lld°" : {
-
-    },
-    "%u 在线" : {
-
-    },
-    "%u 在线 · %u km" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$u 在线 · %2$u km"
+    "%@ 位于%@方向，%lld度，约 %lld 公里": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ is %2$@ at %3$lld°, about %4$lld km away"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 位于%2$@方向，%3$lld度，约 %4$lld 公里"
           }
         }
       }
     },
-    "2 分钟或 250 米 · 耗电较高" : {
-
-    },
-    "12 位凭据" : {
-
-    },
-    "15 分钟或 1 公里 · 较省电" : {
-
-    },
-    "24h · 200" : {
-
-    },
-    "App 连接状态" : {
-
-    },
-    "APRS 消息" : {
-
-    },
-    "CQ" : {
-
-    },
-    "CQ、语音、上线与服务广播" : {
-
-    },
-    "E" : {
-
-    },
-    "FMO 助手仅为连接你选择的 FMO、同步位置、接入 APRS 网络以及在本机保存消息与 QSO 记录而处理必要数据。我们不提供广告，不进行跨 App 跟踪，也不出售个人数据。" : {
-
-    },
-    "FMO 地址" : {
-
-    },
-    "FMO 坐标" : {
-
-    },
-    "FMO 已更新为当前 iPhone 位置。" : {
-
-    },
-    "FMO 已连接" : {
-
-    },
-    "FMO 网络" : {
-
-    },
-    "FMO 页面地址无效" : {
-
-    },
-    "GEO WebSocket" : {
-
-    },
-    "iPhone 位置" : {
-
-    },
-    "km" : {
-
-    },
-    "N" : {
-
-    },
-    "OMCQ" : {
-
-    },
-    "QSO" : {
-
-    },
-    "QSO 不存在" : {
-
-    },
-    "QSO 暂时无法更新，已保留上次内容" : {
-
-    },
-    "QSO 详情" : {
-
-    },
-    "QSO 详情暂时不可用，无法导出" : {
-
-    },
-    "QSO 页面" : {
-
-    },
-    "S" : {
-
-    },
-    "SSID 用于区分同一呼号下的不同设备。" : {
-
-    },
-    "W" : {
-
-    },
-    "Wi-Fi / 本地网络" : {
-
-    },
-    "上线" : {
-
-    },
-    "主机与端口" : {
-
-    },
-    "主机名或 IPv4" : {
-
-    },
-    "仅保留最近 24 小时 · 最多 200 条" : {
-
-    },
-    "从设备列表选择要连接的 FMO。" : {
-
-    },
-    "以下结果是独立可达性检查，不代表设备页已建立连接。" : {
-
-    },
-    "以下结果用于独立验证当前网络路径。" : {
-
-    },
-    "位置与本地数据" : {
-
-    },
-    "位置与状态" : {
-
-    },
-    "位置仅用于地图范围和向你选择的 FMO 同步。设备信息、收藏、消息历史和 QSO 缓存保存在本机；ADIF 仅在你主动导出后交给系统分享。" : {
-
-    },
-    "位置只用于本次同步，不会上传到分析服务。" : {
-
-    },
-    "位置更新" : {
-
-    },
-    "位置自动化" : {
-
-    },
-    "低功耗" : {
-
-    },
-    "低功耗模式" : {
-
-    },
-    "使用 App 期间" : {
-
-    },
-    "使用 FMO 官方网页管理设备" : {
-
-    },
-    "保存" : {
-
-    },
-    "保留最近 24 小时，最多 200 条" : {
-
-    },
-    "停止后会返回手动模式，并取消定位、连接和重试任务。" : {
-
-    },
-    "停止扫描" : {
-
-    },
-    "停止自动同步" : {
-
-    },
-    "全部" : {
-
-    },
-    "全部 QSO" : {
-
-    },
-    "公开网络" : {
-
-    },
-    "关于" : {
-
-    },
-    "关于 FMO 助手" : {
-
-    },
-    "最后尝试" : {
-
-    },
-    "最后成功" : {
-
-    },
-    "最近会话" : {
-
-    },
-    "最近动态" : {
-
-    },
-    "最近操作" : {
-
-    },
-    "最近收到" : {
-
-    },
-    "最近活动" : {
-
-    },
-    "最近讲话活动 %@" : {
-
-    },
-    "最近讲话活动 %@，%@" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "最近讲话活动 %1$@，%2$@"
+    "%@ 已确认": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ confirmed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 已确认"
           }
         }
       }
     },
-    "最近通联" : {
-
-    },
-    "切换运行模式或重启设备" : {
-
-    },
-    "刚刚讲话" : {
-
-    },
-    "删除" : {
-
-    },
-    "删除设备" : {
-
-    },
-    "刷新" : {
-
-    },
-    "刷新当前设备的 QSO" : {
-
-    },
-    "刷新盒子" : {
-
-    },
-    "前往系统设置" : {
-
-    },
-    "前往设置" : {
-
-    },
-    "动态事件" : {
-
-    },
-    "发送" : {
-
-    },
-    "发送中" : {
-
-    },
-    "发送消息并跟踪确认状态" : {
-
-    },
-    "取消" : {
-
-    },
-    "取消收藏 %@" : {
-
-    },
-    "受系统限制" : {
-
-    },
-    "只在你主动操作时同步。" : {
-
-    },
-    "只在设备页点击同步时更新" : {
-
-    },
-    "只有你在设备页点击同步时才会更新 FMO。" : {
-
-    },
-    "可从收藏呼号或手动输入地址开始会话。" : {
-
-    },
-    "可先在台站与服务器目录中添加收藏。" : {
-
-    },
-    "可发送远程命令" : {
-
-    },
-    "可在 FMO 设备菜单中查看。凭据只保存在这台 iPhone。" : {
-
-    },
-    "可用" : {
-
-    },
-    "台站" : {
-
-    },
-    "台站 · %lld" : {
-
-    },
-    "台站与服务器" : {
-
-    },
-    "台站详情" : {
-
-    },
-    "同步到 FMO" : {
-
-    },
-    "同步模式" : {
-
-    },
-    "名称" : {
-
-    },
-    "启用低功耗" : {
-
-    },
-    "启用低功耗？" : {
-
-    },
-    "启用手动" : {
-
-    },
-    "启用手动同步？" : {
-
-    },
-    "启用自动同步？" : {
-
-    },
-    "启用车载" : {
-
-    },
-    "启用车载模式？" : {
-
-    },
-    "呼叫" : {
-
-    },
-    "呼号" : {
-
-    },
-    "呼号 %@" : {
-
-    },
-    "呼号-SSID" : {
-
-    },
-    "呼号、APRS 消息和远控命令会经过 APRS-IS 公网传输，不应被视为私密或端到端加密通信。远控凭据原文只保存在本机，不会随命令发送。" : {
-
-    },
-    "呼号、网格或服务器" : {
-
-    },
-    "命令未发送，请确认消息网络已连接" : {
-
-    },
-    "国家/地区" : {
-
-    },
-    "在 FMO 官方页面查看与导出记录" : {
-
-    },
-    "在“设备”中连接 FMO 后，QSO 会自动出现在这里。" : {
-
-    },
-    "在同一 Wi-Fi 中自动发现，或手动输入 fmo.local。" : {
-
-    },
-    "在线" : {
-
-    },
-    "地图" : {
-
-    },
-    "距离 %lld 公里" : {
-
-    },
-    "地址" : {
-
-    },
-    "地址不可用" : {
-
-    },
-    "坐标" : {
-
-    },
-    "坐标同步" : {
-
-    },
-    "坐标已同步" : {
-
-    },
-    "填写呼号后即可接收 FMO 网络动态" : {
-
-    },
-    "备注" : {
-
-    },
-    "外观" : {
-
-    },
-    "外观模式" : {
-
-    },
-    "好" : {
-
-    },
-    "始终允许" : {
-
-    },
-    "安全凭据" : {
-
-    },
-    "安全凭据应为 12 位大写字母或数字" : {
-
-    },
-    "完成" : {
-
-    },
-    "完整事件流" : {
-
-    },
-    "官方 HTTP 后台" : {
-
-    },
-    "定位授权" : {
-
-    },
-    "定位授权不足，前往系统设置允许“始终”定位后再继续。" : {
-
-    },
-    "定位授权已关闭，请前往系统设置恢复。" : {
-
-    },
-    "定位能力受到系统限制。" : {
-
-    },
-    "实时活动" : {
-
-    },
-    "实时活动数量已达系统上限" : {
-
-    },
-    "实时活动权限未开启" : {
-
-    },
-    "实时活动由 App 尽力更新；系统可能在后台限制更新或结束活动，不影响 FMO 连接。" : {
-
-    },
-    "实时活动配置无效" : {
-
-    },
-    "对方" : {
-
-    },
-    "对方 · %@" : {
-
-    },
-    "对方网格" : {
-
-    },
-    "导出 ADIF" : {
-
-    },
-    "尚未保存 FMO 设备；请先返回设备页连接一次。" : {
-
-    },
-    "尚未发现设备" : {
-
-    },
-    "尚未询问" : {
-
-    },
-    "尚未读取" : {
-
-    },
-    "尚未连接 FMO" : {
-
-    },
-    "峰值" : {
-
-    },
-    "已关闭" : {
-
-    },
-    "设备声音" : {
-
-    },
-    "设备接收音频" : {
-
-    },
-    "横屏仪表盘位于前台时，App 会从你选择的 FMO 接收音频并在本机生成波形；声音默认关闭。音频不录制、不保存、不上传，也不用于识别讲话者。" : {
-
-    },
-    "设备音频波形" : {
-
-    },
-    "正在接收" : {
-
-    },
-    "等待音频" : {
-
-    },
-    "已开启" : {
-
-    },
-    "已拒绝" : {
-
-    },
-    "已确认" : {
-
-    },
-    "已连接" : {
-
-    },
-    "已选择" : {
-
-    },
-    "已通过 GEO 接口连接 %@。" : {
-
-    },
-    "广播台站" : {
-
-    },
-    "开发者" : {
-
-    },
-    "当前为手动同步" : {
-
-    },
-    "当前服务器" : {
-
-    },
-    "当前服务器 %@" : {
-
-    },
-    "当前未收到数据" : {
-
-    },
-    "当前状态" : {
-
-    },
-    "当前网络不可用；恢复后会发送内存中的最新位置。" : {
-
-    },
-    "当前讲话 %@" : {
-
-    },
-    "当前讲话 %@，%@" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "当前讲话 %1$@，%2$@"
+    "%@ 未确认，设备可能已执行": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ not confirmed; the device may have completed it"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 未确认，设备可能已执行"
           }
         }
       }
     },
-    "当前设备 %@，已连接" : {
-
-    },
-    "当前设备，已连接" : {
-
-    },
-    "当前设备不支持实时活动" : {
-
-    },
-    "我们如何使用数据" : {
-
-    },
-    "我的位置" : {
-
-    },
-    "手动" : {
-
-    },
-    "手动同步" : {
-
-    },
-    "手动输入地址" : {
-
-    },
-    "手动连接" : {
-
-    },
-    "打开 App 后接收消息" : {
-
-    },
-    "打开横屏仪表盘" : {
-
-    },
-    "扫描中" : {
-
-    },
-    "按提示处理后重试，手动地址始终可用。" : {
-
-    },
-    "接收已暂停" : {
-
-    },
-    "搜索" : {
-
-    },
-    "搜索、收藏与详细信息" : {
-
-    },
-    "搜索呼号或事件" : {
-
-    },
-    "搜索呼号或服务器" : {
-
-    },
-    "收到时间" : {
-
-    },
-    "收到网络数据后会自动更新。" : {
-
-    },
-    "收到讲话活动后将在这里持续保留。" : {
-
-    },
-    "收藏" : {
-
-    },
-    "收藏 %@" : {
-
-    },
-    "收藏呼号 · %lld" : {
-
-    },
-    "收藏暂无动态" : {
-
-    },
-    "收藏服务器 · %lld" : {
-
-    },
-    "收藏联系人" : {
-
-    },
-    "新消息" : {
-
-    },
-    "方位" : {
-
-    },
-    "方位暂不可用" : {
-
-    },
-    "无法保存远控设置" : {
-
-    },
-    "无法完成操作" : {
-
-    },
-    "无法导出 ADIF" : {
-
-    },
-    "无法打开 FMO 页面" : {
-
-    },
-    "无法更新锁屏仪表盘" : {
-
-    },
-    "无法移除安全凭据" : {
-
-    },
-    "无法获取位置" : {
-
-    },
-    "显示呼号" : {
-
-    },
-    "显示在锁屏" : {
-
-    },
-    "显示梅登黑德" : {
-
-    },
-    "暂不" : {
-
-    },
-    "暂无动态" : {
-
-    },
-    "暂无匹配动态" : {
-
-    },
-    "暂时无法取得有效位置，App 会继续等待。" : {
-
-    },
-    "暂时无法生成 ADIF" : {
-
-    },
-    "暂时无法读取这条 QSO" : {
-
-    },
-    "服务信息" : {
-
-    },
-    "服务器" : {
-
-    },
-    "服务器 · %lld" : {
-
-    },
-    "服务器和最新动态始终按当前可信状态显示；精确坐标、频率和 QSO 列表不会进入锁屏。" : {
-
-    },
-    "服务器广播" : {
-
-    },
-    "服务器详情" : {
-
-    },
-    "未开启" : {
-
-    },
-    "未确认" : {
-
-    },
-    "未连接" : {
-
-    },
-    "未选择" : {
-
-    },
-    "未通过系统确认，未发送重启命令" : {
-
-    },
-    "本月 %lld" : {
-
-    },
-    "本机" : {
-
-    },
-    "本机 · %@" : {
-
-    },
-    "本机 QSO" : {
-
-    },
-    "本机网格" : {
-
-    },
-    "查看全部" : {
-
-    },
-    "查看扫描" : {
-
-    },
-    "模式" : {
-
-    },
-    "正在同步…" : {
-
-    },
-    "正在同步位置" : {
-
-    },
-    "正在同步坐标" : {
-
-    },
-    "正在启动自动同步" : {
-
-    },
-    "正在建立 GEO 连接" : {
-
-    },
-    "正在建立系统定位与网络状态会话。" : {
-
-    },
-    "正在开始" : {
-
-    },
-    "正在把最新位置发送到已选择的 FMO。" : {
-
-    },
-    "正在显示" : {
-
-    },
-    "正在查找附近设备" : {
-
-    },
-    "正在结束" : {
-
-    },
-    "正在获取位置…" : {
-
-    },
-    "正在读取 iPhone 位置" : {
-
-    },
-    "正在读取详情" : {
-
-    },
-    "正在连接" : {
-
-    },
-    "正在连接 %@。" : {
-
-    },
-    "正常运行" : {
-
-    },
-    "每一步均为独立可达性检查；全部通过表示设备可达，不等于设备页连接状态。诊断不包含精确位置、凭据或设备私密数据。" : {
-
-    },
-    "每次操作只发送一次；没有收到设备确认时不会自动重试。" : {
-
-    },
-    "水平精度约 %@ 米" : {
-
-    },
-    "浅色" : {
-
-    },
-    "消息" : {
-
-    },
-    "消息不能包含换行或 { 符号" : {
-
-    },
-    "消息内容无法发送" : {
-
-    },
-    "消息最多 60 字节" : {
-
-    },
-    "消息发送失败" : {
-
-    },
-    "消息提示" : {
-
-    },
-    "消息网络尚未连接" : {
-
-    },
-    "消息网络暂时不可用" : {
-
-    },
-    "深色" : {
-
-    },
-    "版本" : {
-
-    },
-    "版本与构建" : {
-
-    },
-    "独立探测 · %@" : {
-
-    },
-    "目录" : {
-
-    },
-    "目标设备" : {
-
-    },
-    "知道了" : {
-
-    },
-    "确认重启这台设备？" : {
-
-    },
-    "移除安全凭据" : {
-
-    },
-    "端口（可选）" : {
-
-    },
-    "第 %lld 次重试将在约 %@ 后进行。" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "第 %1$lld 次重试将在约 %2$@ 后进行。"
+    "%@, %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, %2$@"
           }
         }
       }
     },
-    "等待你完成系统定位授权。" : {
-
-    },
-    "等待台站" : {
-
-    },
-    "等待定位授权" : {
-
-    },
-    "等待消息网络" : {
-
-    },
-    "等待盒子确认后会再次读取坐标。" : {
-
-    },
-    "等待确认" : {
-
-    },
-    "等待符合当前模式条件的位置事件。" : {
-
-    },
-    "等待网络" : {
-
-    },
-    "等待网络恢复" : {
-
-    },
-    "等待讲话" : {
-
-    },
-    "等待设备页显示呼号、服务器或动态信息后重试。" : {
-
-    },
-    "筛选" : {
-
-    },
-    "管理后台" : {
-
-    },
-    "管理员" : {
-
-    },
-    "系统决定位置事件的实际交付时机；时间和距离阈值用于筛选事件，不代表严格定时。" : {
-
-    },
-    "系统可能会询问是否允许访问本地网络。" : {
-
-    },
-    "系统定位会话已中断，请重新尝试。" : {
-
-    },
-    "系统定位会话需要重新建立。" : {
-
-    },
-    "系统定位服务当前不可用。" : {
-
-    },
-    "系统已关闭" : {
-
-    },
-    "系统已关闭实时活动" : {
-
-    },
-    "系统拒绝了实时活动请求" : {
-
-    },
-    "系统暂时不允许后台定位，回到 App 后可重新尝试。" : {
-
-    },
-    "系统未能保存实时活动" : {
-
-    },
-    "系统未能登记实时活动" : {
-
-    },
-    "系统权限" : {
-
-    },
-    "结束实时活动" : {
-
-    },
-    "继续探索" : {
-
-    },
-    "网格" : {
-
-    },
-    "网格中心仅表示大致区域" : {
-
-    },
-    "网络尚未连接，消息未发送" : {
-
-    },
-    "网络身份" : {
-
-    },
-    "联系我们" : {
-
-    },
-    "联系邮箱" : {
-
-    },
-    "自动同步已开启" : {
-
-    },
-    "自动同步已暂停" : {
-
-    },
-    "自动模式需要“始终”定位授权。" : {
-
-    },
-    "自动模式需要“始终”定位授权。App 不会保存精确坐标，停止后会取消定位、连接和重试任务。" : {
-
-    },
-    "自动追踪" : {
-
-    },
-    "范围过滤" : {
-
-    },
-    "覆盖" : {
-
-    },
-    "设备" : {
-
-    },
-    "设备会暂时离线，发送前还需通过系统身份确认。" : {
-
-    },
-    "设备功能" : {
-
-    },
-    "设备处于静止状态，等待新的位置事件。" : {
-
-    },
-    "设备当前未连接" : {
-
-    },
-    "设备编号（SSID）" : {
-
-    },
-    "设备连接已建立" : {
-
-    },
-    "设置" : {
-
-    },
-    "设置目标与安全凭据" : {
-
-    },
-    "设置网络身份" : {
-
-    },
-    "语音活动" : {
-
-    },
-    "请使用支持实时活动的 iPhone 真机测试。" : {
-
-    },
-    "请先在设备页发现、手动添加或选择一台 FMO 设备，然后重试。" : {
-
-    },
-    "请先完成远控设置" : {
-
-    },
-    "请先结束其他 App 的部分实时活动后重试。" : {
-
-    },
-    "请先设置 APRS 身份" : {
-
-    },
-    "请删除这台设备并重新发现，或检查手动输入的主机和端口。" : {
-
-    },
-    "请在“设置 > FMO 助手”中打开“实时活动”。" : {
-
-    },
-    "请在系统设置中允许 FMO 助手使用实时活动。" : {
-
-    },
-    "请完成系统提示；自动模式需要“始终”定位授权。" : {
-
-    },
-    "请更新到修复后的构建版本后重试。" : {
-
-    },
-    "请确认 iPhone 和 FMO 在同一 Wi-Fi。" : {
-
-    },
-    "请确认系统设置允许实时活动后重试。" : {
-
-    },
-    "请输入消息内容" : {
-
-    },
-    "请重启设备后重试；若仍失败，请反馈当前系统版本。" : {
-
-    },
-    "请锁屏后再次查看；若仍未显示，请重新打开 App 后重试。" : {
-
-    },
-    "读取 iPhone 位置" : {
-
-    },
-    "跟随系统" : {
-
-    },
-    "车载" : {
-
-    },
-    "车载模式" : {
-
-    },
-    "输入地址" : {
-
-    },
-    "运行模式" : {
-
-    },
-    "还没有消息" : {
-
-    },
-    "进入待机" : {
-
-    },
-    "进行中" : {
-
-    },
-    "远控设置" : {
-
-    },
-    "远程控制" : {
-
-    },
-    "连接" : {
-
-    },
-    "连接 FMO 后才能开始锁屏仪表盘" : {
-
-    },
-    "连接 FMO、查看网络动态、收发 APRS 消息并管理通联记录。" : {
-
-    },
-    "连接你的 FMO" : {
-
-    },
-    "连接失败，正在等待重试" : {
-
-    },
-    "连接诊断" : {
-
-    },
-    "追踪" : {
-
-    },
-    "退出全屏仪表盘" : {
-
-    },
-    "选择 FMO 设备" : {
-
-    },
-    "选择一台 FMO" : {
-
-    },
-    "选择设备" : {
-
-    },
-    "通常使用 fmo.local；请不要输入 http:// 或 /ws。" : {
-
-    },
-    "通联" : {
-
-    },
-    "重启设备" : {
-
-    },
-    "重新尝试" : {
-
-    },
-    "重新扫描" : {
-
-    },
-    "重新框选我的位置和讲话者" : {
-
-    },
-    "重新检查" : {
-
-    },
-    "重试" : {
-
-    },
-    "锁屏仪表盘" : {
-
-    },
-    "锁屏内容" : {
-
-    },
-    "隐私" : {
-
-    },
-    "隐私政策" : {
-
-    },
-    "需处理" : {
-
-    },
-    "需要处理" : {
-
-    },
-    "需要处理连接问题" : {
-
-    },
-    "需要我的 FMO 坐标和讲话者位置。" : {
-
-    },
-    "频率" : {
-
-    },
-    "首次有效位置会立即同步，之后达到 2 分钟或移动 250 米时同步。该模式会使用更多电量，并需要“始终”定位授权。" : {
-
-    },
-    "首次有效位置会立即同步，之后达到 15 分钟或移动 1 公里时同步。需要“始终”定位授权。" : {
-
+    "%@，%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@，%2$@"
+          }
+        }
+      }
+    },
+    "%lld 个台站": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld stations"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 个台站"
+          }
+        }
+      }
+    },
+    "%lld 公里": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld km"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 公里"
+          }
+        }
+      }
+    },
+    "%lld°": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld°"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld°"
+          }
+        }
+      }
+    },
+    "%u 在线": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%u online"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%u 在线"
+          }
+        }
+      }
+    },
+    "%u 在线 · %u km": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%u online · %u km"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$u 在线 · %2$u km"
+          }
+        }
+      }
+    },
+    "2 分钟或 250 米 · 耗电较高": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 min or 250 m · Higher battery use"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 分钟或 250 米 · 耗电较高"
+          }
+        }
+      }
+    },
+    "12 位凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12-digit credentials"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 位凭据"
+          }
+        }
+      }
+    },
+    "15 分钟或 1 公里 · 较省电": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 min or 1 km · Lower battery use"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 分钟或 1 公里 · 较省电"
+          }
+        }
+      }
+    },
+    "24h · 200": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24h · 200"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24h · 200"
+          }
+        }
+      }
+    },
+    "App 连接状态": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App connection status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App 连接状态"
+          }
+        }
+      }
+    },
+    "APRS 消息": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "APRS Messages"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "APRS 消息"
+          }
+        }
+      }
+    },
+    "CQ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CQ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CQ"
+          }
+        }
+      }
+    },
+    "CQ、语音、上线与服务广播": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CQ, voice activity, station presence, and server broadcasts"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CQ、语音、上线与服务广播"
+          }
+        }
+      }
+    },
+    "E": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E"
+          }
+        }
+      }
+    },
+    "FMO 助手": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO Companion"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO 助手"
+          }
+        }
+      }
+    },
+    "FMO 助手仅为连接你选择的 FMO、同步位置、接入 APRS 网络以及在本机保存消息与 QSO 记录而处理必要数据。我们不提供广告，不进行跨 App 跟踪，也不出售个人数据。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO Companion processes only the data needed to connect to your selected FMO, sync location, access the APRS network, and store messages and QSO records on this device. We do not show ads, track you across apps, or sell personal data."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO 助手仅为连接你选择的 FMO、同步位置、接入 APRS 网络以及在本机保存消息与 QSO 记录而处理必要数据。我们不提供广告，不进行跨 App 跟踪，也不出售个人数据。"
+          }
+        }
+      }
+    },
+    "FMO 助手反馈": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO Companion Feedback"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO 助手反馈"
+          }
+        }
+      }
+    },
+    "FMO 地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO address"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO 地址"
+          }
+        }
+      }
+    },
+    "FMO 坐标": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO coordinates"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO 坐标"
+          }
+        }
+      }
+    },
+    "FMO 坐标已刷新": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO location refreshed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO 坐标已刷新"
+          }
+        }
+      }
+    },
+    "FMO 已更新为当前 iPhone 位置。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO has been updated with the current iPhone location."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO 已更新为当前 iPhone 位置。"
+          }
+        }
+      }
+    },
+    "FMO 已连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO Connected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO 已连接"
+          }
+        }
+      }
+    },
+    "FMO 拒绝了本次操作": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO declined this action"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO 拒绝了本次操作"
+          }
+        }
+      }
+    },
+    "FMO 网络": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO Network"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO 网络"
+          }
+        }
+      }
+    },
+    "FMO 连接已断开": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO connection lost"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO 连接已断开"
+          }
+        }
+      }
+    },
+    "FMO 页面地址无效": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO page address is invalid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FMO 页面地址无效"
+          }
+        }
+      }
+    },
+    "GEO WebSocket": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GEO WebSocket"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GEO WebSocket"
+          }
+        }
+      }
+    },
+    "GEO 检查失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GEO check failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GEO 检查失败"
+          }
+        }
+      }
+    },
+    "iPhone 位置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone location"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone 位置"
+          }
+        }
+      }
+    },
+    "km": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "km"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "km"
+          }
+        }
+      }
+    },
+    "N": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "N"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "N"
+          }
+        }
+      }
+    },
+    "OMCQ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OMCQ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OMCQ"
+          }
+        }
+      }
+    },
+    "QSO": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSO"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSO"
+          }
+        }
+      }
+    },
+    "QSO 不存在": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSO Not Found"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSO 不存在"
+          }
+        }
+      }
+    },
+    "QSO 暂时无法更新，已保留上次内容": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSO couldn't be updated. The previous data is still available."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSO 暂时无法更新，已保留上次内容"
+          }
+        }
+      }
+    },
+    "QSO 详情": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSO details"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSO 详情"
+          }
+        }
+      }
+    },
+    "QSO 详情暂时不可用，无法导出": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSO details are unavailable, so this record can't be exported."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSO 详情暂时不可用，无法导出"
+          }
+        }
+      }
+    },
+    "QSO 页面": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSO page"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSO 页面"
+          }
+        }
+      }
+    },
+    "S": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S"
+          }
+        }
+      }
+    },
+    "SSID 用于区分同一呼号下的不同设备。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SSID identifies a specific station using the same callsign."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSID 用于区分同一呼号下的不同设备。"
+          }
+        }
+      }
+    },
+    "W": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W"
+          }
+        }
+      }
+    },
+    "Wi-Fi / 本地网络": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wi-Fi / local network"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wi-Fi / 本地网络"
+          }
+        }
+      }
+    },
+    "上线": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上线"
+          }
+        }
+      }
+    },
+    "东": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "East"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "东"
+          }
+        }
+      }
+    },
+    "东北": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Northeast"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "东北"
+          }
+        }
+      }
+    },
+    "东南": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Southeast"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "东南"
+          }
+        }
+      }
+    },
+    "主机与 TCP 端口 %lld 可达": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host and TCP port %lld are reachable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主机与 TCP 端口 %lld 可达"
+          }
+        }
+      }
+    },
+    "主机与端口": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host and port"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主机与端口"
+          }
+        }
+      }
+    },
+    "主机名或 IPv4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hostname or IPv4"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主机名或 IPv4"
+          }
+        }
+      }
+    },
+    "主机或 TCP 端口不可达": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host or TCP port is unreachable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主机或 TCP 端口不可达"
+          }
+        }
+      }
+    },
+    "仅保留最近 24 小时 · 最多 200 条": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 24 hours · Up to 200 events"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅保留最近 24 小时 · 最多 200 条"
+          }
+        }
+      }
+    },
+    "从设备列表选择要连接的 FMO。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select the FMO to connect to from the device list."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从设备列表选择要连接的 FMO。"
+          }
+        }
+      }
+    },
+    "以下结果是独立可达性检查，不代表设备页已建立连接。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These independent reachability checks do not mean the Devices tab is connected."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下结果是独立可达性检查，不代表设备页已建立连接。"
+          }
+        }
+      }
+    },
+    "以下结果用于独立验证当前网络路径。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These checks independently verify the current network path."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下结果用于独立验证当前网络路径。"
+          }
+        }
+      }
+    },
+    "位置与本地数据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location and local data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置与本地数据"
+          }
+        }
+      }
+    },
+    "位置与状态": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location & Status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置与状态"
+          }
+        }
+      }
+    },
+    "位置仅用于地图范围和向你选择的 FMO 同步。设备信息、收藏、消息历史和 QSO 缓存保存在本机；ADIF 仅在你主动导出后交给系统分享。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location is used only for map range and syncing with your selected FMO. Device details, favorites, message history, and the QSO cache stay on this device. ADIF files are shared only when you export them."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置仅用于地图范围和向你选择的 FMO 同步。设备信息、收藏、消息历史和 QSO 缓存保存在本机；ADIF 仅在你主动导出后交给系统分享。"
+          }
+        }
+      }
+    },
+    "位置只用于本次同步，不会上传到分析服务。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location is used only for this sync and is not sent to analytics services."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置只用于本次同步，不会上传到分析服务。"
+          }
+        }
+      }
+    },
+    "位置更新": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "location update"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置更新"
+          }
+        }
+      }
+    },
+    "位置未知": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown location"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置未知"
+          }
+        }
+      }
+    },
+    "位置自动化": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location Automation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置自动化"
+          }
+        }
+      }
+    },
+    "低功耗": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low Power"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低功耗"
+          }
+        }
+      }
+    },
+    "低功耗模式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low Power Mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低功耗模式"
+          }
+        }
+      }
+    },
+    "使用 App 期间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "While Using the App"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 App 期间"
+          }
+        }
+      }
+    },
+    "使用 FMO 官方网页管理设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage the device on the official FMO webpage"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 FMO 官方网页管理设备"
+          }
+        }
+      }
+    },
+    "依赖步骤未通过": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A required step failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "依赖步骤未通过"
+          }
+        }
+      }
+    },
+    "保存": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存"
+          }
+        }
+      }
+    },
+    "保留最近 24 小时，最多 200 条": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keeps up to 200 events from the last 24 hours"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保留最近 24 小时，最多 200 条"
+          }
+        }
+      }
+    },
+    "停止后会返回手动模式，并取消定位、连接和重试任务。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stopping returns to Manual mode and cancels location, connection, and retry tasks."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止后会返回手动模式，并取消定位、连接和重试任务。"
+          }
+        }
+      }
+    },
+    "停止扫描": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop scanning"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止扫描"
+          }
+        }
+      }
+    },
+    "停止自动同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop automatic sync"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止自动同步"
+          }
+        }
+      }
+    },
+    "全网": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worldwide"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全网"
+          }
+        }
+      }
+    },
+    "全部": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部"
+          }
+        }
+      }
+    },
+    "全部 QSO": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All QSOs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部 QSO"
+          }
+        }
+      }
+    },
+    "公开网络": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public Network"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "公开网络"
+          }
+        }
+      }
+    },
+    "关于": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于"
+          }
+        }
+      }
+    },
+    "关于 FMO 助手": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About FMO Companion"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于 FMO 助手"
+          }
+        }
+      }
+    },
+    "最后尝试": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last Attempt"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最后尝试"
+          }
+        }
+      }
+    },
+    "最后成功": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last Success"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最后成功"
+          }
+        }
+      }
+    },
+    "最近 30 天": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 30 Days"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近 30 天"
+          }
+        }
+      }
+    },
+    "最近会话": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent Conversations"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近会话"
+          }
+        }
+      }
+    },
+    "最近动态": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent Activity"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近动态"
+          }
+        }
+      }
+    },
+    "最近操作": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent Actions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近操作"
+          }
+        }
+      }
+    },
+    "最近收到": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last Received"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近收到"
+          }
+        }
+      }
+    },
+    "最近活动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent Activity"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近活动"
+          }
+        }
+      }
+    },
+    "最近讲话活动 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent voice activity, %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近讲话活动 %@"
+          }
+        }
+      }
+    },
+    "最近讲话活动 %@，%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent voice activity, %@, %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近讲话活动 %1$@，%2$@"
+          }
+        }
+      }
+    },
+    "最近通联": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent QSOs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近通联"
+          }
+        }
+      }
+    },
+    "切换运行模式或重启设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch operating modes or restart the device"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切换运行模式或重启设备"
+          }
+        }
+      }
+    },
+    "刚刚讲话": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Just spoke"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刚刚讲话"
+          }
+        }
+      }
+    },
+    "删除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除"
+          }
+        }
+      }
+    },
+    "删除设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove device"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除设备"
+          }
+        }
+      }
+    },
+    "刷新": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新"
+          }
+        }
+      }
+    },
+    "刷新当前设备的 QSO": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh QSO for the current device"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新当前设备的 QSO"
+          }
+        }
+      }
+    },
+    "刷新盒子": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh FMO"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新盒子"
+          }
+        }
+      }
+    },
+    "前往系统设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前往系统设置"
+          }
+        }
+      }
+    },
+    "前往设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前往设置"
+          }
+        }
+      }
+    },
+    "动态事件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Events"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "动态事件"
+          }
+        }
+      }
+    },
+    "北": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "North"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "北"
+          }
+        }
+      }
+    },
+    "南": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "South"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "南"
+          }
+        }
+      }
+    },
+    "发送": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送"
+          }
+        }
+      }
+    },
+    "发送中": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送中"
+          }
+        }
+      }
+    },
+    "发送消息并跟踪确认状态": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send messages and track confirmation status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送消息并跟踪确认状态"
+          }
+        }
+      }
+    },
+    "取消": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
+    "取消收藏 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove %@ from Favorites"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消收藏 %@"
+          }
+        }
+      }
+    },
+    "受系统限制": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restricted by iOS"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受系统限制"
+          }
+        }
+      }
+    },
+    "只在你主动操作时同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncs only when you choose to."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只在你主动操作时同步。"
+          }
+        }
+      }
+    },
+    "只在设备页点击同步时更新": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates only when you tap Sync in Devices"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只在设备页点击同步时更新"
+          }
+        }
+      }
+    },
+    "只有你在设备页点击同步时才会更新 FMO。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your FMO is updated only when you tap Sync in Devices."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只有你在设备页点击同步时才会更新 FMO。"
+          }
+        }
+      }
+    },
+    "可从收藏呼号或手动输入地址开始会话。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start a conversation from a favorite callsign or enter an address."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可从收藏呼号或手动输入地址开始会话。"
+          }
+        }
+      }
+    },
+    "可先在台站与服务器目录中添加收藏。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add favorites from the Stations & Servers directory first."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可先在台站与服务器目录中添加收藏。"
+          }
+        }
+      }
+    },
+    "可发送远程命令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready for Remote Control"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可发送远程命令"
+          }
+        }
+      }
+    },
+    "可在 FMO 设备菜单中查看。凭据只保存在这台 iPhone。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find it in the FMO device menu. The credential stays on this iPhone."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可在 FMO 设备菜单中查看。凭据只保存在这台 iPhone。"
+          }
+        }
+      }
+    },
+    "可用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Available"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可用"
+          }
+        }
+      }
+    },
+    "台站": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stations"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "台站"
+          }
+        }
+      }
+    },
+    "台站 · %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Station · %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "台站 · %lld"
+          }
+        }
+      }
+    },
+    "台站与服务器": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stations & Servers"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "台站与服务器"
+          }
+        }
+      }
+    },
+    "台站详情": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Station details"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "台站详情"
+          }
+        }
+      }
+    },
+    "同步到 FMO": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync to FMO"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同步到 FMO"
+          }
+        }
+      }
+    },
+    "同步模式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync Mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同步模式"
+          }
+        }
+      }
+    },
+    "名称": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名称"
+          }
+        }
+      }
+    },
+    "启用低功耗": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Low Power"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用低功耗"
+          }
+        }
+      }
+    },
+    "启用低功耗？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Low Power Mode?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用低功耗？"
+          }
+        }
+      }
+    },
+    "启用手动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Manual"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用手动"
+          }
+        }
+      }
+    },
+    "启用手动同步？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable manual sync?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用手动同步？"
+          }
+        }
+      }
+    },
+    "启用自动同步？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Auto Sync?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用自动同步？"
+          }
+        }
+      }
+    },
+    "启用车载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Driving"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用车载"
+          }
+        }
+      }
+    },
+    "启用车载模式？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Driving Mode?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用车载模式？"
+          }
+        }
+      }
+    },
+    "呼叫": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "呼叫"
+          }
+        }
+      }
+    },
+    "呼号": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Callsign"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "呼号"
+          }
+        }
+      }
+    },
+    "呼号 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Callsign %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "呼号 %@"
+          }
+        }
+      }
+    },
+    "呼号-SSID": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Callsign-SSID"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "呼号-SSID"
+          }
+        }
+      }
+    },
+    "呼号、APRS 消息和远控命令会经过 APRS-IS 公网传输，不应被视为私密或端到端加密通信。远控凭据原文只保存在本机，不会随命令发送。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Callsigns, APRS messages, and remote control commands are transmitted over the APRS-IS public network and should not be considered private or end-to-end encrypted communications. The original text of the remote control credentials is only saved locally and will not be sent with the command."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "呼号、APRS 消息和远控命令会经过 APRS-IS 公网传输，不应被视为私密或端到端加密通信。远控凭据原文只保存在本机，不会随命令发送。"
+          }
+        }
+      }
+    },
+    "呼号、网格或服务器": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Callsign, grid, or server"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "呼号、网格或服务器"
+          }
+        }
+      }
+    },
+    "呼号与设备编号组合后不能超过 9 个字符。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Callsign and SSID cannot exceed 9 characters combined."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "呼号与设备编号组合后不能超过 9 个字符。"
+          }
+        }
+      }
+    },
+    "呼号需至少 3 位，且只能包含英文字母和数字。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Callsign must be at least 3 characters and contain only letters and numbers."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "呼号需至少 3 位，且只能包含英文字母和数字。"
+          }
+        }
+      }
+    },
+    "命令未发送，请确认消息网络已连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command not sent. Check the messaging connection."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令未发送，请确认消息网络已连接"
+          }
+        }
+      }
+    },
+    "国家/地区": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Country/Region"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "国家/地区"
+          }
+        }
+      }
+    },
+    "在 FMO 官方页面查看与导出记录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View and export records on the FMO official page"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 FMO 官方页面查看与导出记录"
+          }
+        }
+      }
+    },
+    "在“设备”中连接 FMO 后，QSO 会自动出现在这里。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect an FMO in Devices and its QSOs will appear here automatically."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“设备”中连接 FMO 后，QSO 会自动出现在这里。"
+          }
+        }
+      }
+    },
+    "在同一 Wi-Fi 中自动发现，或手动输入 fmo.local。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatically discover within the same Wi-Fi, or enter fmo.local manually."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在同一 Wi-Fi 中自动发现，或手动输入 fmo.local。"
+          }
+        }
+      }
+    },
+    "在线": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在线"
+          }
+        }
+      }
+    },
+    "地图": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Map"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地图"
+          }
+        }
+      }
+    },
+    "地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地址"
+          }
+        }
+      }
+    },
+    "地址不可用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address not available"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地址不可用"
+          }
+        }
+      }
+    },
+    "坐标": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coordinates"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "坐标"
+          }
+        }
+      }
+    },
+    "坐标同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location Sync"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "坐标同步"
+          }
+        }
+      }
+    },
+    "坐标已同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location Synced"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "坐标已同步"
+          }
+        }
+      }
+    },
+    "坐标已同步，FMO 已回读确认": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location synced and confirmed by FMO"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "坐标已同步，FMO 已回读确认"
+          }
+        }
+      }
+    },
+    "坐标超出有效范围": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location is outside the valid range"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "坐标超出有效范围"
+          }
+        }
+      }
+    },
+    "填写呼号后即可接收 FMO 网络动态": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter your callsign to receive FMO network activity"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "填写呼号后即可接收 FMO 网络动态"
+          }
+        }
+      }
+    },
+    "备注": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备注"
+          }
+        }
+      }
+    },
+    "外观": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外观"
+          }
+        }
+      }
+    },
+    "外观模式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外观模式"
+          }
+        }
+      }
+    },
+    "失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失败"
+          }
+        }
+      }
+    },
+    "好": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好"
+          }
+        }
+      }
+    },
+    "始终允许": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Always Allow"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "始终允许"
+          }
+        }
+      }
+    },
+    "安全凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Security Credential"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全凭据"
+          }
+        }
+      }
+    },
+    "安全凭据应为 12 位大写字母或数字": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The security credential must contain 12 uppercase letters or digits."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全凭据应为 12 位大写字母或数字"
+          }
+        }
+      }
+    },
+    "完成": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        }
+      }
+    },
+    "完整事件流": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All Events"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完整事件流"
+          }
+        }
+      }
+    },
+    "官方 HTTP 后台": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Official HTTP Web UI"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "官方 HTTP 后台"
+          }
+        }
+      }
+    },
+    "定位授权": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location Permission"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "定位授权"
+          }
+        }
+      }
+    },
+    "定位授权不足，前往系统设置允许“始终”定位后再继续。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings and allow Always Location Access to continue."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "定位授权不足，前往系统设置允许“始终”定位后再继续。"
+          }
+        }
+      }
+    },
+    "定位授权已关闭，请前往系统设置恢复。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location access is off. Open System Settings to restore it."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "定位授权已关闭，请前往系统设置恢复。"
+          }
+        }
+      }
+    },
+    "定位能力受到系统限制。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location access is restricted by the system."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "定位能力受到系统限制。"
+          }
+        }
+      }
+    },
+    "定位访问已关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location access is off"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "定位访问已关闭"
+          }
+        }
+      }
+    },
+    "实时活动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Activity"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时活动"
+          }
+        }
+      }
+    },
+    "实时活动数量已达系统上限": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The system limit for Live Activities has been reached."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时活动数量已达系统上限"
+          }
+        }
+      }
+    },
+    "实时活动权限未开启": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Activities are not allowed."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时活动权限未开启"
+          }
+        }
+      }
+    },
+    "实时活动由 App 尽力更新；系统可能在后台限制更新或结束活动，不影响 FMO 连接。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app updates Live Activities when possible. iOS may limit or end them in the background without affecting the FMO connection."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时活动由 App 尽力更新；系统可能在后台限制更新或结束活动，不影响 FMO 连接。"
+          }
+        }
+      }
+    },
+    "实时活动配置无效": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid Live Activity configuration"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时活动配置无效"
+          }
+        }
+      }
+    },
+    "对方": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方"
+          }
+        }
+      }
+    },
+    "对方 · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方 · %@"
+          }
+        }
+      }
+    },
+    "对方网格": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact Grid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方网格"
+          }
+        }
+      }
+    },
+    "导出 ADIF": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export ADIF"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出 ADIF"
+          }
+        }
+      }
+    },
+    "尚无记录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No records yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚无记录"
+          }
+        }
+      }
+    },
+    "尚未保存 FMO 设备；请先返回设备页连接一次。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No FMO has been saved. Connect one from Devices first."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未保存 FMO 设备；请先返回设备页连接一次。"
+          }
+        }
+      }
+    },
+    "尚未发现设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Devices Found"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未发现设备"
+          }
+        }
+      }
+    },
+    "尚未同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not synced yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未同步"
+          }
+        }
+      }
+    },
+    "尚未设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not set"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未设置"
+          }
+        }
+      }
+    },
+    "尚未询问": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not Requested"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未询问"
+          }
+        }
+      }
+    },
+    "尚未读取": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not Read"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未读取"
+          }
+        }
+      }
+    },
+    "尚未连接 FMO": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No FMO Connected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未连接 FMO"
+          }
+        }
+      }
+    },
+    "峰值": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peak"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "峰值"
+          }
+        }
+      }
+    },
+    "已关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已关闭"
+          }
+        }
+      }
+    },
+    "已同步 · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synced · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已同步 · %@"
+          }
+        }
+      }
+    },
+    "已开启": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已开启"
+          }
+        }
+      }
+    },
+    "已拒绝": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rejected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已拒绝"
+          }
+        }
+      }
+    },
+    "已暂停": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paused"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已暂停"
+          }
+        }
+      }
+    },
+    "已检测到 Wi-Fi 接口": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wi-Fi interface detected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已检测到 Wi-Fi 接口"
+          }
+        }
+      }
+    },
+    "已确认": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已确认"
+          }
+        }
+      }
+    },
+    "已获取 iPhone 位置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone location acquired"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已获取 iPhone 位置"
+          }
+        }
+      }
+    },
+    "已获取大致位置，可由你决定是否同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approximate location acquired; you can choose whether to sync it"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已获取大致位置，可由你决定是否同步"
+          }
+        }
+      }
+    },
+    "已连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已连接"
+          }
+        }
+      }
+    },
+    "已选择": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已选择"
+          }
+        }
+      }
+    },
+    "已通过 GEO 接口连接 %@。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected to %@ via GEO interface."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已通过 GEO 接口连接 %@。"
+          }
+        }
+      }
+    },
+    "广播台站": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Station Broadcast"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "广播台站"
+          }
+        }
+      }
+    },
+    "开发者": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Developer"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开发者"
+          }
+        }
+      }
+    },
+    "当前为手动同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual Sync"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前为手动同步"
+          }
+        }
+      }
+    },
+    "当前位置 %lld 公里内": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Within %lld km of your current location"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前位置 %lld 公里内"
+          }
+        }
+      }
+    },
+    "当前服务器": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current Server"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前服务器"
+          }
+        }
+      }
+    },
+    "当前服务器 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current server %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前服务器 %@"
+          }
+        }
+      }
+    },
+    "当前未收到数据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No data currently received"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前未收到数据"
+          }
+        }
+      }
+    },
+    "当前状态": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前状态"
+          }
+        }
+      }
+    },
+    "当前网络不可用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The network is unavailable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前网络不可用"
+          }
+        }
+      }
+    },
+    "当前网络不可用；恢复后会发送内存中的最新位置。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The network is currently unavailable; the latest location in memory will be sent upon recovery."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前网络不可用；恢复后会发送内存中的最新位置。"
+          }
+        }
+      }
+    },
+    "当前讲话 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaking: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前讲话 %@"
+          }
+        }
+      }
+    },
+    "当前讲话 %@，%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaking: %@, %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前讲话 %1$@，%2$@"
+          }
+        }
+      }
+    },
+    "当前设备 %@，已连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current device %@, connected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前设备 %@，已连接"
+          }
+        }
+      }
+    },
+    "当前设备，已连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current device, connected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前设备，已连接"
+          }
+        }
+      }
+    },
+    "当前设备不支持实时活动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device does not support Live Activities."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前设备不支持实时活动"
+          }
+        }
+      }
+    },
+    "当前设备限制了定位访问": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location access is restricted on this device"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前设备限制了定位访问"
+          }
+        }
+      }
+    },
+    "成功": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Successful"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功"
+          }
+        }
+      }
+    },
+    "我们如何使用数据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How we use data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我们如何使用数据"
+          }
+        }
+      }
+    },
+    "我的位置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Location"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的位置"
+          }
+        }
+      }
+    },
+    "手动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手动"
+          }
+        }
+      }
+    },
+    "手动同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual sync"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手动同步"
+          }
+        }
+      }
+    },
+    "手动输入地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter address manually"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手动输入地址"
+          }
+        }
+      }
+    },
+    "手动连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual Connection"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手动连接"
+          }
+        }
+      }
+    },
+    "打开 App 后接收消息": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the app to receive messages"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开 App 后接收消息"
+          }
+        }
+      }
+    },
+    "打开横屏仪表盘": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Landscape Dashboard"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开横屏仪表盘"
+          }
+        }
+      }
+    },
+    "扫描中": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scanning"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "扫描中"
+          }
+        }
+      }
+    },
+    "按提示处理后重试，手动地址始终可用。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow the prompts and try again. Manual addresses are always available."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按提示处理后重试，手动地址始终可用。"
+          }
+        }
+      }
+    },
+    "接收已暂停": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receiving Paused"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接收已暂停"
+          }
+        }
+      }
+    },
+    "搜索": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索"
+          }
+        }
+      }
+    },
+    "搜索、收藏与详细信息": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search, favorites and details"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索、收藏与详细信息"
+          }
+        }
+      }
+    },
+    "搜索呼号或事件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search for a callsign or event"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索呼号或事件"
+          }
+        }
+      }
+    },
+    "搜索呼号或服务器": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search for a callsign or server"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索呼号或服务器"
+          }
+        }
+      }
+    },
+    "操作已取消": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Action canceled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作已取消"
+          }
+        }
+      }
+    },
+    "操作没有完成": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The action could not be completed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作没有完成"
+          }
+        }
+      }
+    },
+    "收到 HTTP %lld 响应": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Received HTTP %lld response"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到 HTTP %lld 响应"
+          }
+        }
+      }
+    },
+    "收到时间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Received time"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到时间"
+          }
+        }
+      }
+    },
+    "收到网络数据后会自动更新。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates automatically when network data arrives."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到网络数据后会自动更新。"
+          }
+        }
+      }
+    },
+    "收到讲话活动后将在这里持续保留。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent voice activity remains available here."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到讲话活动后将在这里持续保留。"
+          }
+        }
+      }
+    },
+    "收藏": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorites"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收藏"
+          }
+        }
+      }
+    },
+    "收藏 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add %@ to Favorites"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收藏 %@"
+          }
+        }
+      }
+    },
+    "收藏呼号 · %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorite Callsigns · %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收藏呼号 · %lld"
+          }
+        }
+      }
+    },
+    "收藏暂无动态": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There is no activity in favorites yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收藏暂无动态"
+          }
+        }
+      }
+    },
+    "收藏服务器 · %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorite Servers · %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收藏服务器 · %lld"
+          }
+        }
+      }
+    },
+    "收藏联系人": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorite Callsigns"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收藏联系人"
+          }
+        }
+      }
+    },
+    "新消息": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Message"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新消息"
+          }
+        }
+      }
+    },
+    "方位": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "方位"
+          }
+        }
+      }
+    },
+    "方位暂不可用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearing Unavailable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "方位暂不可用"
+          }
+        }
+      }
+    },
+    "无法保存远控设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to save remote control settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法保存远控设置"
+          }
+        }
+      }
+    },
+    "无法完成操作": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to complete operation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法完成操作"
+          }
+        }
+      }
+    },
+    "无法导出 ADIF": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to export ADIF"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法导出 ADIF"
+          }
+        }
+      }
+    },
+    "无法建立 GEO 连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not establish a GEO connection"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法建立 GEO 连接"
+          }
+        }
+      }
+    },
+    "无法打开 FMO 页面": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to open FMO page"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法打开 FMO 页面"
+          }
+        }
+      }
+    },
+    "无法更新锁屏仪表盘": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to update lock screen dashboard"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法更新锁屏仪表盘"
+          }
+        }
+      }
+    },
+    "无法移除安全凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to remove security credentials"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法移除安全凭据"
+          }
+        }
+      }
+    },
+    "无法获取位置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to get location"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法获取位置"
+          }
+        }
+      }
+    },
+    "无法解析设备主机名": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not resolve the device hostname"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法解析设备主机名"
+          }
+        }
+      }
+    },
+    "无法解析设备地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not resolve the device address"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法解析设备地址"
+          }
+        }
+      }
+    },
+    "显示呼号": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show callsign"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示呼号"
+          }
+        }
+      }
+    },
+    "显示在锁屏": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show on lock screen"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示在锁屏"
+          }
+        }
+      }
+    },
+    "显示梅登黑德": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Maidenhead"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示梅登黑德"
+          }
+        }
+      }
+    },
+    "暂不": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not Now"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不"
+          }
+        }
+      }
+    },
+    "暂无 QSO": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No QSOs yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无 QSO"
+          }
+        }
+      }
+    },
+    "暂无动态": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Activity Yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无动态"
+          }
+        }
+      }
+    },
+    "暂无匹配动态": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matching updates yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无匹配动态"
+          }
+        }
+      }
+    },
+    "暂时无法取得有效位置，App 会继续等待。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A valid location cannot be obtained at the moment, and the App will continue to wait."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂时无法取得有效位置，App 会继续等待。"
+          }
+        }
+      }
+    },
+    "暂时无法同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to sync right now"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂时无法同步"
+          }
+        }
+      }
+    },
+    "暂时无法生成 ADIF": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to generate ADIF at the moment"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂时无法生成 ADIF"
+          }
+        }
+      }
+    },
+    "暂时无法获取当前位置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to get your current location"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂时无法获取当前位置"
+          }
+        }
+      }
+    },
+    "暂时无法读取这条 QSO": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This QSO cannot be read at the moment"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂时无法读取这条 QSO"
+          }
+        }
+      }
+    },
+    "更新失败 · 显示上次内容": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update failed · Showing previous content"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新失败 · 显示上次内容"
+          }
+        }
+      }
+    },
+    "有网格": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has grid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有网格"
+          }
+        }
+      }
+    },
+    "服务信息": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server Information"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务信息"
+          }
+        }
+      }
+    },
+    "服务器": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servers"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务器"
+          }
+        }
+      }
+    },
+    "服务器 · %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server · %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务器 · %lld"
+          }
+        }
+      }
+    },
+    "服务器和最新动态始终按当前可信状态显示；精确坐标、频率和 QSO 列表不会进入锁屏。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The current server and latest activity use the latest available state. Precise coordinates, frequency, and QSO records never appear on the Lock Screen."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务器和最新动态始终按当前可信状态显示；精确坐标、频率和 QSO 列表不会进入锁屏。"
+          }
+        }
+      }
+    },
+    "服务器广播": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server Broadcast"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务器广播"
+          }
+        }
+      }
+    },
+    "服务器详情": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server details"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务器详情"
+          }
+        }
+      }
+    },
+    "服务器过滤距离": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server range filter"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务器过滤距离"
+          }
+        }
+      }
+    },
+    "未开启": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未开启"
+          }
+        }
+      }
+    },
+    "未检测到 Wi-Fi 接口": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Wi-Fi interface detected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未检测到 Wi-Fi 接口"
+          }
+        }
+      }
+    },
+    "未确认": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unconfirmed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未确认"
+          }
+        }
+      }
+    },
+    "未设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not Set"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未设置"
+          }
+        }
+      }
+    },
+    "未连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not connected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未连接"
+          }
+        }
+      }
+    },
+    "未选择": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not selected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未选择"
+          }
+        }
+      }
+    },
+    "未通过系统确认，未发送重启命令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentication wasn't completed. The restart command was not sent."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未通过系统确认，未发送重启命令"
+          }
+        }
+      }
+    },
+    "本地网络访问已关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local network access is off"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地网络访问已关闭"
+          }
+        }
+      }
+    },
+    "本月 %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This month %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本月 %lld"
+          }
+        }
+      }
+    },
+    "本机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Me"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本机"
+          }
+        }
+      }
+    },
+    "本机 · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Me · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本机 · %@"
+          }
+        }
+      }
+    },
+    "本机 QSO": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local QSOs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本机 QSO"
+          }
+        }
+      }
+    },
+    "本机网格": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Grid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本机网格"
+          }
+        }
+      }
+    },
+    "查看全部": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View all"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看全部"
+          }
+        }
+      }
+    },
+    "查看扫描": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View Scan"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看扫描"
+          }
+        }
+      }
+    },
+    "梅登黑德网格": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maidenhead grid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "梅登黑德网格"
+          }
+        }
+      }
+    },
+    "检查在 5 秒后超时": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check timed out after 5 seconds"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检查在 5 秒后超时"
+          }
+        }
+      }
+    },
+    "模式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "模式"
+          }
+        }
+      }
+    },
+    "横屏仪表盘位于前台时，App 会从你选择的 FMO 接收音频并在本机生成波形；声音默认关闭。音频不录制、不保存、不上传，也不用于识别讲话者。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When the landscape dashboard is in the foreground, the app receives audio from the FMO of your choice and generates waveforms locally; sound is off by default. The audio is not recorded, saved, uploaded, or used to identify the speaker."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "横屏仪表盘位于前台时，App 会从你选择的 FMO 接收音频并在本机生成波形；声音默认关闭。音频不录制、不保存、不上传，也不用于识别讲话者。"
+          }
+        }
+      }
+    },
+    "正在发送 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在发送 %@"
+          }
+        }
+      }
+    },
+    "正在同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在同步"
+          }
+        }
+      }
+    },
+    "正在同步 %lld/%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncing %1$lld/%2$lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在同步 %1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "正在同步…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncing..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在同步…"
+          }
+        }
+      }
+    },
+    "正在同步位置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncing location"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在同步位置"
+          }
+        }
+      }
+    },
+    "正在同步坐标": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncing Location"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在同步坐标"
+          }
+        }
+      }
+    },
+    "正在启动自动同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting Auto Sync"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在启动自动同步"
+          }
+        }
+      }
+    },
+    "正在建立 GEO 连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Establishing GEO connection"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在建立 GEO 连接"
+          }
+        }
+      }
+    },
+    "正在建立系统定位与网络状态会话。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Establishing system location and network status session."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在建立系统定位与网络状态会话。"
+          }
+        }
+      }
+    },
+    "正在开始": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在开始"
+          }
+        }
+      }
+    },
+    "正在把最新位置发送到已选择的 FMO。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending latest location to selected FMO."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在把最新位置发送到已选择的 FMO。"
+          }
+        }
+      }
+    },
+    "正在接收": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receiving"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在接收"
+          }
+        }
+      }
+    },
+    "正在显示": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在显示"
+          }
+        }
+      }
+    },
+    "正在查找附近设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Looking for nearby devices"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在查找附近设备"
+          }
+        }
+      }
+    },
+    "正在检查…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查…"
+          }
+        }
+      }
+    },
+    "正在结束": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ending"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在结束"
+          }
+        }
+      }
+    },
+    "正在获取位置…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Getting location..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在获取位置…"
+          }
+        }
+      }
+    },
+    "正在读取 iPhone 位置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading iPhone location"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在读取 iPhone 位置"
+          }
+        }
+      }
+    },
+    "正在读取详情": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading details"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在读取详情"
+          }
+        }
+      }
+    },
+    "正在连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在连接"
+          }
+        }
+      }
+    },
+    "正在连接 %@。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting to %@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在连接 %@。"
+          }
+        }
+      }
+    },
+    "正常运行": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Normal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正常运行"
+          }
+        }
+      }
+    },
+    "每一步均为独立可达性检查；全部通过表示设备可达，不等于设备页连接状态。诊断不包含精确位置、凭据或设备私密数据。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each step is an independent reachability check; all passes indicate that the device is reachable, which does not equal the device page connection status. Diagnostics do not include precise location, credentials, or private device data."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每一步均为独立可达性检查；全部通过表示设备可达，不等于设备页连接状态。诊断不包含精确位置、凭据或设备私密数据。"
+          }
+        }
+      }
+    },
+    "每次操作只发送一次；没有收到设备确认时不会自动重试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each operation is sent only once; it will not be automatically retried if device confirmation is not received."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每次操作只发送一次；没有收到设备确认时不会自动重试。"
+          }
+        }
+      }
+    },
+    "水平精度约 %@ 米": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horizontal accuracy approx. %@ meters"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "水平精度约 %@ 米"
+          }
+        }
+      }
+    },
+    "没有发现 FMO 设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No FMO devices found"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有发现 FMO 设备"
+          }
+        }
+      }
+    },
+    "没有在 15 秒内获得可用位置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No usable location was received within 15 seconds"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有在 15 秒内获得可用位置"
+          }
+        }
+      }
+    },
+    "没有收到有效 HTTP 响应": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No valid HTTP response received"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有收到有效 HTTP 响应"
+          }
+        }
+      }
+    },
+    "浅色": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "浅色"
+          }
+        }
+      }
+    },
+    "消息": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息"
+          }
+        }
+      }
+    },
+    "消息不能包含换行或 { 符号": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message cannot contain newlines or { symbols"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息不能包含换行或 { 符号"
+          }
+        }
+      }
+    },
+    "消息内容无法发送": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message content cannot be sent"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息内容无法发送"
+          }
+        }
+      }
+    },
+    "消息最多 60 字节": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages can contain up to 60 bytes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息最多 60 字节"
+          }
+        }
+      }
+    },
+    "消息发送失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message Failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息发送失败"
+          }
+        }
+      }
+    },
+    "消息提示": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message Status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息提示"
+          }
+        }
+      }
+    },
+    "消息网络尚未连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The messaging network is not connected yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息网络尚未连接"
+          }
+        }
+      }
+    },
+    "消息网络暂时不可用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The messaging network is temporarily unavailable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息网络暂时不可用"
+          }
+        }
+      }
+    },
+    "深色": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "深色"
+          }
+        }
+      }
+    },
+    "版本": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本"
+          }
+        }
+      }
+    },
+    "版本与构建": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version & Build"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本与构建"
+          }
+        }
+      }
+    },
+    "独立探测 · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Independent Check · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "独立探测 · %@"
+          }
+        }
+      }
+    },
+    "独立握手与坐标响应正常": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handshake and location response succeeded"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "独立握手与坐标响应正常"
+          }
+        }
+      }
+    },
+    "目录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Directory"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目录"
+          }
+        }
+      }
+    },
+    "目标设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target Device"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目标设备"
+          }
+        }
+      }
+    },
+    "知道了": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "知道了"
+          }
+        }
+      }
+    },
+    "确认重启这台设备？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to restart this device?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认重启这台设备？"
+          }
+        }
+      }
+    },
+    "确认重启远程 FMO 设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm Restart of Remote FMO"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认重启远程 FMO 设备"
+          }
+        }
+      }
+    },
+    "离线 · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "离线 · %@"
+          }
+        }
+      }
+    },
+    "移除安全凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove security credentials"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除安全凭据"
+          }
+        }
+      }
+    },
+    "端口（可选）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Port (Optional)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "端口（可选）"
+          }
+        }
+      }
+    },
+    "第 %lld 次重试将在约 %@ 后进行。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry %lld in about %@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第 %1$lld 次重试将在约 %2$@ 后进行。"
+          }
+        }
+      }
+    },
+    "等待你完成系统定位授权。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for you to complete system location authorization."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待你完成系统定位授权。"
+          }
+        }
+      }
+    },
+    "等待台站": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for Stations"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待台站"
+          }
+        }
+      }
+    },
+    "等待定位授权": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for Location Permission"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待定位授权"
+          }
+        }
+      }
+    },
+    "等待检查": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for check"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待检查"
+          }
+        }
+      }
+    },
+    "等待消息网络": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for Messaging Network"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待消息网络"
+          }
+        }
+      }
+    },
+    "等待盒子确认后会再次读取坐标。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coordinates will be read again after the FMO confirms the update."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待盒子确认后会再次读取坐标。"
+          }
+        }
+      }
+    },
+    "等待确认": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for confirmation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待确认"
+          }
+        }
+      }
+    },
+    "等待符合当前模式条件的位置事件。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wait for a location event that matches the current mode conditions."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待符合当前模式条件的位置事件。"
+          }
+        }
+      }
+    },
+    "等待网络": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for network"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待网络"
+          }
+        }
+      }
+    },
+    "等待网络恢复": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wait for network recovery"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待网络恢复"
+          }
+        }
+      }
+    },
+    "等待讲话": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for Voice Activity"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待讲话"
+          }
+        }
+      }
+    },
+    "等待设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for device"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待设备"
+          }
+        }
+      }
+    },
+    "等待设备页显示呼号、服务器或动态信息后重试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wait for the device page to display the callsign, server or dynamic information and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待设备页显示呼号、服务器或动态信息后重试。"
+          }
+        }
+      }
+    },
+    "等待音频": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for Audio"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待音频"
+          }
+        }
+      }
+    },
+    "筛选": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "筛选"
+          }
+        }
+      }
+    },
+    "管理后台": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Management Web UI"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "管理后台"
+          }
+        }
+      }
+    },
+    "管理员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administrator"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "管理员"
+          }
+        }
+      }
+    },
+    "系统决定位置事件的实际交付时机；时间和距离阈值用于筛选事件，不代表严格定时。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The system determines the actual delivery timing of location events; time and distance thresholds are used to filter events and do not represent strict timing."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统决定位置事件的实际交付时机；时间和距离阈值用于筛选事件，不代表严格定时。"
+          }
+        }
+      }
+    },
+    "系统可能会询问是否允许访问本地网络。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You may be asked to allow access to the local network."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统可能会询问是否允许访问本地网络。"
+          }
+        }
+      }
+    },
+    "系统定位会话已中断，请重新尝试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The system location session has been interrupted, please try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统定位会话已中断，请重新尝试。"
+          }
+        }
+      }
+    },
+    "系统定位会话需要重新建立。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The system location session needs to be re-established."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统定位会话需要重新建立。"
+          }
+        }
+      }
+    },
+    "系统定位服务当前不可用。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System location services are currently unavailable."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统定位服务当前不可用。"
+          }
+        }
+      }
+    },
+    "系统已关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disabled by iOS"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统已关闭"
+          }
+        }
+      }
+    },
+    "系统已关闭实时活动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Activities are disabled by iOS."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统已关闭实时活动"
+          }
+        }
+      }
+    },
+    "系统拒绝了实时活动请求": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The system denied the live activity request"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统拒绝了实时活动请求"
+          }
+        }
+      }
+    },
+    "系统暂时不允许后台定位，回到 App 后可重新尝试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The system temporarily does not allow background location. You can try again after returning to the app."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统暂时不允许后台定位，回到 App 后可重新尝试。"
+          }
+        }
+      }
+    },
+    "系统未能保存实时活动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The system failed to save live activity"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统未能保存实时活动"
+          }
+        }
+      }
+    },
+    "系统未能登记实时活动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS couldn't register the Live Activity."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统未能登记实时活动"
+          }
+        }
+      }
+    },
+    "系统权限": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System permissions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统权限"
+          }
+        }
+      }
+    },
+    "系统返回了无效坐标": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The system returned an invalid location"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统返回了无效坐标"
+          }
+        }
+      }
+    },
+    "结束实时活动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End live activity"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "结束实时活动"
+          }
+        }
+      }
+    },
+    "继续探索": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep exploring"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续探索"
+          }
+        }
+      }
+    },
+    "网格": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网格"
+          }
+        }
+      }
+    },
+    "网格中心仅表示大致区域": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The center of the grid only represents the approximate area"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网格中心仅表示大致区域"
+          }
+        }
+      }
+    },
+    "网络尚未连接，消息未发送": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The network is not connected yet and the message is not sent."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网络尚未连接，消息未发送"
+          }
+        }
+      }
+    },
+    "网络身份": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network Identity"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网络身份"
+          }
+        }
+      }
+    },
+    "联系我们": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact us"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "联系我们"
+          }
+        }
+      }
+    },
+    "联系邮箱": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact email"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "联系邮箱"
+          }
+        }
+      }
+    },
+    "自动同步已开启": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-sync is on"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动同步已开启"
+          }
+        }
+      }
+    },
+    "自动同步已暂停": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-sync is paused"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动同步已暂停"
+          }
+        }
+      }
+    },
+    "自动模式需要“始终”定位授权。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic mode requires \"Always\" location authorization."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动模式需要“始终”定位授权。"
+          }
+        }
+      }
+    },
+    "自动模式需要“始终”定位授权。App 不会保存精确坐标，停止后会取消定位、连接和重试任务。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic mode requires \"Always\" location authorization. The app does not save precise coordinates, and will cancel location, connection, and retry tasks when stopped."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动模式需要“始终”定位授权。App 不会保存精确坐标，停止后会取消定位、连接和重试任务。"
+          }
+        }
+      }
+    },
+    "自动追踪": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto Tracking"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动追踪"
+          }
+        }
+      }
+    },
+    "范围过滤": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Range Filter"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "范围过滤"
+          }
+        }
+      }
+    },
+    "西": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "West"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "西"
+          }
+        }
+      }
+    },
+    "西北": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Northwest"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "西北"
+          }
+        }
+      }
+    },
+    "西南": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Southwest"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "西南"
+          }
+        }
+      }
+    },
+    "覆盖": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coverage"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "覆盖"
+          }
+        }
+      }
+    },
+    "讲话者": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "讲话者"
+          }
+        }
+      }
+    },
+    "讲话者方位暂不可用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker direction is unavailable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "讲话者方位暂不可用"
+          }
+        }
+      }
+    },
+    "设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devices"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备"
+          }
+        }
+      }
+    },
+    "设备会暂时离线，发送前还需通过系统身份确认。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The device will be temporarily offline, and system identity confirmation is required before sending."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备会暂时离线，发送前还需通过系统身份确认。"
+          }
+        }
+      }
+    },
+    "设备功能": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device Features"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备功能"
+          }
+        }
+      }
+    },
+    "设备地址格式不正确": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The device address format is invalid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备地址格式不正确"
+          }
+        }
+      }
+    },
+    "设备声音": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device Audio"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备声音"
+          }
+        }
+      }
+    },
+    "设备处于静止状态，等待新的位置事件。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The device is stationary, waiting for new location events."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备处于静止状态，等待新的位置事件。"
+          }
+        }
+      }
+    },
+    "设备当前未连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device is not currently connected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备当前未连接"
+          }
+        }
+      }
+    },
+    "设备当前离线": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The device is offline"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备当前离线"
+          }
+        }
+      }
+    },
+    "设备接收音频": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device Audio"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备接收音频"
+          }
+        }
+      }
+    },
+    "设备没有在 5 秒内响应": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The device did not respond within 5 seconds"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备没有在 5 秒内响应"
+          }
+        }
+      }
+    },
+    "设备离线": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device Offline"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备离线"
+          }
+        }
+      }
+    },
+    "设备编号（SSID）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device SSID"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备编号（SSID）"
+          }
+        }
+      }
+    },
+    "设备编号需填写 0 到 15。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSID must be between 0 and 15."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备编号需填写 0 到 15。"
+          }
+        }
+      }
+    },
+    "设备返回了不支持的消息": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The device returned an unsupported message"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备返回了不支持的消息"
+          }
+        }
+      }
+    },
+    "设备返回了无法识别的数据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The device returned unrecognized data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备返回了无法识别的数据"
+          }
+        }
+      }
+    },
+    "设备连接已建立": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device connection established"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备连接已建立"
+          }
+        }
+      }
+    },
+    "设备音频波形": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device audio waveform"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备音频波形"
+          }
+        }
+      }
+    },
+    "设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
+          }
+        }
+      }
+    },
+    "设置目标与安全凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set target and security credentials"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置目标与安全凭据"
+          }
+        }
+      }
+    },
+    "设置网络身份": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set Network Identity"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置网络身份"
+          }
+        }
+      }
+    },
+    "语音活动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice activity"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语音活动"
+          }
+        }
+      }
+    },
+    "请使用支持实时活动的 iPhone 真机测试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use an iPhone that supports Live Activities."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请使用支持实时活动的 iPhone 真机测试。"
+          }
+        }
+      }
+    },
+    "请先在设备页发现、手动添加或选择一台 FMO 设备，然后重试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please discover, manually add, or select an FMO device on the device page and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先在设备页发现、手动添加或选择一台 FMO 设备，然后重试。"
+          }
+        }
+      }
+    },
+    "请先完成远控设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete Remote Control Settings first."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先完成远控设置"
+          }
+        }
+      }
+    },
+    "请先结束其他 App 的部分实时活动后重试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End some Live Activities from other apps and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先结束其他 App 的部分实时活动后重试。"
+          }
+        }
+      }
+    },
+    "请先让 iPhone 连接 FMO 所在的 Wi-Fi。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect your iPhone to the same Wi-Fi as FMO first."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先让 iPhone 连接 FMO 所在的 Wi-Fi。"
+          }
+        }
+      }
+    },
+    "请先设置 APRS 身份": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set your APRS identity first."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先设置 APRS 身份"
+          }
+        }
+      }
+    },
+    "请删除这台设备并重新发现，或检查手动输入的主机和端口。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please delete this device and rediscover it, or check the manually entered host and port."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请删除这台设备并重新发现，或检查手动输入的主机和端口。"
+          }
+        }
+      }
+    },
+    "请到视野开阔处后重试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to an open area and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请到视野开阔处后重试。"
+          }
+        }
+      }
+    },
+    "请前往系统设置允许定位访问。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow location access in Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请前往系统设置允许定位访问。"
+          }
+        }
+      }
+    },
+    "请前往系统设置允许本地网络访问。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow local network access in Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请前往系统设置允许本地网络访问。"
+          }
+        }
+      }
+    },
+    "请在 Safari 中检查官方 fmo.local 后台。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the official fmo.local console in Safari to check it."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在 Safari 中检查官方 fmo.local 后台。"
+          }
+        }
+      }
+    },
+    "请在“设置 > FMO 助手”中打开“实时活动”。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on Live Activities in Settings > FMO Companion."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在“设置 > FMO 助手”中打开“实时活动”。"
+          }
+        }
+      }
+    },
+    "请在系统设置中允许 FMO 助手使用实时活动。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow FMO Companion to use Live Activities in System Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在系统设置中允许 FMO 助手使用实时活动。"
+          }
+        }
+      }
+    },
+    "请完成系统提示；自动模式需要“始终”定位授权。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please complete the system prompts; automatic mode requires \"Always\" location authorization."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请完成系统提示；自动模式需要“始终”定位授权。"
+          }
+        }
+      }
+    },
+    "请尝试手动输入盒子的 IPv4 地址。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try entering the FMO IPv4 address manually."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请尝试手动输入盒子的 IPv4 地址。"
+          }
+        }
+      }
+    },
+    "请尝试输入盒子的 IPv4 地址。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try entering the FMO IPv4 address."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请尝试输入盒子的 IPv4 地址。"
+          }
+        }
+      }
+    },
+    "请更新到修复后的构建版本后重试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please update to the fixed build and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请更新到修复后的构建版本后重试。"
+          }
+        }
+      }
+    },
+    "请检查屏幕使用时间或设备管理中的定位限制。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check location restrictions in Screen Time or device management."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请检查屏幕使用时间或设备管理中的定位限制。"
+          }
+        }
+      }
+    },
+    "请确认 FMO 在线并在同一局域网。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make sure FMO is online and on the same local network."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请确认 FMO 在线并在同一局域网。"
+          }
+        }
+      }
+    },
+    "请确认 iPhone 和 FMO 在同一 Wi-Fi。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please make sure iPhone and FMO are on the same Wi-Fi."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请确认 iPhone 和 FMO 在同一 Wi-Fi。"
+          }
+        }
+      }
+    },
+    "请确认 iPhone 已连接 Wi-Fi。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make sure your iPhone is connected to Wi-Fi."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请确认 iPhone 已连接 Wi-Fi。"
+          }
+        }
+      }
+    },
+    "请确认定位服务已开启后重试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make sure Location Services is on, then try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请确认定位服务已开启后重试。"
+          }
+        }
+      }
+    },
+    "请确认盒子仍在线后重试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make sure FMO is still online, then try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请确认盒子仍在线后重试。"
+          }
+        }
+      }
+    },
+    "请确认盒子在同一 Wi-Fi，或手动输入 fmo.local。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make sure FMO is on the same Wi-Fi, or enter fmo.local manually."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请确认盒子在同一 Wi-Fi，或手动输入 fmo.local。"
+          }
+        }
+      }
+    },
+    "请确认盒子在线且仍在同一局域网。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make sure FMO is online and still on the same local network."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请确认盒子在线且仍在同一局域网。"
+          }
+        }
+      }
+    },
+    "请确认系统设置允许实时活动后重试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please confirm that your system settings allow live activity and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请确认系统设置允许实时活动后重试。"
+          }
+        }
+      }
+    },
+    "请确认网络稳定后重新检查。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check your network connection, then try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请确认网络稳定后重新检查。"
+          }
+        }
+      }
+    },
+    "请稍后再试": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again later"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请稍后再试"
+          }
+        }
+      }
+    },
+    "请记录设备固件版本并打开连接诊断。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note the device firmware version and open Connection Diagnostics."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请记录设备固件版本并打开连接诊断。"
+          }
+        }
+      }
+    },
+    "请输入主机名或 IPv4 地址，不要包含 http:// 或路径。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a hostname or IPv4 address without http:// or a path."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入主机名或 IPv4 地址，不要包含 http:// 或路径。"
+          }
+        }
+      }
+    },
+    "请输入呼号。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a callsign."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入呼号。"
+          }
+        }
+      }
+    },
+    "请输入有效的呼号与 SSID": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a valid callsign and SSID"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入有效的呼号与 SSID"
+          }
+        }
+      }
+    },
+    "请输入消息内容": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please enter message content"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入消息内容"
+          }
+        }
+      }
+    },
+    "请重启设备后重试；若仍失败，请反馈当前系统版本。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please restart the device and try again; if it still fails, please report the current system version."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请重启设备后重试；若仍失败，请反馈当前系统版本。"
+          }
+        }
+      }
+    },
+    "请重新获取位置。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get your location again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请重新获取位置。"
+          }
+        }
+      }
+    },
+    "请重新获取位置后再同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get your location again before syncing."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请重新获取位置后再同步。"
+          }
+        }
+      }
+    },
+    "请锁屏后再次查看；若仍未显示，请重新打开 App 后重试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please lock the screen and check again; if it is still not displayed, please reopen the app and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请锁屏后再次查看；若仍未显示，请重新打开 App 后重试。"
+          }
+        }
+      }
+    },
+    "读取 iPhone 位置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read iPhone location"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "读取 iPhone 位置"
+          }
+        }
+      }
+    },
+    "距离 %lld 公里": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distance: %lld km"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "距离 %lld 公里"
+          }
+        }
+      }
+    },
+    "跟随系统": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟随系统"
+          }
+        }
+      }
+    },
+    "车载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Driving"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "车载"
+          }
+        }
+      }
+    },
+    "车载模式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Driving Mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "车载模式"
+          }
+        }
+      }
+    },
+    "输入地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter address"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入地址"
+          }
+        }
+      }
+    },
+    "运行模式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Operating Mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运行模式"
+          }
+        }
+      }
+    },
+    "还没有消息": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Messages Yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有消息"
+          }
+        }
+      }
+    },
+    "这台 FMO 还没有通联记录。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This FMO has no QSO records yet."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台 FMO 还没有通联记录。"
+          }
+        }
+      }
+    },
+    "进入待机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter standby"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "进入待机"
+          }
+        }
+      }
+    },
+    "进行中": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Progress"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "进行中"
+          }
+        }
+      }
+    },
+    "远控设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remote Control Settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "远控设置"
+          }
+        }
+      }
+    },
+    "远程控制": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remote Control"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "远程控制"
+          }
+        }
+      }
+    },
+    "连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接"
+          }
+        }
+      }
+    },
+    "连接 FMO 后才能开始锁屏仪表盘": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect an FMO before starting the Lock Screen dashboard."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接 FMO 后才能开始锁屏仪表盘"
+          }
+        }
+      }
+    },
+    "连接 FMO、查看网络动态、收发 APRS 消息并管理通联记录。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect to FMO devices, follow network activity, exchange APRS messages, and manage QSO records."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接 FMO、查看网络动态、收发 APRS 消息并管理通联记录。"
+          }
+        }
+      }
+    },
+    "连接你的 FMO": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect your FMO"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接你的 FMO"
+          }
+        }
+      }
+    },
+    "连接失败，正在等待重试": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection failed, waiting to retry"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接失败，正在等待重试"
+          }
+        }
+      }
+    },
+    "连接诊断": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection diagnostics"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接诊断"
+          }
+        }
+      }
+    },
+    "追踪": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Track"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追踪"
+          }
+        }
+      }
+    },
+    "退出全屏仪表盘": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exit Full-Screen Dashboard"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出全屏仪表盘"
+          }
+        }
+      }
+    },
+    "选择 FMO 设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select FMO device"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择 FMO 设备"
+          }
+        }
+      }
+    },
+    "选择一台 FMO": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose an FMO"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择一台 FMO"
+          }
+        }
+      }
+    },
+    "选择设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select device"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择设备"
+          }
+        }
+      }
+    },
+    "通常使用 fmo.local；请不要输入 http:// 或 /ws。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Normally use fmo.local; do not enter http:// or /ws."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通常使用 fmo.local；请不要输入 http:// 或 /ws。"
+          }
+        }
+      }
+    },
+    "通联": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QSOs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通联"
+          }
+        }
+      }
+    },
+    "部分内容已更新": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some content was updated"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "部分内容已更新"
+          }
+        }
+      }
+    },
+    "重启设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart device"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重启设备"
+          }
+        }
+      }
+    },
+    "重新尝试": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新尝试"
+          }
+        }
+      }
+    },
+    "重新扫描": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rescan"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新扫描"
+          }
+        }
+      }
+    },
+    "重新框选我的位置和讲话者": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reframe My Location and Speaker"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新框选我的位置和讲话者"
+          }
+        }
+      }
+    },
+    "重新检查": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Again"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新检查"
+          }
+        }
+      }
+    },
+    "重新连接这台 FMO 后会自动同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnect to this FMO to sync automatically."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新连接这台 FMO 后会自动同步。"
+          }
+        }
+      }
+    },
+    "重试": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
+          }
+        }
+      }
+    },
+    "锁屏仪表盘": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock Screen Dashboard"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "锁屏仪表盘"
+          }
+        }
+      }
+    },
+    "锁屏内容": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock Screen Content"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "锁屏内容"
+          }
+        }
+      }
+    },
+    "隐私": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐私"
+          }
+        }
+      }
+    },
+    "隐私政策": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy Policy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐私政策"
+          }
+        }
+      }
+    },
+    "需处理": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs Attention"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需处理"
+          }
+        }
+      }
+    },
+    "需要处理": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs Attention"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要处理"
+          }
+        }
+      }
+    },
+    "需要处理连接问题": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection Needs Attention"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要处理连接问题"
+          }
+        }
+      }
+    },
+    "需要我的 FMO 坐标和讲话者位置。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requires my FMO coordinates and speaker location."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要我的 FMO 坐标和讲话者位置。"
+          }
+        }
+      }
+    },
+    "频率": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frequency"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "频率"
+          }
+        }
+      }
+    },
+    "首次有效位置会立即同步，之后达到 2 分钟或移动 250 米时同步。该模式会使用更多电量，并需要“始终”定位授权。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The first valid position is synchronized immediately and then after 2 minutes or 250 meters of movement. This mode uses more battery and requires \"always\" location authorization."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首次有效位置会立即同步，之后达到 2 分钟或移动 250 米时同步。该模式会使用更多电量，并需要“始终”定位授权。"
+          }
+        }
+      }
+    },
+    "首次有效位置会立即同步，之后达到 15 分钟或移动 1 公里时同步。需要“始终”定位授权。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The first valid position is synchronized immediately and then after 15 minutes or 1 km of movement. Requires \"Always\" location authorization."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首次有效位置会立即同步，之后达到 15 分钟或移动 1 公里时同步。需要“始终”定位授权。"
+          }
+        }
+      }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

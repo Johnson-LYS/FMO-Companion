@@ -28,7 +28,11 @@ struct FmoDashboardLiveActivityWidget: Widget {
                       ? "speaker.wave.2.fill"
                       : "antenna.radiowaves.left.and.right")
                     .foregroundStyle(BrandColor.orange)
-                    .accessibilityLabel(context.state.activity?.kind == .speaking ? "当前讲话" : "FMO")
+                    .accessibilityLabel(
+                        context.state.activity?.kind == .speaking
+                            ? String(localized: "当前讲话")
+                            : "FMO"
+                    )
             } compactTrailing: {
                 if let item = context.state.activity, item.kind == .speaking {
                     Text(item.callsign)
@@ -127,9 +131,9 @@ struct FmoDashboardLiveActivityWidget: Widget {
         _ state: FmoDashboardActivityAttributes.ContentState.Connection
     ) -> String {
         switch state {
-        case .connected: "已连接"
-        case .stale: "已过期"
-        case .disconnected: "未连接"
+        case .connected: String(localized: "已连接")
+        case .stale: String(localized: "已过期")
+        case .disconnected: String(localized: "未连接")
         }
     }
 
@@ -137,8 +141,8 @@ struct FmoDashboardLiveActivityWidget: Widget {
         _ item: FmoDashboardActivityAttributes.ContentState.ActivityItem
     ) -> String {
         switch item.kind {
-        case .speaking: "当前讲话 \(item.callsign)"
-        case .recent: "最近讲话活动 \(item.callsign)"
+        case .speaking: String(localized: "当前讲话 \(item.callsign)")
+        case .recent: String(localized: "最近讲话活动 \(item.callsign)")
         }
     }
 }
@@ -202,7 +206,7 @@ private struct FmoDashboardLockScreenView: View {
         HStack(spacing: 5) {
             Image(systemName: connectionSymbol)
             if context.state.connection != .connected {
-                Text(context.state.connection == .stale ? "已过期" : "未连接")
+                Text(connectionLabel)
             }
         }
         .font(.caption.weight(.semibold))
@@ -231,7 +235,11 @@ private struct FmoDashboardLockScreenView: View {
                 Spacer(minLength: 0)
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(item.kind == .speaking ? "当前讲话 \(item.callsign)" : "最近讲话活动 \(item.callsign)")
+            .accessibilityLabel(
+                item.kind == .speaking
+                    ? String(localized: "当前讲话 \(item.callsign)")
+                    : String(localized: "最近讲话活动 \(item.callsign)")
+            )
         }
     }
 
@@ -245,9 +253,9 @@ private struct FmoDashboardLockScreenView: View {
 
     private var connectionLabel: String {
         switch context.state.connection {
-        case .connected: "已连接"
-        case .stale: "已过期"
-        case .disconnected: "未连接"
+        case .connected: String(localized: "已连接")
+        case .stale: String(localized: "已过期")
+        case .disconnected: String(localized: "未连接")
         }
     }
 }

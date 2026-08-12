@@ -79,7 +79,7 @@ struct FmoNetworkView: View {
         ) {
             Button("好") { mapModel.dismissLocationError() }
         } message: {
-            Text(mapModel.locationErrorMessage ?? "暂时无法获取当前位置")
+            Text(mapModel.locationErrorMessage ?? String(localized: "暂时无法获取当前位置"))
         }
     }
 
@@ -582,11 +582,13 @@ struct FmoNetworkView: View {
 
 private extension FmoNetworkDistanceScope {
     var title: String {
-        self == .all ? "全网" : "\(rawValue) km"
+        self == .all ? String(localized: "全网") : "\(rawValue) km"
     }
 
     var accessibilityTitle: String {
-        self == .all ? "全网" : "当前位置 \(rawValue) 公里内"
+        self == .all
+            ? String(localized: "全网")
+            : String(localized: "当前位置 \(rawValue) 公里内")
     }
 }
 
