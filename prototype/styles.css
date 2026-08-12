@@ -113,6 +113,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(255, 136, 0,
   align-items: center;
   justify-content: space-between;
 }
+.header-actions { display: flex; align-items: center; gap: 7px; }
+.header-device-selector { min-width: 0; max-width: 132px; min-height: 35px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); display: grid; grid-template-columns: 7px minmax(0, 1fr) auto; gap: 6px; align-items: center; box-shadow: 0 1px 0 var(--line); cursor: pointer; }
+.header-device-selector .status-dot { background: var(--green); box-shadow: 0 0 0 3px rgba(33,163,102,.12); }
+.header-device-selector strong { overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.header-device-selector > span:last-child { color: var(--ink-tertiary); font-size: 9px; }
 .header-leading { min-width: 0; display: flex; align-items: center; gap: 8px; }
 .header-leading > div { min-width: 0; }
 .back-button { width: 35px; height: 35px; flex: 0 0 35px; border: 0; border-radius: 12px; background: var(--surface); color: var(--orange-deep); font-size: 29px; line-height: 1; cursor: pointer; box-shadow: 0 1px 0 var(--line); }
@@ -145,11 +150,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(255, 136, 0,
 .hero-card.is-connected h3 { min-width: 0; max-width: none; margin: 0; font-size: 38px; line-height: .95; letter-spacing: -.055em; }
 .hero-card.is-connected > p { color: rgba(255,255,255,.56); font-size: 9px; }
 .hero-card.is-connected .signal-rings { display: none; }
-.device-selector { min-width: 0; max-width: 145px; min-height: 32px; padding: 5px 9px; border: 1px solid rgba(255,255,255,.1); border-radius: 13px; background: rgba(255,255,255,.075); color: white; display: grid; grid-template-columns: 7px minmax(0, 1fr) auto; gap: 7px; align-items: center; text-align: left; cursor: pointer; }
-.device-selector .status-dot { background: var(--green); box-shadow: 0 0 0 4px rgba(33,163,102,.13); }
-.device-selector strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.device-selector strong { font-size: 9px; }
-.device-selector b { color: rgba(255,255,255,.54); font-size: 10px; }
+.dashboard-fullscreen-button { width: 36px; height: 36px; flex: 0 0 36px; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; background: rgba(255,255,255,.08); color: white; display: grid; place-items: center; text-decoration: none; cursor: pointer; }
+.dashboard-fullscreen-button svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.dashboard-fullscreen-button:active { transform: scale(.95); }
 .dashboard-panel { position: relative; z-index: 2; margin-top: 8px; }
 .dashboard-facts { min-height: 18px; display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,.66); }
 .dashboard-facts div { display: flex; align-items: center; gap: 4px; }

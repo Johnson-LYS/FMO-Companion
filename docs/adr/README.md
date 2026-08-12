@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-11
+last-reviewed: 2026-08-12
 ---
 
 # 架构决策记录
@@ -14,6 +14,7 @@ last-reviewed: 2026-08-11
 | 0006 | [隔离 APRS 只读与写会话](0006-isolated-aprs-write-session.md) | Accepted | 2026-08-07 |
 | 0007 | [采用 FMO 本地只读 QSO 自动同步](0007-local-read-only-qso-sync.md) | Accepted | 2026-08-08 |
 | 0008 | [采用 Beta 集成与标签发布分支模型](0008-beta-integration-release-flow.md) | Accepted | 2026-08-11 |
+| 0009 | [采用用户授权的本地只接收 PCM 音频](0009-user-authorized-local-receive-audio.md) | Accepted | 2026-08-11 |
 
 ## 规则
 

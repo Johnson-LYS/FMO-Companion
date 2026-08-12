@@ -6,9 +6,13 @@ struct DeviceHomeView: View {
     @Bindable var locationAutomationModel: LocationAutomationModel
     @Bindable var officialWebModel: OfficialWebModel
     @Bindable var remoteControlModel: FmoRemoteControlModel
+    let networkSnapshot: FMOV4NetworkSnapshot
+    let audioClient: any FmoLocalAudioStreaming
+    let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
     @State private var actionTask: Task<Void, Never>?
     @State private var showsDevicePicker = false
     @State private var showsDiagnostics = false
+    @State private var showsFullscreenDashboard = false
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -36,6 +40,31 @@ struct DeviceHomeView: View {
         .scrollContentBackground(.hidden)
         .background(Color(uiColor: .systemGroupedBackground))
         .navigationTitle("设备")
+        .toolbar {
+            if model.isConnected {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showsDevicePicker = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(.green)
+                                .frame(width: 7, height: 7)
+                            Text(model.selectedEndpoint?.displayName ?? "FMO")
+                                .font(.caption.weight(.semibold))
+                                .lineLimit(1)
+                            Image(systemName: "chevron.down")
+                                .font(.caption2.bold())
+                        }
+                    }
+                    .accessibilityLabel("选择 FMO 设备")
+                    .accessibilityValue(
+                        "当前设备 \(model.selectedEndpoint?.displayName ?? "FMO")，已连接"
+                    )
+                    .accessibilityIdentifier("dashboard-device-selector")
+                }
+            }
+        }
         .task { await model.start() }
         .onDisappear {
             actionTask?.cancel()
@@ -52,6 +81,19 @@ struct DeviceHomeView: View {
                 isMainConnected: model.isConnected
             )
                 .presentationDetents([.medium, .large])
+        }
+        .fullScreenCover(isPresented: $showsFullscreenDashboard) {
+            if let endpoint = model.selectedEndpoint {
+                DashboardFullscreenView(
+                    dashboard: model.dashboardSnapshot,
+                    ownCoordinate: model.deviceCoordinate,
+                    networkSnapshot: networkSnapshot,
+                    deviceName: endpoint.displayName,
+                    endpoint: endpoint,
+                    audioClient: audioClient,
+                    speakerLocationStore: dashboardSpeakerLocationStore
+                )
+            }
         }
         .sheet(item: $officialWebModel.destination) { destination in
             SafariView(url: destination.url)
@@ -166,8 +208,10 @@ struct DeviceHomeView: View {
             if model.isConnected {
                 DeviceDashboardSummaryView(
                     snapshot: model.dashboardSnapshot,
-                    deviceName: model.selectedEndpoint?.displayName ?? "FMO",
-                    openDevicePicker: { showsDevicePicker = true }
+                    openFullscreen: {
+                        DashboardOrientation.request(.landscape)
+                        showsFullscreenDashboard = true
+                    }
                 )
             } else {
                 HStack(alignment: .top) {

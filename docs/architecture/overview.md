@@ -1,12 +1,12 @@
 ---
-last-reviewed: 2026-08-10
+last-reviewed: 2026-08-12
 ---
 
 # 架构总览
 
 ## 系统目的
 
-FMO Companion 在不接触 FMO 私钥和未公开语音协议的前提下，将 iPhone 的定位、局域网、通知、地图、安全存储与文件能力提供给 FMO 用户。
+FMO Companion 在不接触 FMO 私钥和 MQTT 语音协议的前提下，将 iPhone 的定位、局域网、音频播放、通知、地图、安全存储与文件能力提供给 FMO 用户；本地固定 PCM 接收严格受 ADR-0009 限制。
 
 ## 高层架构
 
@@ -15,23 +15,27 @@ flowchart LR
     subgraph IOS["FMO Companion"]
         UI["SwiftUI Features"]
         DEVICE["Device + Location"]
+        AUDIO["Audio"]
         APRS["APRS + Trust"]
         QSO["QSO"]
         SETTINGS["Settings"]
         SERVER["Server Ops"]
         CORE["Core Services"]
         UI --> DEVICE
+        UI --> AUDIO
         UI --> APRS
         UI --> QSO
         UI --> SETTINGS
         UI --> SERVER
         DEVICE --> CORE
+        AUDIO --> CORE
         APRS --> CORE
         QSO --> CORE
         SERVER --> CORE
     end
 
     DEVICE -->|"Bonjour / ws://host/ws"| BOX["FMO 盒子"]
+    AUDIO -->|"ADR-0009 ws://host/audio"| BOX
     APRS -->|"TCP APRS-IS"| APRSIS["APRS-IS"]
     SERVER -->|"HTTPS"| API["自建 App API"]
     API --> EMQX["EMQX"]
@@ -48,7 +52,8 @@ flowchart LR
 | UI | SwiftUI | 页面、导航、状态展示 |
 | 并发 | Swift Concurrency | 可取消异步任务和 Actor 隔离 |
 | 局域网 | Network.framework | Bonjour、端点与可达性 |
-| WebSocket | URLSession | GEO 协议 |
+| WebSocket | URLSession | GEO、只读状态、QSO 与 ADR-0009 音频协议 |
+| 音频 | AVFoundation | 用户显式开启后的本地 PCM 播放 |
 | 定位 | Core Location | 手动与后台位置更新 |
 | 系统网页 | SafariServices | FMO 官方管理与 QSO 页面 |
 | 后续系统投影 checkpoint | ActivityKit、WidgetKit | 支持源码保留；扩展不被主 App 依赖或嵌入，0.3 不运行 |
@@ -71,6 +76,10 @@ flowchart LR
 ### Dashboard
 
 负责把 GEO、ADR-0005 本地只读设备状态、本地讲话事件和未来 APRS 等彼此独立的来源聚合为同一个类型化 `DashboardSnapshot`。每个字段保留来源、观测时间、可信度和可用性；0.3 只交付首页白名单投影。`FMOcLiveActivity` Widget Extension 与 ActivityKit 支持源码作为后续探索 checkpoint 保留；主 App 不依赖或嵌入该扩展、不声明实时活动能力，运行时组合也不会创建或恢复活动。精确坐标、未知响应字段与原始帧不进入 Dashboard。
+
+### Audio
+
+使用与状态、事件和 QSO 分离的 `FmoLocalAudioClient` 接收 ADR-0009 固定 PCM，把有界瞬时波形交给横屏仪表盘，并在用户显式开启时通过 AVFoundation 播放后续帧。它只在 App active 且横屏可见时工作，不录制、不持久化、不上传、不转发，也不参与讲话者判定。详细边界见 `docs/architecture/modules/audio.md`。
 
 ### APRS
 

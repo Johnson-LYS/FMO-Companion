@@ -12,6 +12,8 @@ struct ContentView: View {
     @State private var remoteControlModel: FmoRemoteControlModel
     @State private var qsoModel: QSOModel
     private let fmoNetworkLocationProvider: any PhoneLocationProviding
+    private let audioClient: any FmoLocalAudioStreaming
+    private let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
     @Environment(\.modelContext) private var modelContext
 
     @MainActor
@@ -24,6 +26,8 @@ struct ContentView: View {
         _remoteControlModel = State(initialValue: models.remoteControl)
         _qsoModel = State(initialValue: models.qso)
         fmoNetworkLocationProvider = models.fmoNetworkLocationProvider
+        audioClient = models.audioClient
+        dashboardSpeakerLocationStore = models.dashboardSpeakerLocationStore
     }
 
     var body: some View {
@@ -34,7 +38,10 @@ struct ContentView: View {
                         model: deviceModel,
                         locationAutomationModel: locationAutomationModel,
                         officialWebModel: officialWebModel,
-                        remoteControlModel: remoteControlModel
+                        remoteControlModel: remoteControlModel,
+                        networkSnapshot: fmoNetworkModel.networkSnapshot,
+                        audioClient: audioClient,
+                        dashboardSpeakerLocationStore: dashboardSpeakerLocationStore
                     )
                 }
             }

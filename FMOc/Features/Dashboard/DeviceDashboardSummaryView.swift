@@ -4,8 +4,7 @@ struct DeviceDashboardSummaryView: View {
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
 
     let snapshot: DashboardSnapshot
-    let deviceName: String
-    let openDevicePicker: () -> Void
+    let openFullscreen: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -29,22 +28,11 @@ struct DeviceDashboardSummaryView: View {
 
             Spacer(minLength: 0)
 
-            Button(action: openDevicePicker) {
-                HStack(spacing: 7) {
-                    Circle()
-                        .fill(.green)
-                        .frame(width: 7, height: 7)
-                        .shadow(color: .green.opacity(0.4), radius: 4)
-                    Text(deviceName)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                    Image(systemName: "chevron.down")
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(.white.opacity(0.55))
-                }
-                .padding(.horizontal, 10)
-                .frame(height: 38)
+            Button(action: openFullscreen) {
+                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 38, height: 38)
                 .background(.white.opacity(0.08), in: .rect(cornerRadius: 13))
                 .overlay {
                     RoundedRectangle(cornerRadius: 13)
@@ -54,9 +42,8 @@ struct DeviceDashboardSummaryView: View {
                 .contentShape(.rect)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("选择 FMO 设备")
-            .accessibilityValue("当前设备 \(deviceName)，已连接")
-            .accessibilityIdentifier("dashboard-device-selector")
+            .accessibilityLabel("打开横屏仪表盘")
+            .accessibilityIdentifier("dashboard-fullscreen-button")
         }
     }
 

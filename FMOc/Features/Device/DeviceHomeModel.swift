@@ -91,7 +91,10 @@ final class DeviceHomeModel {
             localStatusProvider: FmoLocalStatusWebSocketClient(),
             localEventStream: FmoLocalEventWebSocketClient(),
             locationProvider: CoreLocationProvider(),
-            endpointStore: UserDefaultsFmoEndpointStore()
+            endpointStore: UserDefaultsFmoEndpointStore(),
+            dashboardStore: DashboardStore(
+                speakerLocationStore: UserDefaultsDashboardSpeakerLocationStore()
+            )
         )
     }
 

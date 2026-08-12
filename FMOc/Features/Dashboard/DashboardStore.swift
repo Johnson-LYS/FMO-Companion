@@ -10,10 +10,15 @@ nonisolated struct SystemDashboardDateProvider: DashboardDateProviding {
 
 actor DashboardStore {
     private let dateProvider: any DashboardDateProviding
+    private let speakerLocationStore: any DashboardSpeakerLocationStoring
     private var snapshot: DashboardSnapshot
 
-    init(dateProvider: any DashboardDateProviding = SystemDashboardDateProvider()) {
+    init(
+        dateProvider: any DashboardDateProviding = SystemDashboardDateProvider(),
+        speakerLocationStore: any DashboardSpeakerLocationStoring = VolatileDashboardSpeakerLocationStore()
+    ) {
         self.dateProvider = dateProvider
+        self.speakerLocationStore = speakerLocationStore
         snapshot = .empty()
     }
 
@@ -92,13 +97,14 @@ actor DashboardStore {
     }
 
     func beginLocalEventConnection() -> DashboardSnapshot {
-        snapshot.generatedAt = dateProvider.now()
+        let now = dateProvider.now()
+        snapshot.generatedAt = now
         snapshot.localEventLink = .connecting
-        snapshot.currentSpeaker = .unknown
+        snapshot.currentSpeaker = stale(snapshot.currentSpeaker, at: now)
         return snapshot
     }
 
-    func recordLocalEvent(_ event: FmoLocalEvent) -> DashboardSnapshot {
+    func recordLocalEvent(_ event: FmoLocalEvent) async -> DashboardSnapshot {
         let now = dateProvider.now()
         snapshot.generatedAt = now
         snapshot.localEventLink = .connected
@@ -106,25 +112,90 @@ actor DashboardStore {
         switch event {
         case .speaking(let state):
             guard state.isSpeaking, let callsign = state.callsign else {
-                snapshot.currentSpeaker = .unknown
+                snapshot.currentSpeaker = stale(snapshot.currentSpeaker, at: now)
                 return snapshot
+            }
+            if let previous = snapshot.currentSpeaker.value,
+               previous.callsign.trimmingCharacters(in: .whitespacesAndNewlines)
+                .caseInsensitiveCompare(callsign.trimmingCharacters(in: .whitespacesAndNewlines))
+                != .orderedSame,
+               !snapshot.recentLocalActivities.contains(where: {
+                   $0.callsign.caseInsensitiveCompare(previous.callsign) == .orderedSame
+               }) {
+                snapshot.recentLocalActivities.insert(
+                    DashboardLocalActivity(
+                        callsign: previous.callsign,
+                        occurredAt: now,
+                        grid: previous.grid,
+                        coordinate: previous.coordinate
+                    ),
+                    at: 0
+                )
+                snapshot.recentLocalActivities = Array(snapshot.recentLocalActivities.prefix(20))
+            }
+            let cachedLocation = await speakerLocationStore.location(for: callsign)
+            let eventGrid = state.grid?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let gridCoordinate = eventGrid.flatMap(MaidenheadGrid.center(of:))
+            let coordinate = gridCoordinate ?? cachedLocation?.coordinate
+            let effectiveGrid = eventGrid ?? cachedLocation?.grid
+            if let coordinate {
+                await speakerLocationStore.save(
+                    DashboardSpeakerLocation(
+                        callsign: callsign,
+                        coordinate: coordinate,
+                        grid: effectiveGrid,
+                        areaName: cachedLocation?.areaName,
+                        updatedAt: now
+                    )
+                )
             }
             snapshot.currentSpeaker = .available(
                 observation(
-                    DashboardSpeaker(callsign: callsign, grid: state.grid),
+                    DashboardSpeaker(
+                        callsign: callsign,
+                        grid: effectiveGrid,
+                        coordinate: coordinate
+                    ),
                     source: .localEventStream,
                     observedAt: now
                 )
             )
 
         case .history(let activities):
-            guard let latest = activities.max(by: { $0.occurredAt < $1.occurredAt }) else {
+            let retainedLocations = Dictionary(
+                snapshot.recentLocalActivities.compactMap { activity in
+                    let key = activity.callsign
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                        .uppercased()
+                    return (key, activity)
+                },
+                uniquingKeysWith: { first, _ in first }
+            )
+            var recent: [DashboardLocalActivity] = []
+            for activity in activities {
+                let key = activity.callsign
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                    .uppercased()
+                let retained = retainedLocations[key]
+                let cached = await speakerLocationStore.location(for: key)
+                recent.append(
+                    DashboardLocalActivity(
+                        callsign: activity.callsign,
+                        occurredAt: activity.occurredAt,
+                        grid: retained?.grid ?? cached?.grid,
+                        coordinate: retained?.coordinate ?? cached?.coordinate
+                    )
+                )
+            }
+            recent.sort { $0.occurredAt > $1.occurredAt }
+            snapshot.recentLocalActivities = Array(recent.prefix(20))
+            guard let latest = recent.first else {
                 snapshot.recentLocalActivity = .unknown
                 return snapshot
             }
             snapshot.recentLocalActivity = .available(
                 observation(
-                    DashboardLocalActivity(callsign: latest.callsign, occurredAt: latest.occurredAt),
+                    latest,
                     source: .localEventStream,
                     observedAt: now
                 )
@@ -137,7 +208,7 @@ actor DashboardStore {
         let now = dateProvider.now()
         snapshot.generatedAt = now
         snapshot.localEventLink = .disconnected
-        snapshot.currentSpeaker = .unknown
+        snapshot.currentSpeaker = stale(snapshot.currentSpeaker, at: now)
         snapshot.recentLocalActivity = stale(snapshot.recentLocalActivity, at: now)
         return snapshot
     }

@@ -129,6 +129,10 @@ private struct PrivacyPolicyView: View {
                 "位置与本地数据",
                 "位置仅用于地图范围和向你选择的 FMO 同步。设备信息、收藏、消息历史和 QSO 缓存保存在本机；ADIF 仅在你主动导出后交给系统分享。"
             )
+            policySection(
+                "设备接收音频",
+                "横屏仪表盘位于前台时，App 会从你选择的 FMO 接收音频并在本机生成波形；声音默认关闭。音频不录制、不保存、不上传，也不用于识别讲话者。"
+            )
             Section("联系我们") {
                 LabeledContent("开发者", value: AppLinks.developerCallsign)
                 Link(AppLinks.contactEmail, destination: AppLinks.contactURL)
