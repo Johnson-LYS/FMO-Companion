@@ -66,6 +66,10 @@ nonisolated struct FmoDeviceEndpoint: Codable, Hashable, Identifiable, Sendable 
         get throws { try localWebSocketURL(path: "/events") }
     }
 
+    var audioWebSocketURL: URL {
+        get throws { try localWebSocketURL(path: "/audio") }
+    }
+
     func officialWebURL(for page: FmoOfficialPage) throws -> URL {
         var components = URLComponents()
         components.scheme = "http"

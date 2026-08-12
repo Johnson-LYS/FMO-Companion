@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111215">
+  <title>FMO Companion · 横屏仪表盘</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="dashboard-fullscreen.css?v=20260811g">
+</head>
+<body>
+  <main class="dashboard-shell">
+    <header class="topbar">
+      <a class="icon-button close-button" href="index.html" aria-label="退出全屏仪表盘">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+      </a>
+      <section class="my-station" aria-label="我的 FMO">
+        <div><span class="live-dot" aria-hidden="true"></span><strong>BI8SYN</strong></div>
+        <p><span aria-label="梅登黑德网格">OM20xx</span><span>500km</span></p>
+      </section>
+      <section class="server-summary" aria-label="当前服务器">
+        <small>当前服务器</small>
+        <div class="server-marquee" id="serverMarquee"><div class="server-track"><strong>安吉 FMO 中继测试服务器</strong></div></div>
+      </section>
+      <div class="view-switch" role="group" aria-label="选择位置视图">
+        <button class="is-selected" type="button" data-view="compass" aria-pressed="true" aria-label="方位">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m15.5 8.5-2.1 4.9-4.9 2.1 2.1-4.9 4.9-2.1Z"></path></svg>
+        </button>
+        <button type="button" data-view="map" aria-pressed="false" aria-label="地图">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 6 5-2 8 3 5-2v13l-5 2-8-3-5 2V6Z"></path><path d="M8 4v13m8-10v13"></path></svg>
+        </button>
+      </div>
+      <button class="device-button" type="button" aria-label="当前设备 FMO-7C2A">
+        <span class="live-dot" aria-hidden="true"></span><strong>FMO-7C2A</strong><span aria-hidden="true">⌄</span>
+      </button>
+    </header>
+
+    <section class="content-grid">
+      <aside class="speaker-panel">
+        <div class="speaker-heading">
+          <span class="voice-icon" aria-hidden="true"></span>
+          <h1 id="speakerCallsign">BH4XYZ</h1>
+        </div>
+        <div class="location-source" id="locationSource">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <div class="location-marquee" id="locationMarquee"><div class="location-track"><strong id="speakerArea">浙江省 · 湖州市附近</strong></div></div>
+        </div>
+        <div class="audio-monitor" aria-label="设备音频波形">
+          <svg class="audio-waveform" viewBox="0 0 240 36" preserveAspectRatio="none" aria-hidden="true">
+            <polyline id="audioWaveform" points="0,18 240,18"></polyline>
+          </svg>
+          <button class="audio-toggle" type="button" data-action="toggle-audio" aria-pressed="false" aria-label="打开设备声音">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path class="audio-speaker" d="M5 9v6h4l5 4V5L9 9H5Z"></path>
+              <path class="audio-state" d="m18 9 4 4m0-4-4 4"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="history-section">
+          <div class="history-heading"><span aria-hidden="true">◷</span><strong>刚刚讲话</strong></div>
+          <div class="history-list" id="speakerHistory" aria-label="最近讲话呼号">
+            <article><span>BG</span><strong>BG0AAA</strong><small>甘肃省兰州市</small></article>
+            <article><span>BD</span><strong>BD7ABC</strong><small>广东省广州市</small></article>
+            <article><span>BH</span><strong>BH2SCO</strong><small>辽宁省沈阳市</small></article>
+            <article><span>BG</span><strong>BG9PPB</strong><small>陕西省西安市</small></article>
+            <article><span>BH</span><strong>BH8AAA</strong><small>四川省成都市</small></article>
+          </div>
+        </div>
+      </aside>
+
+      <section class="visual-stage" aria-label="讲话者位置">
+        <div class="visual-panel compass-panel is-active" data-panel="compass">
+          <div class="compass-readout"><span id="compassCardinal">东北</span><strong id="compassDegrees">42°</strong></div>
+          <div class="compass-distance"><strong id="compassDistance">187</strong><span>km</span></div>
+          <div class="compass-wrap" aria-label="讲话者位于东北方向约 187 公里">
+            <div class="compass-ring outer-ring"></div>
+            <div class="compass-ring middle-ring"></div>
+            <div class="compass-ring inner-ring"></div>
+            <span class="cardinal north">N</span><span class="cardinal east">E</span><span class="cardinal south">S</span><span class="cardinal west">W</span>
+            <div class="compass-pointer" id="compassPointer" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <div class="visual-panel map-panel" data-panel="map" hidden>
+          <div class="map-canvas" id="mapCanvas" aria-label="我的位置与讲话者位置地图">
+            <div class="map-world" id="mapWorld">
+              <svg class="map-roads" viewBox="0 0 900 520" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M-40 390C120 330 210 420 365 315S610 120 940 180"></path>
+                <path d="M80-20c90 120 70 230 195 310s250 15 370 250"></path>
+                <path d="M-30 110c170 70 300-30 460 50s250 210 500 170"></path>
+              </svg>
+              <div class="map-grid-area" id="mapGridArea"><span>OM20xx</span></div>
+              <div class="map-connection" id="mapConnection"></div>
+              <div class="map-marker me-marker"><i></i><span>我的 FMO</span></div>
+              <div class="map-marker speaker-marker" id="mapSpeakerMarker"><span>BH</span><strong>BH4XYZ</strong></div>
+              <div class="map-distance" id="mapDistance"><strong>187 km</strong><span>东北 42°</span></div>
+            </div>
+            <button class="tracking-button is-active" type="button" data-action="toggle-tracking" aria-pressed="true"><span aria-hidden="true">◎</span><strong>追踪</strong></button>
+            <button class="recenter-button" type="button" data-action="recenter" aria-label="重新框选我的位置和讲话者">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v3m0 14v3M2 12h3m14 0h3"></path><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+            </button>
+          </div>
+          <p class="visual-footnote"><span class="quality-dot"></span><span>自动框选双方位置</span><span id="trackingStatus">正在追踪</span></p>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script src="dashboard-fullscreen.js?v=20260811g"></script>
+</body>
+</html>

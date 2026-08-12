@@ -7,7 +7,7 @@
   <link rel="icon" href="data:,">
   <title>FMO Companion · 交互原型</title>
   <meta name="description" content="FMO Companion iOS 应用的交互式 HTML 原型与 UI 设计验证稿。">
-  <link rel="stylesheet" href="styles.css?v=20260807e">
+  <link rel="stylesheet" href="styles.css?v=20260811a">
 </head>
 <body>
   <div class="prototype-shell">
@@ -26,9 +26,16 @@
             <h2 id="screenTitle">设备</h2>
             </div>
           </div>
-          <button class="header-status" id="headerStatus" type="button" data-action="open-diagnostics" aria-label="查看连接诊断" hidden>
-            <span class="status-dot"></span><span>未连接</span>
-          </button>
+          <div class="header-actions">
+            <button class="header-device-selector" id="headerDeviceSelector" type="button" data-action="open-device-picker" aria-label="选择 FMO 设备" hidden>
+              <span class="status-dot" aria-hidden="true"></span>
+              <strong id="headerDeviceLabel">FMO-7C2A</strong>
+              <span aria-hidden="true">⌄</span>
+            </button>
+            <button class="header-status" id="headerStatus" type="button" data-action="open-diagnostics" aria-label="查看连接诊断" hidden>
+              <span class="status-dot"></span><span>未连接</span>
+            </button>
+          </div>
         </div>
 
         <div class="app-content" id="appContent">
@@ -40,11 +47,9 @@
               </div>
               <div class="hero-identity-row">
                 <h3 id="heroTitle">让 iPhone 找到你的 FMO</h3>
-                <button class="device-selector" id="deviceSelectorButton" type="button" data-action="open-device-picker" aria-label="选择 FMO 设备" hidden>
-                  <span class="status-dot" aria-hidden="true"></span>
-                  <strong id="deviceSelectorLabel">FMO-7C2A</strong>
-                  <b aria-hidden="true">⌄</b>
-                </button>
+                <a class="dashboard-fullscreen-button" id="dashboardFullscreenButton" href="dashboard-fullscreen.html" aria-label="打开横屏全屏仪表盘" hidden>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"></path><path d="m3 8 6-6m12 6-6-6M3 16l6 6m12-6-6 6"></path></svg>
+                </a>
               </div>
               <p id="heroDescription">确保手机与盒子位于同一 Wi-Fi。自动发现失败时，也可以手动输入地址。</p>
               <section class="dashboard-panel" id="dashboardPanel" aria-label="FMO 设备仪表盘" hidden>
@@ -556,6 +561,6 @@
       </div>
     </main>
   </div>
-  <script src="app.js?v=20260810a"></script>
+  <script src="app.js?v=20260811a"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-11
+last-reviewed: 2026-08-12
 status: complete
 ---
 
@@ -30,7 +30,7 @@ status: complete
 | QSO 日志数 | 否，移至 QSO 页 | Implemented data — ADR-0005：`qso/getList.count`；不是实时通联人数，不投影到首页 |
 | 工作频率 | 否，语义待确认 | Implemented data — ADR-0005：单一 `getUserPhyFreq.freq`；保留数据层，不投影到首页且不得拆成 TX/RX |
 | 当前讲话状态 | 是 | Implemented — ADR-0005：`/events qso/callsign` 的呼号、可选 grid 与讲话状态 |
-| 本地最近活动 | 最新一条/入口 | Implemented — ADR-0005：`/events qso/history`，最多 20 条；与 0.4 APRS 时间线分离 |
+| 本地最近活动 | 设备卡最新一条；横屏按空间显示历史 | Implemented — ADR-0005：`/events qso/history`，最多 20 条；与 0.4 APRS 时间线分离 |
 | 盒子到服务器延迟 | 隐藏 | 用户确认 0.3 隐藏；不得以 App 到 GEO RTT 冒充 |
 | 服务器管理员呼号 | 有可靠字段时条件显示 | Deferred — no evidence；当前整行隐藏，`isHost` 样本不得用于推断管理员呼号 |
 | 当前 / 最大在线人数 | 隐藏 | Deferred — no evidence；0.4 STATION 不得冒充当前连接状态 |
@@ -49,13 +49,15 @@ status: complete
 
 1. App 启动自动扫描，并按 SPEC-001 的“上次成功、其余保存、新发现”顺序串行连接；任一设备成功后停止自动切换。
 2. 未连接时，首页顶部卡片主操作打开设备选择 Sheet；扫描结果、手动地址和设备切换均在 Sheet 中完成。
-3. 连接成功后，顶部卡片原位切换为仪表盘基础；呼号同一行右侧的设备按钮打开选择 Sheet，只呈现已有真实来源的字段。
+3. 连接成功后，顶部卡片原位切换为仪表盘基础；设备选择位于导航栏并打开统一 Sheet，呼号同一行右侧只保留横屏全屏入口，只呈现已有真实来源的字段。
 4. 网络断开时，首页进入过期态并显示最后更新时间；恢复后由新快照刷新。
 5. 首页和卡片均不提供主动断开入口。
 
 ## 实施顺序
 
-完成记录（2026-08-06）：共享快照、三条独立链路状态、GEO/Maidenhead、ADR-0005 `/ws` 状态客户端、连接期间的当前服务器只读刷新、`/events` 事件流、三段式首页投影，以及“恢复上次设备 + 卡片设备按钮 + 设备选择 Sheet”原生 UX 均已实现并完成用户真机验收。完整 `FMOcTests` 在 iOS 26.5 Simulator 上通过 20 个套件、93 项测试；通用 Simulator 基线构建通过。UI 测试源码完成编译，但当前本机 Xcode UI runner 仍受 `DebuggerVersionStore: no debugger version` 环境问题影响，已有真机手动验收覆盖本里程碑核心交互。ActivityKit App 生命周期与 Widget Extension 只保留为探索 checkpoint，主 App target 已解除依赖和嵌入，不属于 0.3 Release composition。
+完成记录（2026-08-06）：共享快照、三条独立链路状态、GEO/Maidenhead、ADR-0005 `/ws` 状态客户端、连接期间的当前服务器只读刷新、`/events` 事件流、三段式首页投影，以及“恢复上次设备 + 设备选择 Sheet”原生 UX 均已实现并完成用户真机验收。完整 `FMOcTests` 在 iOS 26.5 Simulator 上通过 20 个套件、93 项测试；通用 Simulator 基线构建通过。ActivityKit App 生命周期与 Widget Extension 只保留为探索 checkpoint，主 App target 已解除依赖和嵌入，不属于 0.3 Release composition。
+
+后续增强（2026-08-11）：设备选择按最新设计移至导航栏，卡片原位置改为横屏全屏入口；`qso/history` 完整数组驱动横屏最近呼号，并增加可信 APRS 唯一候选/六位网格兜底、距离方位、MapKit 追踪和反向地理编码。该增强不改变 0.3 已完成状态，进入独立真机体验验收。
 
 2026-08-05 使用用户临时提供的可达地址进行脱敏最小探测：`/ws` 五个白名单请求全部返回预期路由和字段类型；`/events` 握手成功但 5 秒窗口内没有事件帧，因此事件值解码仍需在实际讲话/历史事件出现时完成真机验收。仓库不记录该地址，探测没有输出或保存真实字段值。
 

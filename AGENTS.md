@@ -17,12 +17,13 @@ FMO Companion is a native iOS companion app for FMO (NFM Over Internet) hardware
 
 - Bonjour/mDNS and the documented local GEO WebSocket API.
 - The strictly allowlisted, user-authorized local read-only status API described by ADR-0005.
+- The isolated, foreground-only local receive-audio contract described by ADR-0009.
 - Public FMO V4 APRS frames and standard APRS-IS behavior.
 - The documented APRS remote-control format.
 - The user-authorized, strictly read-only local QSO list/detail contract fixed by ADR-0007, plus user-exported QSO archives when explicitly chosen.
 - A separately authenticated HTTPS API for the user's own FMO server.
 
-The app must not perform runtime packet sniffing or rely on firmware reverse engineering, private-key extraction, undocumented audio frames, or impersonating an FMO device. The ADR-0005 status client and ADR-0007 QSO client are limited to sanitized, typed, read-only behavior observed in the official UI; they must never expose generic management commands, secrets, write operations, backup/restore triggers, or `/audio`.
+The app must not perform runtime packet sniffing or rely on firmware reverse engineering, private-key extraction, audio formats beyond ADR-0009's fixed user-confirmed receive-only PCM contract, or impersonating an FMO device. The ADR-0005 status client and ADR-0007 QSO client are limited to sanitized, typed, read-only behavior observed in the official UI; they must never expose generic management commands, secrets, write operations, backup/restore triggers, or `/audio`. ADR-0009 audio must remain a separate foreground-only client and must never record, persist, upload, transmit, or log PCM.
 
 ## Documentation Map
 

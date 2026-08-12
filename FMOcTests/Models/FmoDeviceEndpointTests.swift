@@ -8,6 +8,7 @@ struct FmoDeviceEndpointTests {
         let endpoint = try FmoDeviceEndpoint(host: "192.0.2.10", port: 8080, source: .manual)
         #expect(try endpoint.webSocketURL.absoluteString == "ws://192.0.2.10:8080/ws")
         #expect(try endpoint.eventWebSocketURL.absoluteString == "ws://192.0.2.10:8080/events")
+        #expect(try endpoint.audioWebSocketURL.absoluteString == "ws://192.0.2.10:8080/audio")
     }
 
     @Test

@@ -58,11 +58,32 @@ nonisolated enum DashboardFilterDistance: Codable, Equatable, Sendable {
 nonisolated struct DashboardSpeaker: Codable, Equatable, Sendable {
     let callsign: String
     let grid: String?
+    let coordinate: GeoCoordinate?
+
+    init(callsign: String, grid: String?, coordinate: GeoCoordinate? = nil) {
+        self.callsign = callsign
+        self.grid = grid
+        self.coordinate = coordinate
+    }
 }
 
 nonisolated struct DashboardLocalActivity: Codable, Equatable, Sendable {
     let callsign: String
     let occurredAt: Date
+    let grid: String?
+    let coordinate: GeoCoordinate?
+
+    init(
+        callsign: String,
+        occurredAt: Date,
+        grid: String? = nil,
+        coordinate: GeoCoordinate? = nil
+    ) {
+        self.callsign = callsign
+        self.occurredAt = occurredAt
+        self.grid = grid
+        self.coordinate = coordinate
+    }
 }
 
 nonisolated struct DashboardLocalStatusUpdate: Equatable, Sendable {
@@ -96,6 +117,7 @@ nonisolated struct DashboardSnapshot: Codable, Equatable, Sendable {
     var workingFrequencyMHz: DashboardField<Double>
     var currentSpeaker: DashboardField<DashboardSpeaker>
     var recentLocalActivity: DashboardField<DashboardLocalActivity>
+    var recentLocalActivities: [DashboardLocalActivity]
 
     static func empty(generatedAt: Date = .distantPast) -> DashboardSnapshot {
         DashboardSnapshot(
@@ -110,7 +132,8 @@ nonisolated struct DashboardSnapshot: Codable, Equatable, Sendable {
             qsoLogCount: .unknown,
             workingFrequencyMHz: .unknown,
             currentSpeaker: .unknown,
-            recentLocalActivity: .unknown
+            recentLocalActivity: .unknown,
+            recentLocalActivities: []
         )
     }
 }

@@ -10,7 +10,9 @@ enum AppComposition {
         let aprsMessages: APRSMessageModel
         let remoteControl: FmoRemoteControlModel
         let qso: QSOModel
+        let audioClient: any FmoLocalAudioStreaming
         let fmoNetworkLocationProvider: any PhoneLocationProviding
+        let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
     }
 
     @MainActor
@@ -26,6 +28,7 @@ enum AppComposition {
         let aprsNetworkProcessor: any FMOV4NetworkProcessing
         let messagingClient: any APRSISMessaging
         let qsoReader: any FmoQSOReading
+        let audioClient: any FmoLocalAudioStreaming
         let fmoNetworkLocationProvider: any PhoneLocationProviding
 
 #if DEBUG
@@ -95,11 +98,13 @@ enum AppComposition {
             aprsReceiver = UITestAPRSReceiver()
             aprsNetworkProcessor = DiscardingFMOV4NetworkProcessor()
             fmoNetworkLocationProvider = UITestPhoneLocationProvider()
+            audioClient = UnavailableFmoLocalAudioStream()
         } else {
             aprsIdentityStore = UserDefaultsReceiveOnlyAPRSIdentityStore()
             aprsReceiver = makeLiveAPRSReceiver()
             aprsNetworkProcessor = makeLiveAPRSNetworkProcessor()
             fmoNetworkLocationProvider = CoreLocationProvider()
+            audioClient = FmoLocalAudioClient()
         }
 #else
         endpointStore = UserDefaultsFmoEndpointStore()
@@ -112,15 +117,23 @@ enum AppComposition {
         aprsReceiver = makeLiveAPRSReceiver()
         aprsNetworkProcessor = makeLiveAPRSNetworkProcessor()
         fmoNetworkLocationProvider = CoreLocationProvider()
+        audioClient = FmoLocalAudioClient()
 #endif
 
+        let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring =
+            processInfo.environment["FMO_UI_TEST_SCENARIO"] == nil
+            ? UserDefaultsDashboardSpeakerLocationStore()
+            : VolatileDashboardSpeakerLocationStore()
         let device = DeviceHomeModel(
             discovery: discovery,
             geoClient: geoClient,
             localStatusProvider: localStatusProvider,
             localEventStream: localEventStream,
             locationProvider: CoreLocationProvider(),
-            endpointStore: endpointStore
+            endpointStore: endpointStore,
+            dashboardStore: DashboardStore(
+                speakerLocationStore: dashboardSpeakerLocationStore
+            )
         )
         let coordinator = AutomaticLocationSyncCoordinator(
             locationProvider: CoreLocationAutomaticProvider(),
@@ -181,7 +194,9 @@ enum AppComposition {
             aprsMessages: aprsMessages,
             remoteControl: remoteControl,
             qso: qso,
-            fmoNetworkLocationProvider: fmoNetworkLocationProvider
+            audioClient: audioClient,
+            fmoNetworkLocationProvider: fmoNetworkLocationProvider,
+            dashboardSpeakerLocationStore: dashboardSpeakerLocationStore
         )
     }
 

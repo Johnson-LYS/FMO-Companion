@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-11
+last-reviewed: 2026-08-12
 ---
 
 # 项目简报
@@ -8,7 +8,7 @@ last-reviewed: 2026-08-11
 
 FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它把 iPhone 作为 FMO 盒子的局域网伴侣、GPS 来源、APRS 信息终端、远程控制器、QSO 日志工具和自建服务器运维入口。
 
-项目坚持公开与用户授权接口边界：使用官方 GEO WebSocket、FMO V4 APRS、官方 APRS 远控示例、ADR-0007 固定的本地只读 QSO 列表/详情及用户自建 HTTPS API，不逆向核心语音协议或设备私钥。
+项目坚持公开与用户授权接口边界：使用官方 GEO WebSocket、FMO V4 APRS、官方 APRS 远控示例、ADR-0007 固定的本地只读 QSO 列表/详情、ADR-0009 固定的前台本地接收音频及用户自建 HTTPS API，不逆向 MQTT 语音或设备私钥。
 
 ## 当前状态
 
@@ -19,8 +19,16 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 最近变更
 
+| 2026-08-12 | 将设备首页卡片到横屏仪表盘改为根层分阶段 Hero 转场：背景、关键状态共享元素、左右面板滑入与系统方向更新同步开始并结束；设备页连接态支持随系统自然横屏自动展开、自然竖屏自动退出；退出时面板滑出、共享元素缩回、首页恢复与竖屏旋转并行，全屏及深色底层保留到最后一帧；内容仍受安全区约束，地图解析和音频等服务延迟到视觉稳定后启动 | `FMOc/ContentView.swift`、`FMOc/Features/Dashboard/DashboardHeroTransition.swift`、`FMOc/Features/Dashboard/DashboardFullscreenView.swift` |
+
+| 2026-08-11 | 以 ADR-0009 固定用户授权的本地接收音频边界：横屏仪表盘持续显示 8 kHz 单声道 PCM 波形，声音默认关闭并由用户显式开启；退出/后台/切换设备立即停止，不录制、不持久化、不上传、不转发 | `FMOc/Features/Audio/`、`prototype/dashboard-fullscreen.html`、`docs/adr/0009-user-authorized-local-receive-audio.md` |
+
+- 2026-08-11：横屏设备仪表盘打磨：讲话结束后保留最后呼号并以图标替换和灰阶过渡表达空闲，新讲话者到来时才归入历史；左侧收敛为呼号与地名，距离和方位集中到右侧；顶部切换器改用图标，网格/距离压缩间距，溢出的服务器名称自动横向滚动；移除普通界面的 APRS 位置年龄与自动调整说明。
+
 | 日期 | 变更 | 参考 |
 |---|---|---|
+| 2026-08-11 | 完成设备横屏全屏仪表盘首轮原生实现：设备选择移至导航栏；全屏自动请求横屏并可安全回退/退出；真实本地讲话与历史驱动人物，可信 APRS 唯一候选优先、30 分钟新鲜度与六位网格中心兜底；提供距离/方位、中央无柄箭头、MapKit 双点追踪和 iOS 26 反向地理编码 | `FMOc/Features/Dashboard/DashboardFullscreenPresentation.swift`、`FMOc/Features/Dashboard/DashboardFullscreenView.swift` |
+| 2026-08-11 | 确认设备首页横屏全屏仪表盘方案并完成 HTML 原型：设备选择移至导航栏，卡片提供全屏入口；横屏以本地讲话事件确定人物，在方位/地图间切换，位置采用可信 APRS 唯一候选优先、六位网格估算兜底且冲突不猜测 | `prototype/dashboard-fullscreen.html`、`docs/spec/product-spec.md`、`docs/design/ui-design-system.md` |
 | 2026-08-11 | 建立受保护的 `beta` 集成分支与 Xcode Cloud 触发契约：日常开发 PR 统一进入 `beta`，由 Branch Changes 触发 Beta 工作流；正式发布由 `beta` 提升至受保护的 `main` 后，以 Tag Changes 监听的 `release*` 标签触发 | `AGENTS.md`、`docs/adr/0008-beta-integration-release-flow.md`、`docs/operations/xcode-cloud.md` |
 | 2026-08-11 | 首版设备体验打磨并通过用户真机验收：设备选择 Sheet 左滑立即删除；完整保存已知设备，并在启动扫描时按上次成功、其余保存、新发现的顺序串行连接，手动选择始终优先，成功后不自动切换 | `FMOc/Features/Device/`、`docs/architecture/modules/device-connectivity.md` |
 | 2026-08-10 | 隐私政策已部署至 `https://fmo-companion.bi8syo.com/privacy/`；采用独立 Caddy 容器提供静态页面、HTTP 至 HTTPS 跳转与自动证书续期，App 已改用该正式地址 | `privacy/`、`FMOc/Info.plist` |
@@ -127,10 +135,11 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 - [ADR-0005：采用用户授权的本地只读状态接口](adr/0005-user-authorized-local-read-only-status.md)
 - [ADR-0007：采用 FMO 本地只读 QSO 自动同步](adr/0007-local-read-only-qso-sync.md)
 - [ADR-0008：采用 Beta 集成与标签发布分支模型](adr/0008-beta-integration-release-flow.md)
+- [ADR-0009：采用用户授权的本地只接收 PCM 音频](adr/0009-user-authorized-local-receive-audio.md)
 
 ## 本轮开发入口
 
-1. 0.8 以 ADR-0007 的类型化 `qso/getList`、`qso/getDetail` 为唯一自动同步来源；不调用备份、恢复、清空、密钥或签名管理命令。
-2. 真机自动出现、详情地图与 ADIF 已通过；继续确认多设备切换和离线缓存，自动化补齐离线、切换、部分失败与空日志矩阵。
-3. 同步继续先取全部分页摘要，最近记录优先取详情；旧记录详情按查看或导出需要可取消地补齐，避免一次连接对盒子发出无界请求。
+1. 设备横屏全屏仪表盘已进入原生真机验收：确认入口/退出旋转、iPhone 13 Pro 尺寸、讲话者切换动画、最近呼号容量、方位/地图两种主视觉，以及波形在静音时持续更新、声音开关即时生效、退出/后台后停止播放。
+2. 使用真实 FMO 本地事件与 APRS-IS 数据分别验收三种位置结果：唯一近期 APRS 精细位置、六位网格估算、同基础呼号多 SSID 冲突时不猜测。
+3. 0.8 QSO 继续确认多设备切换和离线缓存，并补齐离线、切换、部分失败与空日志自动化矩阵。
 4. 用户导出 SQLite 与 P-256 签名归档不再是 0.8 主流程；若后续保留，作为单独评审的可选归档能力，不得阻塞日常 QSO 浏览。

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-09
+last-reviewed: 2026-08-12
 ---
 
 # FMO 已公开能力与来源
@@ -21,6 +21,7 @@ last-reviewed: 2026-08-09
 | QSO 验签 | 官方工具公开完整 SQLite 快照的 SHA-256 + ECDSA P-256 验证 | 只适用于配对数据库归档；不得把逐条 WebSocket 同步记录显示为“已验证” |
 | 自建服务器状态 | 用户控制 EMQX/SAS/主机 | 通过自建 HTTPS API 实现 |
 | MQTT 语音客户端 | 完整语音帧、编码器和设备客户端 SDK 未公开 | 不实现 |
+| 本地接收音频 | 2026-08-11 用户授权其本人设备抓包并确认 `/audio` 为 8 kHz、16-bit little-endian、单声道 PCM；二进制帧固定 4480 字节，文本 `p` 为保活 | `User-authorized receive-only — ADR-0009`；只限前台全屏波形与默认关闭的本地播放 |
 | 设备私钥 | 身份安全依赖设备持有私钥 | 不提取、不复制、不模拟 |
 
 ## 本地管理 WebSocket 观察记录
@@ -38,7 +39,7 @@ last-reviewed: 2026-08-09
 | `/events` `qso/callsign` | 当前讲话状态、呼号、可选网格、连接内 `seq/ts` | ADR-0005 白名单；与 APRS `VOCAL` 分离 |
 | `/events` `qso/history` | 最近最多 20 条呼号与 `utcTime` | ADR-0005 白名单；不是完整 QSO 数据库或 0.4 APRS 事件流 |
 | `/ws` 配置与控制写操作 | 官方 Web UI 可在局域网内配置盒子，用户授权样本中观察到多种写入行为，但没有公开版本、鉴权或错误契约 | ADR-0005 明确排除；App 继续打开官方 Web UI，不实现、枚举或代理观察到的写命令 |
-| `/audio` | 存在独立 WebSocket 端点 | 明确排除；不分析、不实现 |
+| `/audio` | 独立 WebSocket；固定 4480 字节 PCM 二进制帧，文本 `p` 保活 | ADR-0009 最小接收白名单；不发送、不录制、不持久化、不上传、不转发，不与状态客户端合并 |
 
 握手样本未出现 Cookie、Authorization、TLS 或 WebSocket 子协议，而 `/ws` 同时存在读取 PASSCODE 的命令。若未来获准接入，必须使用只读命令与字段双重白名单，不得实现通用命令代理，不得请求、解码、保存或记录 PASSCODE，并为原始帧大小、畸形数据、未知字段和秘密字段丢弃建立测试。
 

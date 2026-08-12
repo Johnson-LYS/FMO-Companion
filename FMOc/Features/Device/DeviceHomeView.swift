@@ -6,6 +6,10 @@ struct DeviceHomeView: View {
     @Bindable var locationAutomationModel: LocationAutomationModel
     @Bindable var officialWebModel: OfficialWebModel
     @Bindable var remoteControlModel: FmoRemoteControlModel
+    let dashboardHeroNamespace: Namespace.ID
+    let isDashboardHeroActive: Bool
+    let hidesDashboardChrome: Bool
+    let openDashboardFullscreen: () -> Void
     @State private var actionTask: Task<Void, Never>?
     @State private var showsDevicePicker = false
     @State private var showsDiagnostics = false
@@ -36,6 +40,35 @@ struct DeviceHomeView: View {
         .scrollContentBackground(.hidden)
         .background(Color(uiColor: .systemGroupedBackground))
         .navigationTitle("设备")
+        .toolbarVisibility(
+            hidesDashboardChrome ? .hidden : .automatic,
+            for: .navigationBar
+        )
+        .toolbar {
+            if model.isConnected {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showsDevicePicker = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(.green)
+                                .frame(width: 7, height: 7)
+                            Text(model.selectedEndpoint?.displayName ?? "FMO")
+                                .font(.caption.weight(.semibold))
+                                .lineLimit(1)
+                            Image(systemName: "chevron.down")
+                                .font(.caption2.bold())
+                        }
+                    }
+                    .accessibilityLabel("选择 FMO 设备")
+                    .accessibilityValue(
+                        "当前设备 \(model.selectedEndpoint?.displayName ?? "FMO")，已连接"
+                    )
+                    .accessibilityIdentifier("dashboard-device-selector")
+                }
+            }
+        }
         .task { await model.start() }
         .onDisappear {
             actionTask?.cancel()
@@ -162,12 +195,36 @@ struct DeviceHomeView: View {
     }
 
     private var statusCard: some View {
+        ZStack {
+            if isDashboardHeroActive {
+                statusCardLayout(participatesInHero: false)
+                    .hidden()
+                    .accessibilityHidden(true)
+            } else {
+                statusCardLayout(participatesInHero: true)
+                    .background {
+                        statusCardBackground
+                            .matchedGeometryEffect(
+                                id: DashboardHeroElement.container,
+                                in: dashboardHeroNamespace,
+                                properties: .frame,
+                                anchor: .center,
+                                isSource: true
+                            )
+                    }
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private func statusCardLayout(participatesInHero: Bool) -> some View {
         VStack(alignment: .leading, spacing: 18) {
             if model.isConnected {
                 DeviceDashboardSummaryView(
                     snapshot: model.dashboardSnapshot,
-                    deviceName: model.selectedEndpoint?.displayName ?? "FMO",
-                    openDevicePicker: { showsDevicePicker = true }
+                    heroNamespace: dashboardHeroNamespace,
+                    participatesInHero: participatesInHero,
+                    openFullscreen: openDashboardFullscreen
                 )
             } else {
                 HStack(alignment: .top) {
@@ -201,8 +258,6 @@ struct DeviceHomeView: View {
             }
         }
         .padding(20)
-        .background { statusCardBackground }
-        .accessibilityElement(children: .contain)
     }
 
     @ViewBuilder

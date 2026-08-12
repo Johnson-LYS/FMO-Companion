@@ -52,8 +52,9 @@
     heroState: document.querySelector("#heroState"),
     heroTitle: document.querySelector("#heroTitle"),
     heroDescription: document.querySelector("#heroDescription"),
-    deviceSelectorButton: document.querySelector("#deviceSelectorButton"),
-    deviceSelectorLabel: document.querySelector("#deviceSelectorLabel"),
+    headerDeviceSelector: document.querySelector("#headerDeviceSelector"),
+    headerDeviceLabel: document.querySelector("#headerDeviceLabel"),
+    dashboardFullscreenButton: document.querySelector("#dashboardFullscreenButton"),
     dashboardPanel: document.querySelector("#dashboardPanel"),
     dashboardEventType: document.querySelector("#dashboardEventType"),
     dashboardEventTitle: document.querySelector("#dashboardEventTitle"),
@@ -100,6 +101,7 @@
     document.querySelectorAll("[data-detail]").forEach((section) => section.classList.remove("is-active"));
     elements.backButton.hidden = true;
     elements.headerStatus.hidden = true;
+    elements.headerDeviceSelector.hidden = !(screen === "home" && state.connection === "connected");
     elements.content.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -278,7 +280,8 @@
     elements.dashboardPanel.hidden = true;
     stopDashboardTicker();
     elements.discoverButton.hidden = false;
-    elements.deviceSelectorButton.hidden = true;
+    elements.headerDeviceSelector.hidden = true;
+    elements.dashboardFullscreenButton.hidden = true;
 
     if (nextState === "searching") {
       elements.discoverButton.dataset.action = "open-device-picker";
@@ -317,8 +320,9 @@
       elements.heroDescription.hidden = true;
       elements.dashboardPanel.hidden = false;
       elements.discoverButton.hidden = true;
-      elements.deviceSelectorButton.hidden = false;
-      elements.deviceSelectorLabel.textContent = state.currentDeviceLabel || "当前设备";
+      elements.headerDeviceSelector.hidden = false;
+      elements.headerDeviceLabel.textContent = state.currentDeviceLabel || "当前设备";
+      elements.dashboardFullscreenButton.hidden = false;
       elements.deviceEmpty.hidden = true;
       elements.discoveredDevice.hidden = false;
       elements.alternateDevice.hidden = false;
@@ -377,7 +381,7 @@
       row.querySelector(".device-meta b").textContent = isCurrent ? "当前" : "可用";
       row.querySelector(".device-copy small").textContent = `${host} · ${isLastConnected ? "上次连接" : "附近"}`;
     });
-    if (state.currentDeviceLabel) elements.deviceSelectorLabel.textContent = state.currentDeviceLabel;
+    if (state.currentDeviceLabel) elements.headerDeviceLabel.textContent = state.currentDeviceLabel;
   }
 
   function startDiscovery() {

@@ -232,6 +232,60 @@ final class FMOcUITests: XCTestCase {
     }
 
     @MainActor
+    func testConnectedDashboardOpensAndClosesLandscapeFullscreenDashboard() throws {
+        XCUIDevice.shared.orientation = .portrait
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "dashboard-connected"
+        app.launch()
+
+        XCTAssertTrue(
+            app.descendants(matching: .any)["dashboard-callsign"].waitForExistence(timeout: 30)
+        )
+        let fullscreen = app.buttons["dashboard-fullscreen-button"]
+        XCTAssertTrue(fullscreen.waitForExistence(timeout: 5))
+        fullscreen.tap()
+
+        let close = app.buttons["dashboard-fullscreen-close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["dashboard-fullscreen-button"].exists)
+        XCTAssertFalse(app.buttons["dashboard-device-selector"].exists)
+        XCTAssertTrue(app.staticTexts["BG1ABC"].exists)
+        XCTAssertTrue(app.staticTexts["km"].exists)
+        let waveform = app.descendants(matching: .any)["dashboard-audio-waveform"]
+        XCTAssertTrue(waveform.exists)
+        let audioToggle = app.buttons["dashboard-audio-toggle"]
+        XCTAssertTrue(audioToggle.exists)
+        XCTAssertEqual(audioToggle.value as? String, "已关闭")
+        close.tap()
+
+        XCTAssertTrue(app.navigationBars["设备"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["dashboard-device-selector"].exists)
+        XCTAssertTrue(app.buttons["dashboard-fullscreen-button"].exists)
+    }
+
+    @MainActor
+    func testConnectedDashboardFollowsNaturalDeviceRotation() throws {
+        XCUIDevice.shared.orientation = .portrait
+        let app = XCUIApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "dashboard-connected"
+        app.launch()
+
+        XCTAssertTrue(
+            app.descendants(matching: .any)["dashboard-callsign"].waitForExistence(timeout: 30)
+        )
+
+        XCUIDevice.shared.orientation = .landscapeRight
+        XCTAssertTrue(
+            app.buttons["dashboard-fullscreen-close"].waitForExistence(timeout: 5)
+        )
+        XCTAssertFalse(app.buttons["dashboard-fullscreen-button"].exists)
+
+        XCUIDevice.shared.orientation = .portrait
+        XCTAssertTrue(app.navigationBars["设备"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["dashboard-fullscreen-button"].exists)
+    }
+
+    @MainActor
     func testLaunchRestoresLastDeviceAndKeepsNearbyDeviceForManualSelection() throws {
         XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()

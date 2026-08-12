@@ -133,7 +133,12 @@ struct DashboardSnapshotTests {
         let disconnected = await store.recordLocalEventDisconnection()
 
         #expect(disconnected.localEventLink == .disconnected)
-        #expect(disconnected.currentSpeaker == .unknown)
+        #expect(disconnected.currentSpeaker.currentValue == nil)
+        #expect(disconnected.currentSpeaker.value == DashboardSpeaker(
+            callsign: "BG1ABC",
+            grid: "OM20xx",
+            coordinate: MaidenheadGrid.center(of: "OM20xx")
+        ))
         guard case .stale = disconnected.recentLocalActivity else {
             Issue.record("事件流断开后最近活动应保留为过期值")
             return
@@ -161,7 +166,63 @@ struct DashboardSnapshotTests {
         _ = await store.recordLocalEvent(.speaking(firstSpeaker))
         let snapshot = await store.recordLocalEvent(.speaking(nextSpeaker))
 
-        #expect(snapshot.currentSpeaker.currentValue == DashboardSpeaker(callsign: "BG2BBB", grid: "OM21bb"))
+        #expect(snapshot.currentSpeaker.currentValue == DashboardSpeaker(
+            callsign: "BG2BBB",
+            grid: "OM21bb",
+            coordinate: MaidenheadGrid.center(of: "OM21bb")
+        ))
+        #expect(snapshot.recentLocalActivities.first?.callsign == "BG1AAA")
+        #expect(snapshot.recentLocalActivities.first?.grid == "OM20aa")
+        #expect(snapshot.recentLocalActivities.first?.coordinate == MaidenheadGrid.center(of: "OM20aa"))
+
+        let refreshed = await store.recordLocalEvent(.history([
+            FmoRecentLocalActivity(callsign: "BG1AAA", occurredAt: .now)
+        ]))
+        #expect(refreshed.recentLocalActivities.first?.grid == "OM20aa")
+    }
+
+    @Test
+    func retainsLastSpeakerAsInactiveUntilAnotherSpeakerArrives() async {
+        let store = DashboardStore()
+        let speaking = FmoSpeakingState(
+            callsign: "BG1AAA",
+            grid: "OM20aa",
+            isSpeaking: true,
+            sequence: 1,
+            deviceUptimeMilliseconds: 10
+        )
+        let idle = FmoSpeakingState(
+            callsign: nil,
+            grid: nil,
+            isSpeaking: false,
+            sequence: 2,
+            deviceUptimeMilliseconds: 20
+        )
+
+        _ = await store.recordLocalEvent(.speaking(speaking))
+        let snapshot = await store.recordLocalEvent(.speaking(idle))
+
+        #expect(snapshot.currentSpeaker.currentValue == nil)
+        #expect(snapshot.currentSpeaker.value == DashboardSpeaker(
+            callsign: "BG1AAA",
+            grid: "OM20aa",
+            coordinate: MaidenheadGrid.center(of: "OM20aa")
+        ))
+    }
+
+    @Test
+    func keepsTheCompleteRecentHistorySortedForTheFullscreenDashboard() async {
+        let store = DashboardStore()
+        let early = Date(timeIntervalSince1970: 100)
+        let late = Date(timeIntervalSince1970: 300)
+
+        let snapshot = await store.recordLocalEvent(.history([
+            FmoRecentLocalActivity(callsign: "BG1AAA", occurredAt: early),
+            FmoRecentLocalActivity(callsign: "BG2BBB", occurredAt: late),
+        ]))
+
+        #expect(snapshot.recentLocalActivities.map(\.callsign) == ["BG2BBB", "BG1AAA"])
+        #expect(snapshot.recentLocalActivity.currentValue?.callsign == "BG2BBB")
     }
 
     @Test
