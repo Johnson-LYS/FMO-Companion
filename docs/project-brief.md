@@ -19,7 +19,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 最近变更
 
-| 2026-08-12 | Xcode Cloud 构建在克隆后把 `CI_BUILD_NUMBER` 同步到归档 `CFBundleVersion`，关于页继续从 Bundle 动态读取并与 App Store Connect Build 一致；补充 `beta-<version>-<sequence>` 候选标签触发规范 | `ci_scripts/ci_post_clone.sh`、`FMOc/Features/Settings/AppMetadata.swift`、`docs/operations/xcode-cloud.md` |
+| 2026-08-12 | 修正 Xcode Cloud 首轮构建号同步未进入归档的问题：改在每个 `xcodebuild` Action 前写入 `CI_BUILD_NUMBER`，并校验 App 的 Debug/Release 实际 Build Settings，不匹配时失败关闭；关于页继续只读取最终 Bundle | `ci_scripts/ci_pre_xcodebuild.sh`、`FMOc/Features/Settings/AppMetadata.swift`、`docs/operations/xcode-cloud.md` |
 
 | 2026-08-12 | 将设备首页卡片到横屏仪表盘改为根层分阶段 Hero 转场：背景、关键状态共享元素、左右面板滑入与系统方向更新同步开始并结束；设备页连接态支持随系统自然横屏自动展开、自然竖屏自动退出；退出时面板滑出、共享元素缩回、首页恢复与竖屏旋转并行，全屏及深色底层保留到最后一帧；内容仍受安全区约束，地图解析和音频等服务延迟到视觉稳定后启动 | `FMOc/ContentView.swift`、`FMOc/Features/Dashboard/DashboardHeroTransition.swift`、`FMOc/Features/Dashboard/DashboardFullscreenView.swift` |
 
