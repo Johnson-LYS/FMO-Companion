@@ -37,12 +37,13 @@ Apple 官方说明 Xcode Cloud 可以按分支变更、PR 变更、标签变更�
 
 ## 构建号同步
 
-关于页从最终 App Bundle 的 `CFBundleShortVersionString` 与 `CFBundleVersion` 动态读取版本。仓库的 `ci_scripts/ci_post_clone.sh` 在 Xcode Cloud 克隆完成后执行，并使用 Apple 预定义的正整数 `CI_BUILD_NUMBER` 调用 `agvtool new-version -all`。因此归档、关于页和 App Store Connect 展示同一个 Build；本地构建不在脚本中改号，继续使用工程的 `CURRENT_PROJECT_VERSION`。
+关于页从最终 App Bundle 的 `CFBundleShortVersionString` 与 `CFBundleVersion` 动态读取版本。仓库的 `ci_scripts/ci_pre_xcodebuild.sh` 在每个 Xcode Cloud Action 调用 `xcodebuild` 前执行，并使用 Apple 预定义的正整数 `CI_BUILD_NUMBER` 调用 `agvtool new-version -all`。脚本随后读取 App 与 Live Activity 的 Debug、Release Build Settings，只有实际解析出的 `CURRENT_PROJECT_VERSION` 全部与云端构建号一致才允许 Action 继续。因此归档、关于页和 App Store Connect 展示同一个 Build；本地构建不在脚本中改号，继续使用工程的 `CURRENT_PROJECT_VERSION`。
 
 脚本必须满足以下约束：
 
 - 只在 `CI_XCODE_CLOUD=TRUE` 时修改临时检出的工程。
 - 缺少或收到非法 `CI_BUILD_NUMBER` 时失败关闭，不能静默产出错误版本。
+- 必须紧邻 `xcodebuild` 执行并验证 Xcode 实际解析的 App Build Settings；只验证项目文件写入成功不算完成。
 - App 与同包扩展使用相同构建号；不把 CI 变量写入源码、用户默认值或可见调试字段。
 - Xcode Cloud 构建日志可记录最终构建号，但不得输出密钥、签名或其他 Secret。
 

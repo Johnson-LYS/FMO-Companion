@@ -164,7 +164,7 @@ Branch prefixes: `feat/`, `fix/`, `refactor/`, `docs/`, `test/`, `chore/`.
 - Beta 流水线是 Xcode Cloud 工作流，以 Branch Changes 精确监听 `beta`；正式流水线是独立的 Xcode Cloud 工作流，只以 Tag Changes 监听 `release*`。
 - 需要显式生成可追溯 Beta 候选包时，在 `beta` 当前提交创建 `beta-<version>-<sequence>` 标签，例如 `beta-0.1.0-1`；Beta 工作流的 Tag Changes 只包含 `beta-*`。标签序号仅用于 Git 候选追踪，不代替 Xcode Cloud 构建号。
 - 正式发布标签必须指向 `main` 上由 `beta` 提升而来的提交，建议采用 `release-<version>`，例如 `release-1.0.0`。
-- Xcode Cloud 使用 `ci_scripts/ci_post_clone.sh` 将 `CI_BUILD_NUMBER` 写入归档的 `CFBundleVersion`，确保关于页、构建产物与 App Store Connect 使用同一 Build。不得在 UI 中读取或展示 CI 环境变量。
+- Xcode Cloud 使用 `ci_scripts/ci_pre_xcodebuild.sh` 在每个 Action 的 `xcodebuild` 紧前方将 `CI_BUILD_NUMBER` 写入工程，并校验 App 实际解析的 `CURRENT_PROJECT_VERSION`，确保关于页、构建产物与 App Store Connect 使用同一 Build。不得在 UI 中读取或展示 CI 环境变量。
 - Xcode Cloud 工作流配置不存放在 GitHub Actions YAML 中。修改触发条件、构建动作、签名或分发设置时，应同步更新 `docs/operations/xcode-cloud.md`，且不得把密钥写入仓库。
 - Do not push or open a PR unless the user asks.
 - Keep commits atomic and do not mix unrelated user changes.
