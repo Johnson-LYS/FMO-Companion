@@ -19,6 +19,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 最近变更
 
+| 2026-08-12 | 将设备首页卡片到横屏仪表盘改为根层分阶段 Hero 转场：背景、关键状态共享元素、左右面板滑入与系统方向更新同步开始并结束；设备页连接态支持随系统自然横屏自动展开、自然竖屏自动退出；退出时面板滑出、共享元素缩回、首页恢复与竖屏旋转并行，全屏及深色底层保留到最后一帧；内容仍受安全区约束，地图解析和音频等服务延迟到视觉稳定后启动 | `FMOc/ContentView.swift`、`FMOc/Features/Dashboard/DashboardHeroTransition.swift`、`FMOc/Features/Dashboard/DashboardFullscreenView.swift` |
+
 | 2026-08-11 | 以 ADR-0009 固定用户授权的本地接收音频边界：横屏仪表盘持续显示 8 kHz 单声道 PCM 波形，声音默认关闭并由用户显式开启；退出/后台/切换设备立即停止，不录制、不持久化、不上传、不转发 | `FMOc/Features/Audio/`、`prototype/dashboard-fullscreen.html`、`docs/adr/0009-user-authorized-local-receive-audio.md` |
 
 - 2026-08-11：横屏设备仪表盘打磨：讲话结束后保留最后呼号并以图标替换和灰阶过渡表达空闲，新讲话者到来时才归入历史；左侧收敛为呼号与地名，距离和方位集中到右侧；顶部切换器改用图标，网格/距离压缩间距，溢出的服务器名称自动横向滚动；移除普通界面的 APRS 位置年龄与自动调整说明。

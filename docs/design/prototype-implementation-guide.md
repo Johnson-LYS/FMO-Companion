@@ -97,7 +97,7 @@ trusted future sources ─┘
 - 本地 `/events qso/callsign` 按讲话/空闲状态驱动讲话者主位；空闲、断流或过期立即结束“正在讲话”语义，但保留最后呼号的灰阶主位。0.4 APRS `VOCAL` 仍只表达“最近检测到语音活动”，两者不得共用模型或文案。只有 ADR-0009 的独立 Audio 模块可解析固定本地 PCM；它不能用于推断讲话者。
 - 可见仪表盘遵守“数据与图标优先”：不显示 `GEO 会话`、`公开局域网接口`、`梅登黑德`、`由 FMO 坐标换算` 等可由上下文、网格值或系统图标表达的解释文案；完整语义放入 VoiceOver。
 - HTML 中的轮换只用于检查当前/历史两种布局；正式 App 完全由真实事件和新鲜度驱动，当前讲话优先固定，不能复制浏览器定时器。SwiftUI 以规范化呼号作为主位切换身份：同一呼号由讲话变为空闲时不移动，只替换固定槽位内的图标并将呼号平滑过渡为次要灰阶；只有新呼号开始讲话时才切换整组内容，并让旧呼号进入历史。相对时间交给系统时间视图持续刷新；减少动态效果开启时只使用淡入淡出。
-- `prototype/dashboard-fullscreen.html` 是横屏仪表盘评审入口。正式实现使用独立 `fullScreenCover`，通过 `UIWindowScene.requestGeometryUpdate` 请求横屏并处理拒绝；退出时取消全屏专用的定位、航向和地图相机任务，不改变设备连接。
+- `prototype/dashboard-fullscreen.html` 是横屏仪表盘内容评审入口。正式实现不再使用独立 `fullScreenCover`：由 App 根层保存一次入口快照和同一 `Namespace`，在同一个点击动作中同时把首页卡片背景、呼号、网格、过滤距离、服务器与讲话者匹配扩展到全屏，通过 `UIWindowScene.requestGeometryUpdate` 请求横屏，并让左右面板从旋转第一帧开始自底部滑入、在旋转结束时完成；设备 Tab 已连接时，根层 Viewport 由竖变横也触发同一进入流程，全屏稳定后由横变竖触发退出。不要读取设备姿态来绕过系统旋转锁，也不要在其他 Tab 或首次横屏布局时自动打开。方位/地图解析与音频等重服务仍在视觉转场稳定后启动。退出时左右面板滑出、共享元素缩回、首页/导航恢复与竖屏方向更新并行，全屏层和深色底层必须保留到旋转最后一帧再移除。方向更新被拒绝时停留在可操作的竖屏自适应布局。进入阶段首页源元素必须从匹配树中移除，只保留不参与 Hero 的隐藏布局占位，同时隐藏导航栏与 Tab Bar，避免重复源和穿透；只允许全屏背景越过安全区。
 - 横屏左侧地名下方的波形在声音关闭时也持续更新；声音按钮每次进入全屏、回到前台或切换设备都默认关闭。退出全屏或 App 不活跃时取消 `/audio` 流并停止播放器。
 - 横屏当前讲话者仍只由本地 `/events` 决定。位置关联顺序为：同基础呼号且通过内部准入的近期 FMO V4/APRS 候选 → 使用事件六位网格、当前服务器 UID 与观测时间缩小候选 → 唯一候选使用精细坐标并显示年龄 → 候选冲突或不存在则使用网格中心。讲话事件缺少 SSID 时不得任意选择同呼号台站；APRS-IS 呼号过滤是后续报文订阅，不是可靠的即时历史查询。
 - 六位网格中心只驱动“大致区域、约距离与绝对方位”，地图以区域框或半透明范围表达；不驱动精确定位点或手机朝向相对箭头。精细坐标可驱动两点连线和距离，但仍需按观测时间降级移动台的陈旧位置。
@@ -199,7 +199,7 @@ trusted future sources ─┘
 | `.hero-card` | 语义状态模型驱动的设备状态卡 |
 | `.dashboard-panel` | 连接态下的 `DeviceDashboardCard`；由设备快照投影驱动 |
 | `.header-device-selector` | 设备页导航栏当前设备按钮，打开设备选择 `.sheet` |
-| `.dashboard-fullscreen-button` | 连接态卡片全屏入口，打开独立横屏 `fullScreenCover` |
+| `.dashboard-fullscreen-button` | 连接态卡片全屏入口，启动根层共享元素 Hero 转场并分阶段请求横屏 |
 | `dashboard-fullscreen.html` | 横屏仪表盘；SwiftUI 组合本地讲话事件、APRS 位置关联、MapKit 与 Core Location |
 | `.dashboard-event-kind.is-voice` | SwiftUI 使用 `speaker.wave.2.fill` / `radio.fill`；图标附辅助功能标签，不复制 CSS 造型 |
 | `.bottom-sheet` | 按语义选择 `.sheet`、系统 `Alert` 或系统权限弹窗；模式切换固定使用居中 `Alert` |

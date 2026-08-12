@@ -6,13 +6,13 @@ struct DeviceHomeView: View {
     @Bindable var locationAutomationModel: LocationAutomationModel
     @Bindable var officialWebModel: OfficialWebModel
     @Bindable var remoteControlModel: FmoRemoteControlModel
-    let networkSnapshot: FMOV4NetworkSnapshot
-    let audioClient: any FmoLocalAudioStreaming
-    let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
+    let dashboardHeroNamespace: Namespace.ID
+    let isDashboardHeroActive: Bool
+    let hidesDashboardChrome: Bool
+    let openDashboardFullscreen: () -> Void
     @State private var actionTask: Task<Void, Never>?
     @State private var showsDevicePicker = false
     @State private var showsDiagnostics = false
-    @State private var showsFullscreenDashboard = false
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -40,6 +40,10 @@ struct DeviceHomeView: View {
         .scrollContentBackground(.hidden)
         .background(Color(uiColor: .systemGroupedBackground))
         .navigationTitle("设备")
+        .toolbarVisibility(
+            hidesDashboardChrome ? .hidden : .automatic,
+            for: .navigationBar
+        )
         .toolbar {
             if model.isConnected {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -81,19 +85,6 @@ struct DeviceHomeView: View {
                 isMainConnected: model.isConnected
             )
                 .presentationDetents([.medium, .large])
-        }
-        .fullScreenCover(isPresented: $showsFullscreenDashboard) {
-            if let endpoint = model.selectedEndpoint {
-                DashboardFullscreenView(
-                    dashboard: model.dashboardSnapshot,
-                    ownCoordinate: model.deviceCoordinate,
-                    networkSnapshot: networkSnapshot,
-                    deviceName: endpoint.displayName,
-                    endpoint: endpoint,
-                    audioClient: audioClient,
-                    speakerLocationStore: dashboardSpeakerLocationStore
-                )
-            }
         }
         .sheet(item: $officialWebModel.destination) { destination in
             SafariView(url: destination.url)
@@ -204,14 +195,36 @@ struct DeviceHomeView: View {
     }
 
     private var statusCard: some View {
+        ZStack {
+            if isDashboardHeroActive {
+                statusCardLayout(participatesInHero: false)
+                    .hidden()
+                    .accessibilityHidden(true)
+            } else {
+                statusCardLayout(participatesInHero: true)
+                    .background {
+                        statusCardBackground
+                            .matchedGeometryEffect(
+                                id: DashboardHeroElement.container,
+                                in: dashboardHeroNamespace,
+                                properties: .frame,
+                                anchor: .center,
+                                isSource: true
+                            )
+                    }
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private func statusCardLayout(participatesInHero: Bool) -> some View {
         VStack(alignment: .leading, spacing: 18) {
             if model.isConnected {
                 DeviceDashboardSummaryView(
                     snapshot: model.dashboardSnapshot,
-                    openFullscreen: {
-                        DashboardOrientation.request(.landscape)
-                        showsFullscreenDashboard = true
-                    }
+                    heroNamespace: dashboardHeroNamespace,
+                    participatesInHero: participatesInHero,
+                    openFullscreen: openDashboardFullscreen
                 )
             } else {
                 HStack(alignment: .top) {
@@ -245,8 +258,6 @@ struct DeviceHomeView: View {
             }
         }
         .padding(20)
-        .background { statusCardBackground }
-        .accessibilityElement(children: .contain)
     }
 
     @ViewBuilder

@@ -13,7 +13,6 @@ struct DashboardFullscreenView: View {
         var symbol: String { self == .bearing ? "location.north.fill" : "map.fill" }
     }
 
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
     @Environment(\.scenePhase) private var scenePhase
     let dashboard: DashboardSnapshot
@@ -21,6 +20,10 @@ struct DashboardFullscreenView: View {
     let networkSnapshot: FMOV4NetworkSnapshot
     let deviceName: String
     let endpoint: FmoDeviceEndpoint
+    let heroNamespace: Namespace.ID
+    let showsExpandedContent: Bool
+    let activatesExpandedServices: Bool
+    let close: () -> Void
     private let areaResolver: any DashboardAreaResolving
     private let speakerLocationStore: any DashboardSpeakerLocationStoring
 
@@ -38,7 +41,11 @@ struct DashboardFullscreenView: View {
         endpoint: FmoDeviceEndpoint,
         audioClient: any FmoLocalAudioStreaming,
         areaResolver: any DashboardAreaResolving = MapKitDashboardAreaResolver(),
-        speakerLocationStore: any DashboardSpeakerLocationStoring = VolatileDashboardSpeakerLocationStore()
+        speakerLocationStore: any DashboardSpeakerLocationStoring = VolatileDashboardSpeakerLocationStore(),
+        heroNamespace: Namespace.ID,
+        showsExpandedContent: Bool,
+        activatesExpandedServices: Bool,
+        close: @escaping () -> Void
     ) {
         self.dashboard = dashboard
         self.ownCoordinate = ownCoordinate
@@ -47,6 +54,10 @@ struct DashboardFullscreenView: View {
         self.endpoint = endpoint
         self.areaResolver = areaResolver
         self.speakerLocationStore = speakerLocationStore
+        self.heroNamespace = heroNamespace
+        self.showsExpandedContent = showsExpandedContent
+        self.activatesExpandedServices = activatesExpandedServices
+        self.close = close
         _audioMonitor = State(
             initialValue: FmoAudioMonitorModel(client: audioClient)
         )
@@ -69,12 +80,20 @@ struct DashboardFullscreenView: View {
             }
         }
         .foregroundStyle(.white)
-        .background(fullscreenBackground.ignoresSafeArea())
-        .task {
-            DashboardOrientation.request(.landscape)
+        .background {
+            fullscreenBackground
+                .ignoresSafeArea()
+                .matchedGeometryEffect(
+                    id: DashboardHeroElement.container,
+                    in: heroNamespace,
+                    properties: .frame,
+                    anchor: .center,
+                    isSource: false
+                )
         }
-        .task(id: targetAreaResolutionID) {
+        .task(id: "\(targetAreaResolutionID)-\(activatesExpandedServices)") {
             areaName = nil
+            guard activatesExpandedServices else { return }
             guard let target = presentation.target,
                   let coordinate = target.coordinate else { return }
             let cached = await speakerLocationStore.location(for: target.callsign)
@@ -99,11 +118,12 @@ struct DashboardFullscreenView: View {
                 )
             )
         }
-        .task(id: historyAreaResolutionID) {
+        .task(id: "\(historyAreaResolutionID)-\(activatesExpandedServices)") {
+            guard activatesExpandedServices else { return }
             await resolveHistoryAreaNames()
         }
-        .task(id: audioSessionID) {
-            guard scenePhase == .active else {
+        .task(id: "\(audioSessionID)-\(activatesExpandedServices)") {
+            guard activatesExpandedServices, scenePhase == .active else {
                 await audioMonitor.stop(resetWaveform: false)
                 return
             }
@@ -116,7 +136,6 @@ struct DashboardFullscreenView: View {
             audioMonitor.setSoundEnabled(false)
         }
         .onDisappear {
-            DashboardOrientation.request(.portrait)
             Task { await audioMonitor.stop(resetWaveform: true) }
         }
         .persistentSystemOverlays(.hidden)
@@ -126,11 +145,16 @@ struct DashboardFullscreenView: View {
     private var landscapeContent: some View {
         VStack(spacing: 10) {
             header
-            HStack(spacing: 10) {
-                speakerPanel
-                    .frame(minWidth: 220, idealWidth: 260, maxWidth: 310)
-                visualPanel
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            if showsExpandedContent {
+                HStack(spacing: 10) {
+                    speakerPanel
+                        .frame(minWidth: 220, idealWidth: 260, maxWidth: 310)
+                    visualPanel
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                .transition(expandedContentTransition)
+            } else {
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 12)
@@ -139,27 +163,18 @@ struct DashboardFullscreenView: View {
 
     private var portraitFallback: some View {
         VStack(spacing: 10) {
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .frame(width: 40, height: 40)
-                }
-                .buttonStyle(.bordered)
-                .accessibilityLabel("退出全屏仪表盘")
-                .accessibilityIdentifier("dashboard-fullscreen-close")
-                Text(dashboard.callsign.currentValue ?? "FMO")
-                    .font(.title2.bold().monospaced())
-                Spacer()
-                visualModeSwitch
-            }
+            header
 
-            ScrollView {
-                VStack(spacing: 10) {
-                    speakerPanel.frame(minHeight: 300)
-                    visualPanel.frame(height: 360)
+            if showsExpandedContent {
+                ScrollView {
+                    VStack(spacing: 10) {
+                        speakerPanel.frame(minHeight: 300)
+                        visualPanel.frame(height: 360)
+                    }
                 }
+                .transition(expandedContentTransition)
+            } else {
+                Spacer(minLength: 0)
             }
         }
         .padding(12)
@@ -168,7 +183,7 @@ struct DashboardFullscreenView: View {
     private var header: some View {
         HStack(spacing: 14) {
             Button {
-                dismiss()
+                close()
             } label: {
                 Image(systemName: "chevron.left")
                     .frame(width: 40, height: 40)
@@ -182,12 +197,19 @@ struct DashboardFullscreenView: View {
                 Text(dashboard.callsign.currentValue ?? "FMO")
                     .font(.title.bold().monospaced())
                     .lineLimit(1)
+                    .matchedGeometryEffect(
+                        id: DashboardHeroElement.callsign,
+                        in: heroNamespace,
+                        properties: .frame,
+                        anchor: .leading,
+                        isSource: false
+                    )
                 HStack(spacing: 7) {
                     if let grid = dashboard.maidenhead.currentValue {
-                        compactMetadata(grid, symbol: "location.fill")
+                        compactMetadata(grid, symbol: "location.fill", heroElement: .maidenhead)
                     }
                     if let filter = filterText {
-                        compactMetadata(filter, symbol: "scope")
+                        compactMetadata(filter, symbol: "scope", heroElement: .filterDistance)
                     }
                 }
                 .font(.system(size: 10, weight: .medium).monospacedDigit())
@@ -205,6 +227,13 @@ struct DashboardFullscreenView: View {
                         .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity, minHeight: 19, maxHeight: 19, alignment: .leading)
                         .clipped()
+                        .matchedGeometryEffect(
+                            id: DashboardHeroElement.server,
+                            in: heroNamespace,
+                            properties: .frame,
+                            anchor: .leading,
+                            isSource: false
+                        )
                 }
                 .padding(.leading, 16)
                 .frame(minWidth: 120, maxWidth: 210, alignment: .leading)
@@ -213,6 +242,7 @@ struct DashboardFullscreenView: View {
             Spacer(minLength: 6)
 
             visualModeSwitch
+                .opacity(showsExpandedContent ? 1 : 0)
 
             HStack(spacing: 7) {
                 Circle().fill(.green).frame(width: 7, height: 7)
@@ -225,6 +255,7 @@ struct DashboardFullscreenView: View {
             .background(.white.opacity(0.07), in: .rect(cornerRadius: 13))
             .accessibilityElement(children: .combine)
             .accessibilityLabel("当前设备 \(deviceName)，已连接")
+            .opacity(showsExpandedContent ? 1 : 0)
         }
         .frame(height: 46)
     }
@@ -253,6 +284,13 @@ struct DashboardFullscreenView: View {
                             .transition(speakerItemTransition)
                             .animation(speakerAnimation, value: target.isSpeaking)
                     }
+                    .matchedGeometryEffect(
+                        id: DashboardHeroElement.speaker,
+                        in: heroNamespace,
+                        properties: .frame,
+                        anchor: .leading,
+                        isSource: false
+                    )
                     .animation(speakerAnimation, value: target.callsign)
                     .frame(height: 48, alignment: .leading)
 
@@ -502,17 +540,34 @@ struct DashboardFullscreenView: View {
         .frame(width: 92)
     }
 
-    private func compactMetadata(_ value: String, symbol: String) -> some View {
+    private func compactMetadata(
+        _ value: String,
+        symbol: String,
+        heroElement: DashboardHeroElement
+    ) -> some View {
         HStack(spacing: 3) {
             Image(systemName: symbol)
                 .font(.system(size: 9, weight: .semibold))
             Text(value)
                 .lineLimit(1)
         }
+        .matchedGeometryEffect(
+            id: heroElement,
+            in: heroNamespace,
+            properties: .frame,
+            anchor: .leading,
+            isSource: false
+        )
     }
 
     private var speakerAnimation: Animation {
         accessibilityReduceMotion ? .easeOut(duration: 0.15) : .smooth(duration: 0.34)
+    }
+
+    private var expandedContentTransition: AnyTransition {
+        accessibilityReduceMotion
+            ? .opacity
+            : .opacity.combined(with: .move(edge: .bottom))
     }
 
     private var speakerItemTransition: AnyTransition {

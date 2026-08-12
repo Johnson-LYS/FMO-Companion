@@ -4,6 +4,8 @@ struct DeviceDashboardSummaryView: View {
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
 
     let snapshot: DashboardSnapshot
+    let heroNamespace: Namespace.ID
+    let participatesInHero: Bool
     let openFullscreen: () -> Void
 
     var body: some View {
@@ -22,6 +24,11 @@ struct DeviceDashboardSummaryView: View {
                     .foregroundStyle(.white)
                     .minimumScaleFactor(0.62)
                     .lineLimit(1)
+                    .dashboardHeroSource(
+                        .callsign,
+                        in: heroNamespace,
+                        isActive: participatesInHero
+                    )
                     .accessibilityLabel("呼号 \(callsign)")
                     .accessibilityIdentifier("dashboard-callsign")
             }
@@ -76,6 +83,11 @@ struct DeviceDashboardSummaryView: View {
             }
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
+                .dashboardHeroSource(
+                    item.heroElement,
+                    in: heroNamespace,
+                    isActive: participatesInHero
+                )
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(item.accessibilityLabel)
                 .accessibilityValue(item.accessibilityValue)
@@ -96,6 +108,11 @@ struct DeviceDashboardSummaryView: View {
                         .foregroundStyle(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
+                        .dashboardHeroSource(
+                            .server,
+                            in: heroNamespace,
+                            isActive: participatesInHero
+                        )
                         .accessibilityLabel("当前服务器 \(server)")
                         .accessibilityIdentifier("dashboard-server-name")
                 }
@@ -105,6 +122,11 @@ struct DeviceDashboardSummaryView: View {
                         activityRow(activity)
                             .id(activity.id)
                             .transition(activityTransition)
+                            .dashboardHeroSource(
+                                .speaker,
+                                in: heroNamespace,
+                                isActive: participatesInHero
+                            )
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .clipped()
@@ -260,6 +282,10 @@ private struct FactItem: Identifiable {
     let accessibilityLabel: String
     let accessibilityValue: String
     let accessibilityIdentifier: String
+
+    var heroElement: DashboardHeroElement {
+        id == "grid" ? .maidenhead : .filterDistance
+    }
 }
 
 private struct ActivityItem {
