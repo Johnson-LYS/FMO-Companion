@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-11
+last-reviewed: 2026-08-12
 ---
 
 # Xcode Cloud 工作流
@@ -18,7 +18,7 @@ Apple 官方说明 Xcode Cloud 可以按分支变更、PR 变更、标签变更�
 
 | 工作流 | Xcode Cloud 启动条件 | 匹配范围 | Git 来源 | 用途 |
 |---|---|---|---|---|
-| Beta | Branch Changes | 精确匹配 `beta` | `refs/heads/beta` | 持续集成与 Beta 版本构建/分发 |
+| Beta | Branch Changes；Tag Changes | 精确匹配 `beta`；仅包含 `beta-*` | `refs/heads/beta` 或 `refs/tags/beta-<version>-<sequence>` | 持续集成与显式 Beta 候选构建/分发 |
 | Release | Tag Changes | 包含 `release*`，排除其他标签 | `refs/tags/release*` | 正式版本构建/分发 |
 
 工作流在 Xcode Cloud 中可以使用其他显示名称，但启动条件必须符合上表。不要给 Release 工作流增加普通分支变更条件，否则日常提交可能误触发正式发布。
@@ -32,6 +32,19 @@ Apple 官方说明 Xcode Cloud 可以按分支变更、PR 变更、标签变更�
 3. PR 通过后 squash merge。
 4. 合并产生的 `beta` 分支变更应由 Xcode Cloud Beta 工作流自动捕获。
 5. 在 Xcode 或 App Store Connect 中确认构建所用 Git 引用为 `refs/heads/beta`。
+
+需要生成可追溯的 Beta 候选包时，在已通过验收的 `beta` 当前提交创建并推送 `beta-<version>-<sequence>` 标签，例如 `beta-0.1.0-1`。该序号只区分同一营销版本的 Git 候选，不应手工猜测或复制 Xcode Cloud Build Number。推送后确认 Beta 工作流使用 `refs/tags/<标签名>`；不得把 `beta-*` 配入 Release 工作流。
+
+## 构建号同步
+
+关于页从最终 App Bundle 的 `CFBundleShortVersionString` 与 `CFBundleVersion` 动态读取版本。仓库的 `ci_scripts/ci_post_clone.sh` 在 Xcode Cloud 克隆完成后执行，并使用 Apple 预定义的正整数 `CI_BUILD_NUMBER` 调用 `agvtool new-version -all`。因此归档、关于页和 App Store Connect 展示同一个 Build；本地构建不在脚本中改号，继续使用工程的 `CURRENT_PROJECT_VERSION`。
+
+脚本必须满足以下约束：
+
+- 只在 `CI_XCODE_CLOUD=TRUE` 时修改临时检出的工程。
+- 缺少或收到非法 `CI_BUILD_NUMBER` 时失败关闭，不能静默产出错误版本。
+- App 与同包扩展使用相同构建号；不把 CI 变量写入源码、用户默认值或可见调试字段。
+- Xcode Cloud 构建日志可记录最终构建号，但不得输出密钥、签名或其他 Secret。
 
 ### 正式发布
 
@@ -50,10 +63,11 @@ Xcode Cloud 在不同启动条件下提供以下环境变量，可用于构建�
 | 条件 | 环境变量 | 期望值示例 |
 |---|---|---|
 | Branch Changes | `CI_BRANCH` | `beta` |
-| Tag Changes | `CI_TAG` | `release-1.0.0` |
-| Branch Changes / Tag Changes | `CI_GIT_REF` | `refs/heads/beta` 或 `refs/tags/release-1.0.0` |
+| Tag Changes | `CI_TAG` | `beta-0.1.0-1` 或 `release-1.0.0` |
+| Branch Changes / Tag Changes | `CI_GIT_REF` | `refs/heads/beta`、`refs/tags/beta-0.1.0-1` 或 `refs/tags/release-1.0.0` |
+| Xcode Cloud 每次构建 | `CI_BUILD_NUMBER` | 正整数，例如 `42`；写入归档 `CFBundleVersion` |
 
-若 Beta 未自动启动，依次检查 Xcode Cloud 工作流是否启用、Branch Changes 是否精确包含 `beta`、SCM 连接是否仍有效。若 Release 未自动启动，检查 Tag Changes 是否包含 `release*`、标签是否已推送到远端，以及标签指向是否为 `main` 的发布提交。
+若 Beta 未自动启动，依次检查 Xcode Cloud 工作流是否启用、Branch Changes 是否精确包含 `beta`、Tag Changes 是否只包含 `beta-*`、SCM 连接是否仍有效，以及候选标签是否指向 `beta` 当前提交。若 Release 未自动启动，检查 Tag Changes 是否包含 `release*`、标签是否已推送到远端，以及标签指向是否为 `main` 的发布提交。
 
 ## 变更控制
 
