@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-11
+last-reviewed: 2026-08-12
 ---
 
 # 0008：采用 Beta 集成与标签发布分支模型
@@ -25,10 +25,11 @@ last-reviewed: 2026-08-11
 1. `main` 是稳定分支，开启分支保护，不允许任何直接 push、强推或删除。
 2. `beta` 是 GitHub 默认分支和日常集成分支，同样开启分支保护。所有 `feat/*`、`fix/*`、`refactor/*`、`docs/*`、`test/*`、`chore/*` 分支从最新 `beta` 创建，并通过 PR 合入 `beta`。
 3. Xcode Cloud 的 Beta 工作流使用 Branch Changes 启动条件，精确监听 `beta`。`beta` 每次更新都触发该工作流，供持续集成和测试版本分发。
-4. 准备正式发布时，从 `beta` 向 `main` 发起发布 PR。合并并确认提交后，在该 `main` 提交上创建并推送以 `release` 开头的标签；建议格式为 `release-<version>`。
-5. Xcode Cloud 的 Release 工作流使用 Tag Changes 启动条件，只响应 `release*` 标签。不得在功能分支、未合入 `main` 的 `beta` 提交或其他历史提交上创建正式发布标签。
-6. PR 采用 squash merge，提交继续使用 Conventional Commits。
-7. 工作流触发契约、环境变量诊断和人工核对步骤记录在 `docs/operations/xcode-cloud.md`；实际工作流设置以 Xcode Cloud 为准，变更设置时必须同步文档。
+4. 需要对某个 `beta` 提交生成显式、可追溯的候选包时，可在该提交创建 `beta-<version>-<sequence>` 标签；Beta 工作流额外以 Tag Changes 只监听 `beta-*`。此标签不是正式发布信号，序号也不等于 Xcode Cloud Build Number。
+5. 准备正式发布时，从 `beta` 向 `main` 发起发布 PR。合并并确认提交后，在该 `main` 提交上创建并推送以 `release` 开头的标签；建议格式为 `release-<version>`。
+6. Xcode Cloud 的 Release 工作流使用 Tag Changes 启动条件，只响应 `release*` 标签。不得在功能分支、未合入 `main` 的 `beta` 提交或其他历史提交上创建正式发布标签。
+7. PR 采用 squash merge，提交继续使用 Conventional Commits。
+8. 工作流触发契约、环境变量诊断和人工核对步骤记录在 `docs/operations/xcode-cloud.md`；实际工作流设置以 Xcode Cloud 为准，变更设置时必须同步文档。
 
 当前仓库为个人维护场景，分支保护要求必须通过 PR 且必须解决评审讨论，但暂不要求至少一位其他审批者，避免无人可审时阻塞发布。团队扩大后可单独提高审批人数。
 
