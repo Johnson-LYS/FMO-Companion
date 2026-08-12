@@ -8,7 +8,7 @@ struct AppMetadata: Equatable {
     init(bundle: Bundle = .main) {
         name = bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
             ?? bundle.object(forInfoDictionaryKey: "CFBundleName") as? String
-            ?? "FMO 助手"
+            ?? String(localized: "FMO 助手")
         version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
         build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
     }
@@ -27,7 +27,7 @@ enum AppLinks {
         var components = URLComponents()
         components.scheme = "mailto"
         components.path = contactEmail
-        components.queryItems = [URLQueryItem(name: "subject", value: "FMO 助手反馈")]
+        components.queryItems = [URLQueryItem(name: "subject", value: String(localized: "FMO 助手反馈"))]
         return components.url!
     }
 

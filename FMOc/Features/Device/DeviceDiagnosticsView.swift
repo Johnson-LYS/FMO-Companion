@@ -22,15 +22,17 @@ struct DeviceDiagnosticsView: View {
             List {
                 Section("App 连接状态") {
                     Label(
-                        isMainConnected ? "设备连接已建立" : "设备当前未连接",
+                        isMainConnected
+                            ? String(localized: "设备连接已建立")
+                            : String(localized: "设备当前未连接"),
                         systemImage: isMainConnected ? "link.circle.fill" : "link.badge.plus"
                     )
                     .foregroundStyle(isMainConnected ? Color.green : Color.primary)
 
                     Text(
                         isMainConnected
-                            ? "以下结果用于独立验证当前网络路径。"
-                            : "以下结果是独立可达性检查，不代表设备页已建立连接。"
+                            ? String(localized: "以下结果用于独立验证当前网络路径。")
+                            : String(localized: "以下结果是独立可达性检查，不代表设备页已建立连接。")
                     )
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -82,42 +84,42 @@ struct DeviceDiagnosticsView: View {
 
     private func detail(for step: FmoDiagnosticStep, state: FmoDiagnosticState) -> String {
         switch state {
-        case .pending: "等待检查"
-        case .running: "正在检查…"
-        case .skipped: "依赖步骤未通过"
+        case .pending: String(localized: "等待检查")
+        case .running: String(localized: "正在检查…")
+        case .skipped: String(localized: "依赖步骤未通过")
         case .failed(let failure): failureDetail(failure)
         case .passed(let evidence):
             switch evidence {
-            case .wifiAvailable: "已检测到 Wi-Fi 接口"
-            case .endpointReachable(let port): "主机与 TCP 端口 \(port) 可达"
-            case .httpResponse(let statusCode): "收到 HTTP \(statusCode) 响应"
-            case .geoResponse: "独立握手与坐标响应正常"
+            case .wifiAvailable: String(localized: "已检测到 Wi-Fi 接口")
+            case .endpointReachable(let port): String(localized: "主机与 TCP 端口 \(port) 可达")
+            case .httpResponse(let statusCode): String(localized: "收到 HTTP \(statusCode) 响应")
+            case .geoResponse: String(localized: "独立握手与坐标响应正常")
             }
         }
     }
 
     private func failureDetail(_ failure: FmoDiagnosticFailure) -> String {
         switch failure {
-        case .wifiUnavailable: "未检测到 Wi-Fi 接口"
-        case .localNetworkDenied: "本地网络访问已关闭"
-        case .resolutionFailed: "无法解析设备主机名"
-        case .endpointUnavailable: "主机或 TCP 端口不可达"
-        case .httpUnavailable: "没有收到有效 HTTP 响应"
-        case .geo(let error): error.errorDescription ?? "GEO 检查失败"
-        case .timedOut: "检查在 5 秒后超时"
+        case .wifiUnavailable: String(localized: "未检测到 Wi-Fi 接口")
+        case .localNetworkDenied: String(localized: "本地网络访问已关闭")
+        case .resolutionFailed: String(localized: "无法解析设备主机名")
+        case .endpointUnavailable: String(localized: "主机或 TCP 端口不可达")
+        case .httpUnavailable: String(localized: "没有收到有效 HTTP 响应")
+        case .geo(let error): error.errorDescription ?? String(localized: "GEO 检查失败")
+        case .timedOut: String(localized: "检查在 5 秒后超时")
         }
     }
 
     private func suggestion(for state: FmoDiagnosticState) -> String? {
         guard case .failed(let failure) = state else { return nil }
         return switch failure {
-        case .wifiUnavailable: "请先让 iPhone 连接 FMO 所在的 Wi-Fi。"
-        case .localNetworkDenied: "请前往系统设置允许本地网络访问。"
-        case .resolutionFailed: "请尝试手动输入盒子的 IPv4 地址。"
-        case .endpointUnavailable: "请确认盒子在线且仍在同一局域网。"
-        case .httpUnavailable: "请在 Safari 中检查官方 fmo.local 后台。"
+        case .wifiUnavailable: String(localized: "请先让 iPhone 连接 FMO 所在的 Wi-Fi。")
+        case .localNetworkDenied: String(localized: "请前往系统设置允许本地网络访问。")
+        case .resolutionFailed: String(localized: "请尝试手动输入盒子的 IPv4 地址。")
+        case .endpointUnavailable: String(localized: "请确认盒子在线且仍在同一局域网。")
+        case .httpUnavailable: String(localized: "请在 Safari 中检查官方 fmo.local 后台。")
         case .geo(let error): error.recoverySuggestion
-        case .timedOut: "请确认网络稳定后重新检查。"
+        case .timedOut: String(localized: "请确认网络稳定后重新检查。")
         }
     }
 

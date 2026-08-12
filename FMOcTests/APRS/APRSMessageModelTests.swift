@@ -67,7 +67,7 @@ struct APRSMessageModelTests {
         let records = try container.mainContext.fetch(FetchDescriptor<APRSMessageRecord>())
         #expect(records.count == 1)
         #expect(records.first?.text == "收到，73")
-        #expect(model.lastIssue == "消息不能包含换行或 { 符号")
+        #expect(model.lastIssue == String(localized: "消息不能包含换行或 { 符号"))
         await model.setActive(false)
     }
 

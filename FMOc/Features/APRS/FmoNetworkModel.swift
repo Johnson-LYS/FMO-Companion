@@ -10,13 +10,13 @@ nonisolated enum FmoNetworkIdentityIssue: Error, Equatable, Sendable {
     var message: String {
         switch self {
         case .emptyCallsign:
-            "请输入呼号。"
+            String(localized: "请输入呼号。")
         case .invalidCallsign:
-            "呼号需至少 3 位，且只能包含英文字母和数字。"
+            String(localized: "呼号需至少 3 位，且只能包含英文字母和数字。")
         case .invalidSSID:
-            "设备编号需填写 0 到 15。"
+            String(localized: "设备编号需填写 0 到 15。")
         case .callsignTooLong:
-            "呼号与设备编号组合后不能超过 9 个字符。"
+            String(localized: "呼号与设备编号组合后不能超过 9 个字符。")
         }
     }
 }
@@ -91,15 +91,15 @@ final class FmoNetworkModel {
     var statusText: String {
         switch phase {
         case .unconfigured:
-            "未设置"
+            String(localized: "未设置")
         case .paused:
-            "已暂停"
+            String(localized: "已暂停")
         case .connecting:
-            "正在连接"
+            String(localized: "正在连接")
         case .receiving:
-            "正在接收"
+            String(localized: "正在接收")
         case .waitingToRetry:
-            "等待网络"
+            String(localized: "等待网络")
         }
     }
 

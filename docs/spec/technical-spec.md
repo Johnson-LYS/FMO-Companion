@@ -11,6 +11,8 @@ last-reviewed: 2026-08-12
 - 开发工具：Xcode 26.6；工程格式由 Xcode 管理。
 - UI：SwiftUI，支持 iPhone；iPad 自适应作为非阻塞兼容目标。
 - 语言与并发：Swift 6 语言模式、完整严格并发检查与 Swift Concurrency；避免新增长生命周期的裸线程或回调金字塔。
+- 本地化：开发/回退语言为英语，交付 `en` 与 `zh-Hans` String Catalog；SwiftUI 可见文案使用可提取的本地化资源，服务层动态错误使用 `String(localized:)`。Info.plist 显示名与权限用途说明使用独立 String Catalog。
+- 格式化：日期、相对时间、数字和展示单位使用 Foundation/SwiftUI 的区域感知 FormatStyle；呼号、SSID、梅登黑德、IP、APRS/QSO 原始字段保持协议原值。
 - 持久化：普通设置使用轻量本地存储；结构化 App 数据使用 SwiftData；QSO 按所选 FMO 的稳定身份隔离缓存。
 
 ## 模块边界
@@ -26,6 +28,8 @@ last-reviewed: 2026-08-12
 - `Core`：共享网络、安全、持久化、时间与诊断抽象。
 
 UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 服务。
+
+本地化目录必须同时含非空的英语与简体中文翻译并保持格式占位符一致。`ci_scripts/validate_localizations.py` 在 Xcode Cloud 构建前检查主 App、实时活动、Info.plist 与双语隐私政策；关键导航另由中英文 XCUITest 覆盖。
 
 ## 设备仪表盘
 

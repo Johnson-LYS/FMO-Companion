@@ -38,7 +38,7 @@ struct DashboardFullscreenPresentationTests {
         #expect(observedAt == now.addingTimeInterval(-60))
         #expect(abs((target.distanceKilometers ?? 0) - 111.2) < 0.2)
         #expect(abs((target.bearingDegrees ?? 0) - 90) < 0.01)
-        #expect(target.cardinalDirection == "东")
+        #expect(target.cardinalDirection == String(localized: "东"))
         #expect(target.isSpeaking)
     }
 

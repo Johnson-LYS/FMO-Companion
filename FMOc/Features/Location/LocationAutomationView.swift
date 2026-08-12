@@ -236,18 +236,18 @@ struct LocationAutomationView: View {
     }
 
     private var lastAttemptText: String {
-        guard let attempt = model.snapshot.lastAttempt else { return "尚无记录" }
+        guard let attempt = model.snapshot.lastAttempt else { return String(localized: "尚无记录") }
         let result: String
         switch attempt.result {
-        case .inProgress: result = "进行中"
-        case .success: result = "成功"
-        case .failure: result = "失败"
+        case .inProgress: result = String(localized: "进行中")
+        case .success: result = String(localized: "成功")
+        case .failure: result = String(localized: "失败")
         }
         return "\(result) · \(formatted(attempt.timestamp))"
     }
 
     private func formatted(_ date: Date?) -> String {
-        guard let date else { return "尚无记录" }
+        guard let date else { return String(localized: "尚无记录") }
         return date.formatted(date: .abbreviated, time: .shortened)
     }
 }
@@ -334,9 +334,6 @@ private extension AutomaticLocationPauseReason {
 
 private extension Duration {
     var secondsText: String {
-        let components = self.components
-        let seconds = Double(components.seconds)
-            + Double(components.attoseconds) / 1_000_000_000_000_000_000
-        return seconds.formatted(.number.precision(.fractionLength(0))) + " 秒"
+        formatted(.units(allowed: [.seconds], width: .abbreviated))
     }
 }

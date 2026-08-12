@@ -142,7 +142,7 @@ struct FMOV4EventExplorerView: View {
         var id: Self { self }
         var title: String {
             switch self {
-            case .all: "全部"
+            case .all: String(localized: "全部")
             case .cq: "CQ"
             case .omcq: "OMCQ"
             case .vocal: "VOCAL"
@@ -150,7 +150,7 @@ struct FMOV4EventExplorerView: View {
             case .beacon: "BEACON"
             case .station: "STATION"
             case .event: "EVENT"
-            case .favorites: "收藏"
+            case .favorites: String(localized: "收藏")
             }
         }
     }

@@ -19,6 +19,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 最近变更
 
+| 2026-08-12 | 首版加入简体中文/英语双语：App、实时活动、Info.plist 权限与辅助功能文案统一进入 String Catalog，跟随系统或单 App 语言并回退英语；Xcode Cloud 增加翻译完整性校验，公网隐私政策在同一无脚本静态页面提供双语正文 | `FMOc/Resources/Localizable.xcstrings`、`FMOc/InfoPlist.xcstrings`、`FMOcLiveActivity/`、`privacy/`、`ci_scripts/validate_localizations.py` |
+
 | 2026-08-12 | 修正 Xcode Cloud 首轮构建号同步未进入归档的问题：改在每个 `xcodebuild` Action 前写入 `CI_BUILD_NUMBER`，并校验 App 的 Debug/Release 实际 Build Settings，不匹配时失败关闭；关于页继续只读取最终 Bundle | `ci_scripts/ci_pre_xcodebuild.sh`、`FMOc/Features/Settings/AppMetadata.swift`、`docs/operations/xcode-cloud.md` |
 
 | 2026-08-12 | 将设备首页卡片到横屏仪表盘改为根层分阶段 Hero 转场：背景、关键状态共享元素、左右面板滑入与系统方向更新同步开始并结束；设备页连接态支持随系统自然横屏自动展开、自然竖屏自动退出；退出时面板滑出、共享元素缩回、首页恢复与竖屏旋转并行，全屏及深色底层保留到最后一帧；内容仍受安全区约束，地图解析和音频等服务延迟到视觉稳定后启动 | `FMOc/ContentView.swift`、`FMOc/Features/Dashboard/DashboardHeroTransition.swift`、`FMOc/Features/Dashboard/DashboardFullscreenView.swift` |

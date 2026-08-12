@@ -327,7 +327,7 @@ struct DashboardFullscreenView: View {
         HStack(spacing: 8) {
             Image(systemName: "location.fill")
                 .foregroundStyle(target.isSpeaking ? Color.accentColor : .white.opacity(0.36))
-            DashboardMarqueeText(areaName ?? "位置未知")
+            DashboardMarqueeText(areaName ?? String(localized: "位置未知"))
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(target.isSpeaking ? .white.opacity(0.72) : .white.opacity(0.34))
                 .frame(maxWidth: .infinity, minHeight: 20, maxHeight: 20, alignment: .leading)
@@ -370,7 +370,7 @@ struct DashboardFullscreenView: View {
                 .font(.caption2.weight(.semibold).monospaced())
                 .lineLimit(1)
             Spacer(minLength: 4)
-            Text(historyAreaNames[historyKey(item.callsign)] ?? "位置未知")
+            Text(historyAreaNames[historyKey(item.callsign)] ?? String(localized: "位置未知"))
                 .font(.caption2)
                 .foregroundStyle(.white.opacity(0.35))
                 .lineLimit(1)
@@ -410,11 +410,11 @@ struct DashboardFullscreenView: View {
                 continue
             }
             guard let coordinate = item.coordinate else {
-                resolved[key] = "位置未知"
+                resolved[key] = String(localized: "位置未知")
                 continue
             }
             let area = await areaResolver.areaName(for: coordinate)
-            resolved[key] = area ?? "位置未知"
+            resolved[key] = area ?? String(localized: "位置未知")
             if let area {
                 retainedAreaNames[key] = area
                 await speakerLocationStore.save(
@@ -502,7 +502,11 @@ struct DashboardFullscreenView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel("设备声音")
-            .accessibilityValue(audioMonitor.isSoundEnabled ? "已开启" : "已关闭")
+            .accessibilityValue(
+                audioMonitor.isSoundEnabled
+                    ? String(localized: "已开启")
+                    : String(localized: "已关闭")
+            )
             .accessibilityIdentifier("dashboard-audio-toggle")
         }
         .frame(height: 54)
@@ -528,7 +532,11 @@ struct DashboardFullscreenView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(mode.title)
-                .accessibilityValue(selected ? "已选择" : "未选择")
+                .accessibilityValue(
+                    selected
+                        ? String(localized: "已选择")
+                        : String(localized: "未选择")
+                )
             }
         }
         .padding(3)
@@ -646,7 +654,11 @@ private struct DashboardAudioWaveform: View {
         .opacity(isReceiving ? 1 : 0.55)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("设备音频波形")
-        .accessibilityValue(isReceiving ? "正在接收" : "等待音频")
+        .accessibilityValue(
+            isReceiving
+                ? String(localized: "正在接收")
+                : String(localized: "等待音频")
+        )
         .accessibilityIdentifier("dashboard-audio-waveform")
     }
 
@@ -759,9 +771,17 @@ private struct DashboardBearingView: View {
     }
 
     private var accessibilityText: String {
-        guard let target, let bearing = target.bearingDegrees else { return "讲话者方位暂不可用" }
-        let distance = target.distanceKilometers.map { "，约 \(Int($0.rounded())) 公里" } ?? ""
-        return "\(target.callsign) 位于\(target.cardinalDirection ?? "")方向，\(Int(bearing.rounded()))度\(distance)"
+        guard let target, let bearing = target.bearingDegrees else {
+            return String(localized: "讲话者方位暂不可用")
+        }
+        if let distance = target.distanceKilometers {
+            return String(
+                localized: "\(target.callsign) 位于\(target.cardinalDirection ?? "")方向，\(Int(bearing.rounded()))度，约 \(Int(distance.rounded())) 公里"
+            )
+        }
+        return String(
+            localized: "\(target.callsign) 位于\(target.cardinalDirection ?? "")方向，\(Int(bearing.rounded()))度"
+        )
     }
 
     private var metricAnimation: Animation? {
@@ -805,7 +825,7 @@ private struct DashboardTrackingMap: View {
                             .foregroundStyle(Color.accentColor.opacity(0.16))
                             .stroke(Color.accentColor.opacity(0.7), lineWidth: 1)
                     }
-                    Annotation(target?.callsign ?? "讲话者", coordinate: targetCoordinate.clCoordinate) {
+                    Annotation(target?.callsign ?? String(localized: "讲话者"), coordinate: targetCoordinate.clCoordinate) {
                         Image(systemName: "antenna.radiowaves.left.and.right")
                             .font(.headline)
                             .foregroundStyle(.black)
@@ -876,7 +896,11 @@ private struct DashboardTrackingMap: View {
                         }
                 }
                 .buttonStyle(.plain)
-                .accessibilityValue(tracksTarget ? "已开启" : "已关闭")
+                .accessibilityValue(
+                    tracksTarget
+                        ? String(localized: "已开启")
+                        : String(localized: "已关闭")
+                )
                 Spacer()
                 Button {
                     tracksTarget = true

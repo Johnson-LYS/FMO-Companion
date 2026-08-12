@@ -6,8 +6,37 @@ final class FMOcUITests: XCTestCase {
     }
 
     @MainActor
-    func testHomeShowsPrimaryConnectionPathAndTabs() throws {
+    private func makeApplication(
+        language: String = "zh-Hans",
+        locale: String = "zh_CN"
+    ) -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchArguments += ["-AppleLanguages", "(\(language))", "-AppleLocale", locale]
+        return app
+    }
+
+    @MainActor
+    func testEnglishLocalizationShowsPrimaryNavigationAndSettings() throws {
+        let app = makeApplication(language: "en", locale: "en_US")
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "empty"
+        app.launch()
+
+        XCTAssertTrue(app.navigationBars["Devices"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Devices"].exists)
+        XCTAssertTrue(app.buttons["FMO Network"].exists)
+        XCTAssertTrue(app.buttons["QSO"].exists)
+        XCTAssertTrue(app.buttons["Settings"].exists)
+
+        app.buttons["Settings"].tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.buttons["Privacy Policy"].exists)
+        XCTAssertTrue(app.buttons["System Permissions"].exists)
+        XCTAssertTrue(app.buttons["About FMO Companion"].exists)
+    }
+
+    @MainActor
+    func testHomeShowsPrimaryConnectionPathAndTabs() throws {
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "empty"
         app.launch()
 
@@ -40,7 +69,7 @@ final class FMOcUITests: XCTestCase {
 
     @MainActor
     func testFMONetworkIdentityCanBeConfiguredAndStartsReceiving() throws {
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "empty"
         app.launch()
 
@@ -75,7 +104,7 @@ final class FMOcUITests: XCTestCase {
 
     @MainActor
     func testFMONetworkShowsMapSearchableDirectoryAndEvents() throws {
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "aprs-network-content"
         app.launch()
 
@@ -119,7 +148,7 @@ final class FMOcUITests: XCTestCase {
 
     @MainActor
     func testLocalNetworkDenialOffersSettingsRecovery() throws {
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "local-network-denied"
         app.launch()
 
@@ -135,7 +164,7 @@ final class FMOcUITests: XCTestCase {
     @MainActor
     func testSavedDeviceCanBeRemoved() throws {
         XCUIDevice.shared.orientation = .portrait
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "saved-device"
         app.launch()
 
@@ -152,7 +181,7 @@ final class FMOcUITests: XCTestCase {
 
     @MainActor
     func testMessagesAndRemoteControlFollowApprovedHierarchy() throws {
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "aprs-network-content"
         app.launch()
 
@@ -179,7 +208,7 @@ final class FMOcUITests: XCTestCase {
 
     @MainActor
     func testSettingsContainsOnlyWorkingReleaseEntries() throws {
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "empty"
         app.launch()
 
@@ -207,7 +236,7 @@ final class FMOcUITests: XCTestCase {
 
     @MainActor
     func testConnectedDashboardUsesGeoDerivedMaidenheadWithoutDeferredFixtures() throws {
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "dashboard-connected"
         app.launch()
 
@@ -234,7 +263,7 @@ final class FMOcUITests: XCTestCase {
     @MainActor
     func testConnectedDashboardOpensAndClosesLandscapeFullscreenDashboard() throws {
         XCUIDevice.shared.orientation = .portrait
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "dashboard-connected"
         app.launch()
 
@@ -266,7 +295,7 @@ final class FMOcUITests: XCTestCase {
     @MainActor
     func testConnectedDashboardFollowsNaturalDeviceRotation() throws {
         XCUIDevice.shared.orientation = .portrait
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "dashboard-connected"
         app.launch()
 
@@ -288,7 +317,7 @@ final class FMOcUITests: XCTestCase {
     @MainActor
     func testLaunchRestoresLastDeviceAndKeepsNearbyDeviceForManualSelection() throws {
         XCUIDevice.shared.orientation = .portrait
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "automatic-connection"
         app.launch()
 
@@ -310,7 +339,7 @@ final class FMOcUITests: XCTestCase {
 
     @MainActor
     func testLiveActivityEntryIsHiddenFromMilestone() throws {
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "dashboard-connected"
         app.launch()
 
@@ -321,7 +350,7 @@ final class FMOcUITests: XCTestCase {
 
     @MainActor
     func testQSOAutomaticallyShowsCurrentDeviceRecordsAndDetails() throws {
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "qso-synced"
         app.launch()
 
@@ -344,7 +373,7 @@ final class FMOcUITests: XCTestCase {
 
     @MainActor
     func testLocationAutomationExplainsAutomaticModeBeforeEnabling() throws {
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "saved-device"
         app.launch()
 
@@ -367,7 +396,7 @@ final class FMOcUITests: XCTestCase {
 
     @MainActor
     func testOfficialPagesRequireDeviceAndPresentSystemBrowser() throws {
-        let app = XCUIApplication()
+        let app = makeApplication()
         app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "empty"
         app.launch()
 

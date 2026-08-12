@@ -62,7 +62,7 @@ struct APRSMessagesView: View {
         .alert("消息提示", isPresented: issueIsPresented) {
             Button("好") { model.lastIssue = nil }
         } message: {
-            Text(model.lastIssue ?? "请稍后再试")
+            Text(model.lastIssue ?? String(localized: "请稍后再试"))
         }
     }
 
@@ -267,7 +267,7 @@ private struct APRSNewMessageSheet: View {
             )) {
                 Button("好") { issue = nil }
             } message: {
-                Text(issue ?? "请输入有效的呼号与 SSID")
+                Text(issue ?? String(localized: "请输入有效的呼号与 SSID"))
             }
         }
     }
@@ -282,7 +282,7 @@ private struct APRSNewMessageSheet: View {
                 }
             }
         } catch {
-            issue = "请输入有效的呼号与 SSID"
+            issue = String(localized: "请输入有效的呼号与 SSID")
         }
     }
 }

@@ -77,7 +77,7 @@ struct DeviceHomeModelTests {
 
         await model.connect(to: endpoint)
         #expect(model.phase == .failure)
-        #expect(model.issue?.title == "无法建立 GEO 连接")
+        #expect(model.issue?.title == String(localized: "无法建立 GEO 连接"))
     }
 
     @Test
@@ -93,7 +93,7 @@ struct DeviceHomeModelTests {
         await model.waitForDiscovery()
 
         #expect(model.phase == .failure)
-        #expect(model.issue?.title == "本地网络访问已关闭")
+        #expect(model.issue?.title == String(localized: "本地网络访问已关闭"))
         #expect(model.issue?.recoveryAction == .openSettings)
     }
 
@@ -113,7 +113,7 @@ struct DeviceHomeModelTests {
 
         #expect(model.phase == .connected)
         #expect(model.isConnected)
-        #expect(model.issue?.title == "定位访问已关闭")
+        #expect(model.issue?.title == String(localized: "定位访问已关闭"))
         #expect(model.issue?.recoveryAction == .openSettings)
     }
 
@@ -138,7 +138,7 @@ struct DeviceHomeModelTests {
         #expect(model.phase == .failure)
         #expect(!model.isConnected)
         #expect(model.selectedEndpoint == endpoint)
-        #expect(model.issue?.title == "FMO 连接已断开")
+        #expect(model.issue?.title == String(localized: "FMO 连接已断开"))
         #expect(await geo.disconnectCallCount() == 1)
     }
 
