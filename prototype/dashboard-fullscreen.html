@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#111215">
   <title>FMO Companion · 横屏仪表盘</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="dashboard-fullscreen.css?v=20260811g">
+  <link rel="stylesheet" href="dashboard-fullscreen.css?v=20260814a">
 </head>
 <body>
   <main class="dashboard-shell">
@@ -18,10 +18,10 @@
         <div><span class="live-dot" aria-hidden="true"></span><strong>BI8SYN</strong></div>
         <p><span aria-label="梅登黑德网格">OM20xx</span><span>500km</span></p>
       </section>
-      <section class="server-summary" aria-label="当前服务器">
-        <small>当前服务器</small>
-        <div class="server-marquee" id="serverMarquee"><div class="server-track"><strong>安吉 FMO 中继测试服务器</strong></div></div>
-      </section>
+      <button class="server-summary" type="button" data-action="open-server-picker" aria-label="切换服务器，当前服务器安吉 FMO 中继测试服务器">
+        <div class="server-marquee" id="serverMarquee"><div class="server-track"><strong id="fullscreenServerName">安吉 FMO 中继测试服务器</strong></div></div>
+        <span class="server-switch-icon" aria-hidden="true">⇅</span>
+      </button>
       <div class="view-switch" role="group" aria-label="选择位置视图">
         <button class="is-selected" type="button" data-view="compass" aria-pressed="true" aria-label="方位">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m15.5 8.5-2.1 4.9-4.9 2.1 2.1-4.9 4.9-2.1Z"></path></svg>
@@ -105,6 +105,19 @@
       </section>
     </section>
   </main>
-  <script src="dashboard-fullscreen.js?v=20260811g"></script>
+
+  <div class="server-picker-backdrop" id="fullscreenServerPicker" hidden>
+    <section class="server-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="fullscreenServerPickerTitle">
+      <header><h2 id="fullscreenServerPickerTitle">切换服务器</h2><button type="button" data-action="close-server-picker">完成</button></header>
+      <label class="server-search"><span aria-hidden="true">⌕</span><input type="search" placeholder="搜索服务器" aria-label="搜索服务器"></label>
+      <h3>收藏服务器</h3>
+      <button class="server-row" type="button" data-action="switch-server" data-server-name="彩云之南集群主节点"><span>★</span><strong>彩云之南集群主节点</strong><i></i></button>
+      <h3>所有服务器</h3>
+      <button class="server-row is-current" type="button" data-action="switch-server" data-server-name="安吉 FMO 中继测试服务器"><span>▤</span><strong>安吉 FMO 中继测试服务器</strong><i>✓</i></button>
+      <button class="server-row" type="button" data-action="switch-server" data-server-name="如意甘肃"><span>▤</span><strong>如意甘肃</strong><i></i></button>
+      <button class="server-row" type="button" data-action="switch-server" data-server-name="半间猫窝（洛）"><span>▤</span><strong>半间猫窝（洛）</strong><i></i></button>
+    </section>
+  </div>
+  <script src="dashboard-fullscreen.js?v=20260814a"></script>
 </body>
 </html>

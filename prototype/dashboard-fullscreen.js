@@ -43,12 +43,15 @@
   const locationMarquee = document.querySelector("#locationMarquee");
   const audioToggle = document.querySelector("[data-action='toggle-audio']");
   const audioWaveform = document.querySelector("#audioWaveform");
+  const serverPicker = document.querySelector("#fullscreenServerPicker");
+  const fullscreenServerName = document.querySelector("#fullscreenServerName");
+  const serverSearch = serverPicker.querySelector("input[type='search']");
 
   let speakerIndex = 0;
   let trackingEnabled = true;
   let transitionTimer = null;
   let cameraTimer = null;
-  let audioEnabled = false;
+  let audioEnabled = window.localStorage.getItem("fmo-prototype-audio-enabled") === "true";
   let audioPhase = 0;
   let lastAudioFrame = 0;
 
@@ -217,14 +220,44 @@
       updateMapGeometry(speakers[speakerIndex]);
     } else if (actionTarget.dataset.action === "toggle-audio") {
       audioEnabled = !audioEnabled;
+      window.localStorage.setItem("fmo-prototype-audio-enabled", String(audioEnabled));
       audioToggle.classList.toggle("is-active", audioEnabled);
       audioToggle.setAttribute("aria-pressed", String(audioEnabled));
       audioToggle.setAttribute("aria-label", audioEnabled ? "关闭设备声音" : "打开设备声音");
+    } else if (actionTarget.dataset.action === "open-server-picker") {
+      serverPicker.hidden = false;
+    } else if (actionTarget.dataset.action === "close-server-picker") {
+      serverPicker.hidden = true;
+    } else if (actionTarget.dataset.action === "switch-server") {
+      document.querySelectorAll(".server-row").forEach((row) => {
+        const selected = row === actionTarget;
+        row.classList.toggle("is-current", selected);
+        row.querySelector("i").textContent = selected ? "✓" : "";
+      });
+      fullscreenServerName.textContent = actionTarget.dataset.serverName;
+      document.querySelector("[data-action='open-server-picker']")?.setAttribute(
+        "aria-label",
+        `切换服务器，当前服务器${actionTarget.dataset.serverName}`
+      );
+      serverPicker.hidden = true;
+      requestAnimationFrame(configureServerMarquee);
     }
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") window.location.href = "index.html";
+    if (event.key === "Escape" && !serverPicker.hidden) serverPicker.hidden = true;
+    else if (event.key === "Escape") window.location.href = "index.html";
+  });
+
+  serverPicker.addEventListener("click", (event) => {
+    if (event.target === serverPicker) serverPicker.hidden = true;
+  });
+
+  serverSearch.addEventListener("input", () => {
+    const query = serverSearch.value.trim().toLocaleLowerCase();
+    document.querySelectorAll(".server-row").forEach((row) => {
+      row.hidden = query !== "" && !row.dataset.serverName.toLocaleLowerCase().includes(query);
+    });
   });
 
   window.addEventListener("resize", () => {
@@ -234,6 +267,9 @@
   });
 
   applySpeaker(speakers[0]);
+  audioToggle.classList.toggle("is-active", audioEnabled);
+  audioToggle.setAttribute("aria-pressed", String(audioEnabled));
+  audioToggle.setAttribute("aria-label", audioEnabled ? "关闭设备声音" : "打开设备声音");
   configureServerMarquee();
   configureLocationMarquee();
   updateAudioWaveform();

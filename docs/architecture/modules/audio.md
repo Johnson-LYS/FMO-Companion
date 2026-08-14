@@ -1,12 +1,12 @@
 ---
-last-reviewed: 2026-08-12
+last-reviewed: 2026-08-14
 ---
 
 # 模块：本地接收音频
 
 ## 目的
 
-在用户选中的 FMO 与 iPhone 位于可达局域网时，为横屏仪表盘提供瞬时音频波形和用户显式开启的本机播放。模块只实现 ADR-0009 固定的只接收 PCM 契约，不录制、不保存、不上传、不转发，也不参与当前讲话者判定。
+在用户选中的 FMO 与 iPhone 位于可达局域网时，为设备首页和横屏仪表盘提供共享的瞬时音频状态，以及用户显式开启的本机播放。模块只实现 ADR-0009 固定的只接收 PCM 契约，不录制、不保存、不上传、不转发，也不参与当前讲话者判定。
 
 ## 公共接口
 
@@ -48,7 +48,7 @@ selected FmoDeviceEndpoint
 └→ user enabled only → AVAudioEngine → local speaker
 ```
 
-连接只在 App active 且横屏仪表盘可见时存在。每次进入、恢复前台或切换设备都重置为静音；退出、后台、断线或设备变化取消流、解码和播放。静音期间的帧不会缓存供稍后回放。
+`ContentView` 为当前设备持有唯一 `FmoAudioMonitorModel`。连接只在 App active 且当前 FMO 已连接时存在；首页和横屏消费同一实例，所以 Hero 转场、自然旋转和退出全屏既不重连 `/audio`，也不改变声音开关。音频 WebSocket 首次失败、短暂断开或自然结束时，模型暂停播放器并以可取消的一秒间隔自动重建流；这种瞬时恢复保留用户的声音开关，收到新帧后继续波形与播放。首次连接默认静音；后台、设备断线或设备变化才取消整个会话并恢复静音。静音期间的帧不会缓存供稍后回放。
 
 ## 依赖与边界
 
@@ -65,6 +65,8 @@ selected FmoDeviceEndpoint
 - `FMOc/Features/Audio/FmoLocalAudioProtocol.swift`
 - `FMOc/Features/Audio/FmoLocalAudioClient.swift`
 - `FMOc/Features/Audio/FmoAudioMonitorModel.swift`
+- `FMOc/ContentView.swift`
+- `FMOc/Features/Dashboard/DeviceDashboardSummaryView.swift`
 - `FMOc/Features/Dashboard/DashboardFullscreenView.swift`
 
 ## 测试
@@ -73,5 +75,5 @@ selected FmoDeviceEndpoint
 - 波形点数、归一化范围和静音时持续更新。
 - 精确 `p` 保活忽略；未知文本、消息类型和错误长度失败关闭。
 - URL 只由所选设备端点构造。
-- 默认静音、新帧播放、关闭/停止后按钮重置与有界缓冲。
-- iPhone 真机验收：进入全屏默认无声但波形变化，开启/关闭即时生效，退出与后台后无播放。
+- 默认静音、新帧播放、瞬时断流自动重连且保持声音开关、关闭/停止后按钮重置与有界缓冲。
+- iPhone 真机验收：首页默认无声，任一喇叭按钮开启/关闭均即时生效；进入与退出横屏时状态和播放连续，后台后停止播放。

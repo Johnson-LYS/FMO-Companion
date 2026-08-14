@@ -20,7 +20,6 @@ struct FMOV4StationDirectoryView: View {
     let snapshot: FMOV4NetworkSnapshot
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \FavoriteCallsign.createdAt) private var favoriteCallsigns: [FavoriteCallsign]
-    @Query(sort: \FavoriteServer.createdAt) private var favoriteServers: [FavoriteServer]
     @State private var segment = Segment.stations
     @State private var searchText = ""
 
@@ -91,22 +90,10 @@ struct FMOV4StationDirectoryView: View {
     private func serverSection(_ servers: [FMOV4ServerRecord]) -> some View {
         Section("服务器 · \(servers.count)") {
             ForEach(servers) { server in
-                HStack(spacing: 10) {
-                    NavigationLink {
-                        FMOV4ServerDetailView(server: server)
-                    } label: {
-                        serverLabel(server)
-                    }
-                    Button {
-                        toggleFavorite(server)
-                    } label: {
-                        Image(systemName: isFavorite(server) ? "star.fill" : "star")
-                            .foregroundStyle(isFavorite(server) ? Color.accentColor : .secondary)
-                            .frame(width: 44, height: 44)
-                            .contentShape(.rect)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(isFavorite(server) ? "取消收藏 \(server.name)" : "收藏 \(server.name)")
+                NavigationLink {
+                    FMOV4ServerDetailView(server: server)
+                } label: {
+                    serverLabel(server)
                 }
             }
         }
@@ -133,30 +120,6 @@ struct FMOV4StationDirectoryView: View {
                         }
                         Spacer()
                         removeFavoriteButton(favorite, label: favorite.displayCallsign)
-                    }
-                }
-            }
-        }
-
-        Section("收藏服务器 · \(filteredFavoriteServers.count)") {
-            ForEach(filteredFavoriteServers) { favorite in
-                if let server = server(for: favorite) {
-                    HStack(spacing: 10) {
-                        NavigationLink { FMOV4ServerDetailView(server: server) } label: {
-                            serverLabel(server)
-                        }
-                        removeFavoriteButton(favorite, label: favorite.displayName)
-                    }
-                } else {
-                    HStack {
-                        Image(systemName: "server.rack")
-                            .foregroundStyle(.secondary)
-                        VStack(alignment: .leading) {
-                            Text(favorite.displayName).font(.body.weight(.semibold))
-                            Text("当前未收到数据").font(.caption).foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        removeFavoriteButton(favorite, label: favorite.displayName)
                     }
                 }
             }
@@ -218,11 +181,6 @@ struct FMOV4StationDirectoryView: View {
         return favoriteCallsigns.filter { $0.displayCallsign.localizedCaseInsensitiveContains(normalizedSearch) }
     }
 
-    private var filteredFavoriteServers: [FavoriteServer] {
-        guard !normalizedSearch.isEmpty else { return favoriteServers }
-        return favoriteServers.filter { $0.displayName.localizedCaseInsensitiveContains(normalizedSearch) }
-    }
-
     private var normalizedSearch: String {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -231,16 +189,12 @@ struct FMOV4StationDirectoryView: View {
         switch segment {
         case .stations: filteredStations.count
         case .servers: filteredServers.count
-        case .favorites: filteredFavoriteCallsigns.count + filteredFavoriteServers.count
+        case .favorites: filteredFavoriteCallsigns.count
         }
     }
 
     private func isFavorite(_ station: FMOV4StationRecord) -> Bool {
         favoriteCallsigns.contains { $0.normalizedCallsign == FMOV4FavoriteKey.callsign(station.callsign) }
-    }
-
-    private func isFavorite(_ server: FMOV4ServerRecord) -> Bool {
-        favoriteServers.contains { $0.numericUID == server.uid }
     }
 
     private func toggleFavorite(_ station: FMOV4StationRecord) {
@@ -250,15 +204,6 @@ struct FMOV4StationDirectoryView: View {
             modelContext.delete(favorite)
         } else {
             modelContext.insert(FavoriteCallsign(callsign: station.callsign, ssid: station.ssid))
-        }
-        try? modelContext.save()
-    }
-
-    private func toggleFavorite(_ server: FMOV4ServerRecord) {
-        if let favorite = favoriteServers.first(where: { $0.numericUID == server.uid }) {
-            modelContext.delete(favorite)
-        } else {
-            modelContext.insert(FavoriteServer(uid: server.uid, displayName: server.name))
         }
         try? modelContext.save()
     }
@@ -280,10 +225,5 @@ struct FMOV4StationDirectoryView: View {
         snapshot.stations.first {
             FMOV4FavoriteKey.callsign($0.callsign) == favorite.normalizedCallsign
         }
-    }
-
-    private func server(for favorite: FavoriteServer) -> FMOV4ServerRecord? {
-        guard let uid = favorite.numericUID else { return nil }
-        return snapshot.servers.first { $0.uid == uid }
     }
 }

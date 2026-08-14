@@ -6,12 +6,16 @@ struct DeviceHomeView: View {
     @Bindable var locationAutomationModel: LocationAutomationModel
     @Bindable var officialWebModel: OfficialWebModel
     @Bindable var remoteControlModel: FmoRemoteControlModel
+    @Bindable var audioMonitor: FmoAudioMonitorModel
+    let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
+    let dashboardAreaResolver: any DashboardAreaResolving
     let dashboardHeroNamespace: Namespace.ID
     let isDashboardHeroActive: Bool
     let hidesDashboardChrome: Bool
     let openDashboardFullscreen: () -> Void
     @State private var actionTask: Task<Void, Never>?
     @State private var showsDevicePicker = false
+    @State private var showsServerPicker = false
     @State private var showsDiagnostics = false
     @Environment(\.openURL) private var openURL
 
@@ -76,6 +80,11 @@ struct DeviceHomeView: View {
         }
         .sheet(isPresented: $showsDevicePicker) {
             devicePickerSheet
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showsServerPicker) {
+            DeviceServerPickerView(model: model)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
@@ -222,8 +231,12 @@ struct DeviceHomeView: View {
             if model.isConnected {
                 DeviceDashboardSummaryView(
                     snapshot: model.dashboardSnapshot,
+                    audioMonitor: audioMonitor,
+                    areaResolver: dashboardAreaResolver,
+                    speakerLocationStore: dashboardSpeakerLocationStore,
                     heroNamespace: dashboardHeroNamespace,
                     participatesInHero: participatesInHero,
+                    openServerPicker: { showsServerPicker = true },
                     openFullscreen: openDashboardFullscreen
                 )
             } else {

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-11
+last-reviewed: 2026-08-15
 ---
 
 # 模块：Device Connectivity
@@ -26,6 +26,16 @@ protocol FmoGeoClient: Sendable {
     func connect(to endpoint: FmoDeviceEndpoint) async throws
     func getCoordinate() async throws -> GeoCoordinate
     func setCoordinate(_ coordinate: GeoCoordinate) async throws
+    func disconnect() async
+}
+
+protocol FmoStationControlling: Sendable {
+    func connect(to endpoint: FmoDeviceEndpoint) async throws
+    func getServerCatalog() async throws -> FmoDeviceServerCatalog
+    func getServerCatalog(
+        onUpdate: @escaping @Sendable (FmoDeviceServerCatalog) async -> Void
+    ) async throws -> FmoDeviceServerCatalog
+    func switchCurrentServer(toUID uid: Int64) async throws -> FmoCurrentServer
     func disconnect() async
 }
 
@@ -62,11 +72,12 @@ Bonjour 端点使用稳定的 `fmo.local` 作为可连接、可持久化的主�
 - `FmoGeoWebSocketClient` 在传输报告异常断线时同时清除逻辑端点并关闭 transport，后续请求会立即返回未连接，不继续向失效任务发送消息。
 - `DeviceHomeModel` 是 `MainActor` 上的可观察状态机，编排发现、连接、读取、单次定位、写入和回读确认。发现与连接使用相互独立、可取消的任务及代际标识：停止扫描不取消已经选定的连接，切换设备则会取消旧连接结果，避免迟到响应覆盖新目标。GEO 异常断线会退出已连接状态、清除失效的盒子坐标，但保留目标端点与手机位置供用户重连后继续；定位权限拒绝不会误断开仍然有效的 GEO 连接。
 - 完成初始本地状态读取后，`DeviceHomeModel` 在前台连接存续期间以默认 3 秒间隔复用独立状态会话，仅调用 ADR-0005 白名单中的 `station/getCurrent`；会话失效时由下一轮重新连接，使用户直接在盒子上切换服务器后首页能在下一轮刷新时更新。刷新等待器与间隔可注入且可取消；切换设备或停止连接会取消旧任务，迟到结果不能写入新设备快照。
-- 单次当前服务器刷新失败只把本地状态链路标为过期，不影响 GEO 与 `/events`；下一轮先尝试完整只读状态快照以恢复该链路。这里不发送 `station/setCurrent`，也不把轮询扩大到 QSO、频率或其他管理命令。
+- 单次当前服务器刷新失败只把本地状态链路标为过期，不影响 GEO 与 `/events`；下一轮先尝试完整只读状态快照以恢复该链路。ADR-0005 状态会话不发送 `station/setCurrent`，也不把轮询扩大到 QSO、频率或其他管理命令。
+- `FmoStationControlWebSocketClient` 是 ADR-0010 批准的独立 Actor：每次打开选择器都重新分页读取设备 `getListRange` 与 `getPinnedList`，不使用跨会话缓存；每个实时分页通过校验后立即投影当前累计目录，使首批服务器先显示、后续页继续加载。客户端只允许从本次已读目录选择正整数 UID，并以 `setCurrent` 后 `getCurrent` UID 匹配作为成功条件。分页、单帧、名称与总数均有上限；切设备或断开时关闭独立会话，旧响应不能覆盖新设备。
 - GEO 坐标读取或同步回读成功后，`DeviceHomeModel` 把已校验坐标交给 `DashboardStore` 派生 Maidenhead；它不自行构造服务器、频率、延迟或事件字段。
 - `DeviceHomeModel` 同时负责端点集合的稳定身份合并、排序、持久化和显式移除；发现流只追加新身份。删除当前端点会收敛连接状态、清除最后成功标记，并明确停止本轮自动队列，不自动切换到其他设备。
 - App 首页出现时并行启动发现与自动连接队列。队列先放最后一次完成 GEO 连接并成功回读坐标的稳定端点，再按原顺序放其余保存端点；新发现端点去重后追加。连接严格串行，单台失败只记录为候选错误，队列与扫描均耗尽后才呈现总体失败；队列已经耗尽后出现新发现端点时继续尝试。任一设备成功后移动到首位并停止自动队列，后续发现只更新列表。用户点击当前设备是幂等操作，点击其他设备会取消自动队列和旧连接结果并优先切换目标；首页不提供主动断开按钮。
-- 首页只保留状态卡。扫描结果、手动地址、重新扫描、设备切换与左滑删除统一放在状态卡设备按钮打开的原生 Sheet 中；连接过程中仍允许用户显式选择其他端点，以保证手动选择优先。
+- 首页只保留状态卡。扫描结果、手动地址、重新扫描、设备切换与左滑删除统一放在导航栏设备按钮打开的原生 Sheet 中；当前服务器名称打开另一原生 Sheet，按设备收藏/全部服务器分组并支持搜索和刷新。连接过程中仍允许用户显式选择其他端点，以保证手动选择优先。
 - 本地网络或定位权限被拒绝时，错误状态携带 `openSettings` 恢复动作，界面同时提供“前往设置”和“暂不”，其他错误继续使用普通确认提示。
 - `FmoConnectionDiagnoser` 按依赖顺序执行 Wi-Fi、本地主机与 TCP 端口、官方 HTTP 后台和 GEO WebSocket 四步检查；首个失败会停止后续网络操作并把依赖步骤标记为跳过。
 - 各探针通过协议注入。Network.framework 负责网络路径、DNS/mDNS 与 TCP 检查，`URLSession` 发送无正文的 HTTP `HEAD` 请求，独立 GEO 客户端完成握手和坐标响应检查。诊断状态通过 `AsyncStream` 实时投影到 `DeviceDiagnosticsModel`，支持取消和重新检查。
@@ -134,6 +145,9 @@ ws://<host>/ws
 - `FMOc/Features/Device/FmoDeviceServices.swift`
 - `FMOc/Features/Device/NWBrowserFmoDeviceDiscovery.swift`
 - `FMOc/Features/Device/FmoGeoWebSocketClient.swift`
+- `FMOc/Features/Device/FmoStationControlProtocol.swift`
+- `FMOc/Features/Device/FmoStationControlWebSocketClient.swift`
+- `FMOc/Features/Device/DeviceServerPickerView.swift`
 - `FMOc/Features/Device/FmoConnectionDiagnostics.swift`
 - `FMOc/Core/Networking/FmoConnectionDiagnosticProbes.swift`
 - `FMOc/Features/Device/DeviceHomeModel.swift`

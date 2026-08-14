@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-12
+last-reviewed: 2026-08-14
 ---
 
 # FMO 已公开能力与来源
@@ -31,14 +31,15 @@ last-reviewed: 2026-08-12
 | 端点/消息 | 已观察字段或行为 | 证据状态 |
 |---|---|---|
 | `/ws` `user/getInfo` | 呼号；同一响应还包含不应进入 Dashboard 的证书指纹、MQTT 端点与局域网 IP | ADR-0005 白名单；只解码呼号 |
-| `/ws` `station/getCurrent` | 当前服务器名称与 UID；完整观察 A → B → A 切换后的重新读取 | ADR-0005 白名单；0.3 连接期间可低频重新读取，不包含切换写操作 |
+| `/ws` `station/getCurrent` | 当前服务器名称与 UID；完整观察 A → B → A 切换后的重新读取 | ADR-0005 状态白名单；连接期间可低频重新读取；ADR-0010 控制会话用它验证切换结果 |
+| `/ws` `station/getListRange` / `getPinnedList` / `setCurrent` | 官方 UI 分页读取设备全部/收藏服务器，按稳定 UID 切换；已观察 `result == 0` 后回读目标 UID | ADR-0010 最小白名单；独立串行会话，只允许从设备目录选择 UID，不含收藏写入或其他管理命令 |
 | `/ws` `config/getServerFilter` | 枚举 `0...7`：禁用、50、100、200、500、1000、2000、5000 km | ADR-0005 白名单；未知值拒绝 |
 | `/ws` `config/getUserPhyFreq` | 单一工作频率 | ADR-0005 白名单；不得拆成 TX/RX |
 | `/ws` `qso/getList` | `count/page/pageSize/list`；摘要含 `logId/timestamp/toCallsign/grid`，真机确认页大小 20 与 100 均回显 | ADR-0007 允许自动分页同步；不是实时通联数或变更推送 |
 | `/ws` `qso/getDetail` | 按 `logId` 读取 `data.log` 中的双方呼号/网格、频率、模式、服务器、管理员、备注与时间 | ADR-0007 按最近记录、用户查看或 ADIF 导出需要串行补齐；不得按 `data.{fields}` 解码 |
 | `/events` `qso/callsign` | 当前讲话状态、呼号、可选网格、连接内 `seq/ts` | ADR-0005 白名单；与 APRS `VOCAL` 分离 |
 | `/events` `qso/history` | 最近最多 20 条呼号与 `utcTime` | ADR-0005 白名单；不是完整 QSO 数据库或 0.4 APRS 事件流 |
-| `/ws` 配置与控制写操作 | 官方 Web UI 可在局域网内配置盒子，用户授权样本中观察到多种写入行为，但没有公开版本、鉴权或错误契约 | ADR-0005 明确排除；App 继续打开官方 Web UI，不实现、枚举或代理观察到的写命令 |
+| `/ws` 其他配置与控制写操作 | 官方 Web UI 可在局域网内配置盒子，用户授权样本中观察到多种写入行为，但没有公开版本、鉴权或错误契约 | 除 ADR-0010 固定服务器切换外继续排除；App 不实现、枚举或代理其他观察到的写命令 |
 | `/audio` | 独立 WebSocket；固定 4480 字节 PCM 二进制帧，文本 `p` 保活 | ADR-0009 最小接收白名单；不发送、不录制、不持久化、不上传、不转发，不与状态客户端合并 |
 
 握手样本未出现 Cookie、Authorization、TLS 或 WebSocket 子协议，而 `/ws` 同时存在读取 PASSCODE 的命令。若未来获准接入，必须使用只读命令与字段双重白名单，不得实现通用命令代理，不得请求、解码、保存或记录 PASSCODE，并为原始帧大小、畸形数据、未知字段和秘密字段丢弃建立测试。

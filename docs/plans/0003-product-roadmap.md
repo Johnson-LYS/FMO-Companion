@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-08
+last-reviewed: 2026-08-14
 status: active
 ---
 
@@ -39,7 +39,7 @@ status: active
 - 使用 APRS-IS `pass -1` 与服务器端过滤实现 App 活跃期间的只读接收；不要求 PASSCODE，不发送 APRS 帧，不承诺后台事件或通知。
 - CQ、OMCQ、VOCAL、ONLINE、BEACON、STATION、JOINT/EVENT。
 - 确定性 CBOR、CERT blob、Ed25519、timeSalt、CRL。
-- 地图、列表、搜索、收藏呼号/公共服务器、收藏事件过滤和数据年龄。
+- 地图、列表、搜索、收藏呼号、呼号收藏事件过滤和数据年龄；公共服务器保留目录与详情，服务器收藏改由设备页读取所选 FMO。
 - 后台通知架构延期；未来恢复时需要在直接 APRS-IS 与自建推送服务间做 ADR。
 
 ## 0.6 通讯与远控

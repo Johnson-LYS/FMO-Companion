@@ -15,7 +15,6 @@ struct FmoNetworkView: View {
     )
     @State private var eventFilter = NetworkHomeEventFilter.all
     @Query private var favoriteCallsigns: [FavoriteCallsign]
-    @Query private var favoriteServers: [FavoriteServer]
 
     init(
         model: FmoNetworkModel,
@@ -436,7 +435,7 @@ struct FmoNetworkView: View {
                 } label: {
                     explorationRow(
                         title: "台站与服务器",
-                        subtitle: "搜索、收藏与详细信息",
+                        subtitle: "搜索台站与服务器详情",
                         symbol: "location.magnifyingglass"
                     )
                 }
@@ -492,7 +491,6 @@ struct FmoNetworkView: View {
 
     private var filteredEvents: [FMOV4NetworkEvent] {
         let callsigns = Set(favoriteCallsigns.map(\.normalizedCallsign))
-        let serverUIDs = Set(favoriteServers.compactMap(\.numericUID))
         return scopedSnapshot.events.filter { event in
             switch eventFilter {
             case .all:
@@ -503,7 +501,6 @@ struct FmoNetworkView: View {
                 [.cq, .omcq, .vocal].contains(event.kind)
             case .favorites:
                 callsigns.contains(FMOV4FavoriteKey.callsign(event.callsign))
-                    || event.serverUID.map(serverUIDs.contains) == true
             }
         }
     }

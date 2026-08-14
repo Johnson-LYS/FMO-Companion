@@ -13,6 +13,7 @@ enum AppComposition {
         let audioClient: any FmoLocalAudioStreaming
         let fmoNetworkLocationProvider: any PhoneLocationProviding
         let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
+        let dashboardAreaResolver: any DashboardAreaResolving
     }
 
     @MainActor
@@ -21,6 +22,7 @@ enum AppComposition {
         let discovery: any FmoDeviceDiscovering
         let geoClient: any FmoGeoClient
         let localStatusProvider: any FmoLocalStatusProviding
+        let stationController: any FmoStationControlling
         let localEventStream: any FmoLocalEventStreaming
         let modeStore: any LocationSyncModeStoring
         let aprsIdentityStore: any ReceiveOnlyAPRSIdentityStoring
@@ -38,30 +40,43 @@ enum AppComposition {
             discovery = LocalNetworkDeniedDiscovery()
             geoClient = FmoGeoWebSocketClient()
             localStatusProvider = FmoLocalStatusWebSocketClient()
+            stationController = FmoStationControlWebSocketClient()
             localEventStream = FmoLocalEventWebSocketClient()
         case "saved-device":
             let endpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+            let serverState = UITestServerState()
             endpointStore = UITestEndpointStore(endpoint: endpoint)
             discovery = EmptyDeviceDiscovery()
             geoClient = UITestGeoClient()
-            localStatusProvider = UITestLocalStatusProvider()
+            localStatusProvider = UITestLocalStatusProvider(serverState: serverState)
+            stationController = UITestStationController(serverState: serverState)
             localEventStream = UITestLocalEventStream()
         case "dashboard-connected":
             let endpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+            let serverState = UITestServerState()
             endpointStore = UITestEndpointStore(endpoint: endpoint)
             discovery = EmptyDeviceDiscovery()
             geoClient = UITestGeoClient()
-            localStatusProvider = UITestLocalStatusProvider()
+            localStatusProvider = UITestLocalStatusProvider(serverState: serverState)
+            stationController = UITestStationController(
+                serverState: serverState,
+                catalogDelay: processInfo.environment["FMO_UI_TEST_DELAY_SERVER_CATALOG"] == "1"
+                    ? .seconds(3)
+                    : .zero
+            )
             localEventStream = UITestLocalEventStream()
         case "qso-synced":
             let endpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual, name: "FMO Test")
+            let serverState = UITestServerState()
             endpointStore = UITestEndpointStore(endpoint: endpoint)
             discovery = EmptyDeviceDiscovery()
             geoClient = UITestGeoClient()
-            localStatusProvider = UITestLocalStatusProvider()
+            localStatusProvider = UITestLocalStatusProvider(serverState: serverState)
+            stationController = UITestStationController(serverState: serverState)
             localEventStream = UITestLocalEventStream()
         case "automatic-connection":
             let savedEndpoint = try? FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+            let serverState = UITestServerState()
             let nearbyEndpoint = try? FmoDeviceEndpoint(
                 host: FmoDeviceEndpoint.bonjourHost,
                 port: 81,
@@ -71,19 +86,22 @@ enum AppComposition {
             endpointStore = UITestEndpointStore(endpoint: savedEndpoint)
             discovery = nearbyEndpoint.map(UITestSingleDeviceDiscovery.init(endpoint:)) ?? EmptyDeviceDiscovery()
             geoClient = UITestGeoClient()
-            localStatusProvider = UITestLocalStatusProvider()
+            localStatusProvider = UITestLocalStatusProvider(serverState: serverState)
+            stationController = UITestStationController(serverState: serverState)
             localEventStream = UITestLocalEventStream()
         case "empty":
             endpointStore = UITestEndpointStore(endpoint: nil)
             discovery = EmptyDeviceDiscovery()
             geoClient = FmoGeoWebSocketClient()
             localStatusProvider = FmoLocalStatusWebSocketClient()
+            stationController = FmoStationControlWebSocketClient()
             localEventStream = FmoLocalEventWebSocketClient()
         default:
             endpointStore = UserDefaultsFmoEndpointStore()
             discovery = NWBrowserFmoDeviceDiscovery()
             geoClient = FmoGeoWebSocketClient()
             localStatusProvider = FmoLocalStatusWebSocketClient()
+            stationController = FmoStationControlWebSocketClient()
             localEventStream = FmoLocalEventWebSocketClient()
         }
         modeStore = processInfo.environment["FMO_UI_TEST_SCENARIO"] == nil
@@ -111,6 +129,7 @@ enum AppComposition {
         discovery = NWBrowserFmoDeviceDiscovery()
         geoClient = FmoGeoWebSocketClient()
         localStatusProvider = FmoLocalStatusWebSocketClient()
+        stationController = FmoStationControlWebSocketClient()
         localEventStream = FmoLocalEventWebSocketClient()
         modeStore = UserDefaultsLocationSyncModeStore()
         aprsIdentityStore = UserDefaultsReceiveOnlyAPRSIdentityStore()
@@ -124,10 +143,15 @@ enum AppComposition {
             processInfo.environment["FMO_UI_TEST_SCENARIO"] == nil
             ? UserDefaultsDashboardSpeakerLocationStore()
             : VolatileDashboardSpeakerLocationStore()
+        let dashboardAreaResolver: any DashboardAreaResolving =
+            processInfo.environment["FMO_UI_TEST_SCENARIO"] == nil
+            ? MapKitDashboardAreaResolver()
+            : UITestDashboardAreaResolver()
         let device = DeviceHomeModel(
             discovery: discovery,
             geoClient: geoClient,
             localStatusProvider: localStatusProvider,
+            stationController: stationController,
             localEventStream: localEventStream,
             locationProvider: CoreLocationProvider(),
             endpointStore: endpointStore,
@@ -196,7 +220,8 @@ enum AppComposition {
             qso: qso,
             audioClient: audioClient,
             fmoNetworkLocationProvider: fmoNetworkLocationProvider,
-            dashboardSpeakerLocationStore: dashboardSpeakerLocationStore
+            dashboardSpeakerLocationStore: dashboardSpeakerLocationStore,
+            dashboardAreaResolver: dashboardAreaResolver
         )
     }
 
@@ -477,13 +502,65 @@ private actor UITestQSOReader: FmoQSOReading {
     }
 }
 
+private actor UITestServerState {
+    private var current = FmoCurrentServer(uid: 42, name: "测试服务器")
+
+    func currentServer() -> FmoCurrentServer { current }
+
+    func select(_ server: FmoCurrentServer) {
+        current = server
+    }
+}
+
 private actor UITestLocalStatusProvider: FmoLocalStatusProviding {
+    private let serverState: UITestServerState
+
+    init(serverState: UITestServerState) {
+        self.serverState = serverState
+    }
+
     func connect(to endpoint: FmoDeviceEndpoint) {}
     func getCallsign() -> String { "BG0TST" }
-    func getCurrentServer() -> FmoCurrentServer { FmoCurrentServer(uid: 42, name: "测试服务器") }
+    func getCurrentServer() async -> FmoCurrentServer { await serverState.currentServer() }
     func getServerFilter() -> FmoServerFilter { .kilometers(500) }
     func getWorkingFrequencyMHz() -> Double { 438.5 }
     func getQSOLogCount() -> Int { 18 }
+    func disconnect() {}
+}
+
+private actor UITestStationController: FmoStationControlling {
+    private let serverState: UITestServerState
+    private let catalogDelay: Duration
+
+    init(serverState: UITestServerState, catalogDelay: Duration = .zero) {
+        self.serverState = serverState
+        self.catalogDelay = catalogDelay
+    }
+
+    func connect(to endpoint: FmoDeviceEndpoint) {}
+
+    func getServerCatalog() async throws -> FmoDeviceServerCatalog {
+        if catalogDelay > .zero {
+            try await Task.sleep(for: catalogDelay)
+        }
+        return FmoDeviceServerCatalog(
+            all: [
+                FmoDeviceServer(uid: 42, name: "测试服务器"),
+                FmoDeviceServer(uid: 84, name: "备用服务器"),
+            ],
+            pinned: [FmoDeviceServer(uid: 84, name: "备用服务器")]
+        )
+    }
+
+    func switchCurrentServer(toUID uid: Int64) async throws -> FmoCurrentServer {
+        guard let server = try await getServerCatalog().all.first(where: { $0.uid == uid }) else {
+            throw FmoDeviceError.protocolViolation
+        }
+        let current = FmoCurrentServer(uid: server.uid, name: server.name)
+        await serverState.select(current)
+        return current
+    }
+
     func disconnect() {}
 }
 
@@ -513,6 +590,13 @@ private nonisolated struct UITestLocalEventStream: FmoLocalEventStreaming {
     }
 
     func disconnect() {}
+}
+
+@MainActor
+private struct UITestDashboardAreaResolver: DashboardAreaResolving {
+    func areaName(for coordinate: GeoCoordinate) async -> String? {
+        "四川省南充市"
+    }
 }
 
 #endif

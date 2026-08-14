@@ -73,8 +73,6 @@ struct FMOV4StationDetailView: View {
 
 struct FMOV4ServerDetailView: View {
     let server: FMOV4ServerRecord
-    @Environment(\.modelContext) private var modelContext
-    @Query private var favorites: [FavoriteServer]
 
     var body: some View {
         List {
@@ -92,12 +90,6 @@ struct FMOV4ServerDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Button { toggleFavorite() } label: {
-                        Image(systemName: isFavorite ? "star.fill" : "star")
-                            .foregroundStyle(isFavorite ? Color.accentColor : .secondary)
-                            .frame(width: 44, height: 44)
-                    }
-                    .buttonStyle(.plain)
                 }
             }
 
@@ -115,16 +107,6 @@ struct FMOV4ServerDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private var isFavorite: Bool { favorites.contains { $0.numericUID == server.uid } }
-
-    private func toggleFavorite() {
-        if let favorite = favorites.first(where: { $0.numericUID == server.uid }) {
-            modelContext.delete(favorite)
-        } else {
-            modelContext.insert(FavoriteServer(uid: server.uid, displayName: server.name))
-        }
-        try? modelContext.save()
-    }
 }
 
 struct FMOV4EventExplorerView: View {
@@ -159,7 +141,6 @@ struct FMOV4EventExplorerView: View {
     @State private var filter = Filter.all
     @State private var searchText = ""
     @Query private var favoriteCallsigns: [FavoriteCallsign]
-    @Query private var favoriteServers: [FavoriteServer]
 
     var body: some View {
         VStack(spacing: 0) {
@@ -194,7 +175,7 @@ struct FMOV4EventExplorerView: View {
                 ContentUnavailableView {
                     Label("暂无匹配动态", systemImage: filter == .favorites ? "star" : "waveform.path.ecg")
                 } description: {
-                    Text(filter == .favorites ? "可先在台站与服务器目录中添加收藏。" : "收到网络数据后会自动更新。")
+                    Text(filter == .favorites ? "可先在台站目录中收藏呼号。" : "收到网络数据后会自动更新。")
                 }
             } else {
                 List(filteredEvents) { event in
@@ -209,7 +190,6 @@ struct FMOV4EventExplorerView: View {
 
     private var filteredEvents: [FMOV4NetworkEvent] {
         let favoriteCallsignSet = Set(favoriteCallsigns.map(\.normalizedCallsign))
-        let favoriteServerSet = Set(favoriteServers.compactMap(\.numericUID))
         let search = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         return snapshot.events.filter { event in
             let matchesFilter: Bool
@@ -224,7 +204,6 @@ struct FMOV4EventExplorerView: View {
             case .event: matchesFilter = event.kind == .event
             case .favorites:
                 matchesFilter = favoriteCallsignSet.contains(FMOV4FavoriteKey.callsign(event.callsign))
-                    || event.serverUID.map(favoriteServerSet.contains) == true
             }
             guard matchesFilter else { return false }
             guard !search.isEmpty else { return true }
