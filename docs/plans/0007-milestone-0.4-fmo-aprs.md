@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-07
+last-reviewed: 2026-08-14
 status: complete
 ---
 
@@ -70,6 +70,8 @@ status: complete
 ### 5. 聚合、缓存与收藏
 
 **状态（2026-08-06）：Implemented。** 已建立有上限的台站、服务器、事件、去重集合与 JOINT 缓存；事件采用最近 24 小时且最多 200 条的双重上限。呼号和公共服务器收藏使用两个 SwiftData 模型，与短期 APRS 快照独立。
+
+**后续产品调整（2026-08-14）：** ADR-0010 将“收藏服务器”统一为所选 FMO 设备的收藏列表，公共 APRS 服务器收藏退出 UI；`FavoriteServer` 只暂留为已安装数据兼容。呼号收藏继续保留。
 
 - 建立可信事件 reducer，以验证时间、消息时间窗口和稳定身份去重；乱序旧帧不得覆盖更新状态。
 - `VOCAL` 只生成 `RecentVoiceActivity`，不生成当前说话人；展示 TTL 与签名窗口使用不同可注入策略。

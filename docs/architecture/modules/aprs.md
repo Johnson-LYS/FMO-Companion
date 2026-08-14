@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-08
+last-reviewed: 2026-08-14
 ---
 
 # 模块：APRS
@@ -94,7 +94,7 @@ protocol FMOV4RevocationChecking: Actor {
 - `OfficialFMOV4CRLStore` 从证书声明的官方 HTTPS URL 获取 Root/Intermediate CRL，单响应上限 256 KiB、四小时刷新。`{}` 映射为 `notPublished`；签名列表分为 current/stale，断网分为 unavailable，格式或签名错误为 invalid。已有签名缓存不会被 `{}` 或较低 CRL number 覆盖。
 - `FMOV4Verifier` 按 Root → Intermediate → User → CRL → Message 的顺序验证，检查呼号绑定、UID 范围、STATION 国家范围、有效期、Ed25519 与 `timeSalt ±1`。通过签名但 CRL 过期/不可用的帧保留 `revocationStale` / `revocationUnavailable`，不得显示为完全可信；已吊销或非法 CRL 直接拒绝。
 - `FMOV4NetworkStore` 用稳定签名摘要去重，事件采用最近 24 小时且最多 200 条的双重上限，其他短期实体与 JOINT 也保持有界。EVENT 的 `rawStatusPayload` 只在内存中计算 SHA-256 并匹配同来源、UID 与 TTL 内 JOINT，不持久化或记录。
-- `FavoriteCallsign` 按规范化基础呼号唯一化，`FavoriteServer` 按验证后的稳定 UID 唯一化；两者使用 SwiftData，与短期网络快照分离，取消收藏不删除业务记录。
+- `FavoriteCallsign` 按规范化基础呼号唯一化并使用 SwiftData，与短期网络快照分离；取消收藏不删除业务记录。公共 APRS 服务器不再拥有 App 独立收藏，设备服务器收藏由 ADR-0010 从所选 FMO 读取。
 - SwiftUI 始终显示 MapKit 地图；`FmoNetworkMapModel` 通过注入的 `PhoneLocationProviding` 获取一次本机位置，并以 Haversine 距离把完整验证快照统一裁剪为全网或 `50...5000 km` 的台站、服务器和事件视图。初始范围为 `500 km`，首次进入已配置页面时自动定位；失败则把范围回退为全网并保留可见错误，避免有限范围标签与实际数据不一致。此后右上角 Menu 选择有限范围时按需定位；左下追踪只控制相机随新台站移动，右下定位更新蓝色本机标记与范围中心。所有控制都不改变 `u/APFMO4` 订阅、不套用盒子过滤器，也不写入设备。目录支持台站/服务器/收藏分段和直接搜索，事件流支持全部规划类型与收藏筛选，详情页展示位置、频率、最近活动与数据时间。证书链、CRL、签名与可信等级当前不进入用户界面。
 
 ## 数据与信任边界
@@ -126,7 +126,7 @@ App active + APRS identity
 - Network.framework：APRS-IS TCP。
 - Foundation：字节、UTF-8、URLSession 与流模型。
 - CryptoKit：SHA-256 与 Ed25519。
-- SwiftData：呼号/公共服务器收藏与本机消息历史。
+- SwiftData：呼号收藏与本机消息历史；旧 `FavoriteServer` 类型仅暂留作已安装数据兼容，不再由 UI 读写。
 - MapKit：验证后台站地图。
 - 当前没有第三方依赖。
 

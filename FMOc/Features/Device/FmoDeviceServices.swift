@@ -21,6 +21,26 @@ nonisolated protocol FmoLocalStatusProviding: Sendable {
     func disconnect() async
 }
 
+nonisolated protocol FmoStationControlling: Sendable {
+    func connect(to endpoint: FmoDeviceEndpoint) async throws
+    func getServerCatalog() async throws -> FmoDeviceServerCatalog
+    func getServerCatalog(
+        onUpdate: @escaping @Sendable (FmoDeviceServerCatalog) async -> Void
+    ) async throws -> FmoDeviceServerCatalog
+    func switchCurrentServer(toUID uid: Int64) async throws -> FmoCurrentServer
+    func disconnect() async
+}
+
+extension FmoStationControlling {
+    func getServerCatalog(
+        onUpdate: @escaping @Sendable (FmoDeviceServerCatalog) async -> Void
+    ) async throws -> FmoDeviceServerCatalog {
+        let catalog = try await getServerCatalog()
+        await onUpdate(catalog)
+        return catalog
+    }
+}
+
 nonisolated protocol FmoStatusRefreshWaiting: Sendable {
     func wait(for interval: Duration) async throws
 }
@@ -43,6 +63,15 @@ nonisolated struct UnavailableFmoLocalStatusProvider: FmoLocalStatusProviding {
     func getServerFilter() throws -> FmoServerFilter { throw FmoDeviceError.unsupportedResponse }
     func getWorkingFrequencyMHz() throws -> Double { throw FmoDeviceError.unsupportedResponse }
     func getQSOLogCount() throws -> Int { throw FmoDeviceError.unsupportedResponse }
+    func disconnect() {}
+}
+
+nonisolated struct UnavailableFmoStationController: FmoStationControlling {
+    func connect(to endpoint: FmoDeviceEndpoint) throws { throw FmoDeviceError.unsupportedResponse }
+    func getServerCatalog() throws -> FmoDeviceServerCatalog { throw FmoDeviceError.unsupportedResponse }
+    func switchCurrentServer(toUID uid: Int64) throws -> FmoCurrentServer {
+        throw FmoDeviceError.unsupportedResponse
+    }
     func disconnect() {}
 }
 

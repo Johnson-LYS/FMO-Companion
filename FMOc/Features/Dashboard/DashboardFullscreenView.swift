@@ -1,4 +1,3 @@
-import AVFoundation
 import CoreLocation
 import MapKit
 import SwiftUI
@@ -14,53 +13,50 @@ struct DashboardFullscreenView: View {
     }
 
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
-    @Environment(\.scenePhase) private var scenePhase
+    @Bindable var audioMonitor: FmoAudioMonitorModel
     let dashboard: DashboardSnapshot
     let ownCoordinate: GeoCoordinate?
     let networkSnapshot: FMOV4NetworkSnapshot
     let deviceName: String
-    let endpoint: FmoDeviceEndpoint
     let heroNamespace: Namespace.ID
     let showsExpandedContent: Bool
     let activatesExpandedServices: Bool
     let close: () -> Void
     private let areaResolver: any DashboardAreaResolving
     private let speakerLocationStore: any DashboardSpeakerLocationStoring
+    @Binding var showsServerPicker: Bool
 
     @State private var visualMode = VisualMode.bearing
     @State private var areaName: String?
     @State private var historyAreaNames: [String: String] = [:]
     @State private var retainedAreaNames: [String: String] = [:]
-    @State private var audioMonitor: FmoAudioMonitorModel
 
     init(
         dashboard: DashboardSnapshot,
         ownCoordinate: GeoCoordinate?,
         networkSnapshot: FMOV4NetworkSnapshot,
         deviceName: String,
-        endpoint: FmoDeviceEndpoint,
-        audioClient: any FmoLocalAudioStreaming,
+        audioMonitor: FmoAudioMonitorModel,
         areaResolver: any DashboardAreaResolving = MapKitDashboardAreaResolver(),
         speakerLocationStore: any DashboardSpeakerLocationStoring = VolatileDashboardSpeakerLocationStore(),
         heroNamespace: Namespace.ID,
         showsExpandedContent: Bool,
         activatesExpandedServices: Bool,
+        showsServerPicker: Binding<Bool>,
         close: @escaping () -> Void
     ) {
         self.dashboard = dashboard
         self.ownCoordinate = ownCoordinate
         self.networkSnapshot = networkSnapshot
         self.deviceName = deviceName
-        self.endpoint = endpoint
+        self.audioMonitor = audioMonitor
         self.areaResolver = areaResolver
         self.speakerLocationStore = speakerLocationStore
         self.heroNamespace = heroNamespace
         self.showsExpandedContent = showsExpandedContent
         self.activatesExpandedServices = activatesExpandedServices
+        _showsServerPicker = showsServerPicker
         self.close = close
-        _audioMonitor = State(
-            initialValue: FmoAudioMonitorModel(client: audioClient)
-        )
     }
 
     private var presentation: DashboardFullscreenPresentation {
@@ -122,22 +118,6 @@ struct DashboardFullscreenView: View {
             guard activatesExpandedServices else { return }
             await resolveHistoryAreaNames()
         }
-        .task(id: "\(audioSessionID)-\(activatesExpandedServices)") {
-            guard activatesExpandedServices, scenePhase == .active else {
-                await audioMonitor.stop(resetWaveform: false)
-                return
-            }
-            await audioMonitor.monitor(endpoint: endpoint)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { _ in
-            audioMonitor.setSoundEnabled(false)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.routeChangeNotification)) { _ in
-            audioMonitor.setSoundEnabled(false)
-        }
-        .onDisappear {
-            Task { await audioMonitor.stop(resetWaveform: true) }
-        }
         .persistentSystemOverlays(.hidden)
         .statusBarHidden()
     }
@@ -196,6 +176,7 @@ struct DashboardFullscreenView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(dashboard.callsign.currentValue ?? "FMO")
                     .font(.title.bold().monospaced())
+                    .foregroundStyle(Color.accentColor)
                     .lineLimit(1)
                     .matchedGeometryEffect(
                         id: DashboardHeroElement.callsign,
@@ -219,24 +200,32 @@ struct DashboardFullscreenView: View {
             .layoutPriority(2)
 
             if let server = dashboard.currentServerName.currentValue {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("当前服务器")
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.42))
-                    DashboardMarqueeText(server)
-                        .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity, minHeight: 19, maxHeight: 19, alignment: .leading)
-                        .clipped()
-                        .matchedGeometryEffect(
-                            id: DashboardHeroElement.server,
-                            in: heroNamespace,
-                            properties: .frame,
-                            anchor: .leading,
-                            isSource: false
-                        )
+                Button {
+                    showsServerPicker = true
+                } label: {
+                    HStack(spacing: 8) {
+                        DashboardMarqueeText(server)
+                            .font(.headline.weight(.bold))
+                            .frame(maxWidth: .infinity, minHeight: 22, maxHeight: 22, alignment: .leading)
+                            .clipped()
+                        Image(systemName: "chevron.up.chevron.down")
+                            .font(.caption2.weight(.bold))
+                            .foregroundStyle(fullscreenBackgroundColor.opacity(0.72))
+                    }
+                    .foregroundStyle(fullscreenBackgroundColor)
+                    .allowsHitTesting(false)
                 }
-                .padding(.leading, 16)
-                .frame(minWidth: 120, maxWidth: 210, alignment: .leading)
+                .buttonStyle(.plain)
+                .contentShape(.rect)
+                .padding(.horizontal, 14)
+                .frame(minWidth: 140, maxWidth: 240, minHeight: 40, maxHeight: 40, alignment: .leading)
+                .background(Color.accentColor, in: .rect(cornerRadius: 13))
+                .highPriorityGesture(
+                    TapGesture().onEnded { showsServerPicker = true }
+                )
+                .accessibilityLabel("切换服务器")
+                .accessibilityValue("当前服务器 \(server)")
+                .accessibilityIdentifier("dashboard-fullscreen-server-picker")
             }
 
             Spacer(minLength: 6)
@@ -258,6 +247,10 @@ struct DashboardFullscreenView: View {
             .opacity(showsExpandedContent ? 1 : 0)
         }
         .frame(height: 46)
+    }
+
+    private var fullscreenBackgroundColor: Color {
+        Color(red: 0.065, green: 0.07, blue: 0.085)
     }
 
     private var speakerPanel: some View {
@@ -467,10 +460,6 @@ struct DashboardFullscreenView: View {
         case .disabled: return "OFF"
         case .kilometers(let value): return "\(value)km"
         }
-    }
-
-    private var audioSessionID: String {
-        "\(endpoint.id)-\(scenePhase == .active ? "active" : "inactive")"
     }
 
     private var audioMonitorRow: some View {
@@ -960,7 +949,7 @@ private struct DashboardTrackingMap: View {
     }
 }
 
-private struct DashboardMarqueeText: View {
+struct DashboardMarqueeText: View {
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
     let text: String
     @State private var measuredWidth: CGFloat = 0
@@ -974,7 +963,7 @@ private struct DashboardMarqueeText: View {
         GeometryReader { proxy in
             let overflows = measuredWidth > proxy.size.width + 1
             Group {
-                if overflows, !accessibilityReduceMotion {
+                if overflows, !accessibilityReduceMotion, !disablesAnimationForUITests {
                     TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { context in
                         let gap: CGFloat = 24
                         let travel = measuredWidth + gap
@@ -1025,6 +1014,14 @@ private struct DashboardMarqueeText: View {
         Text(text)
             .lineLimit(1)
             .fixedSize(horizontal: true, vertical: false)
+    }
+
+    private var disablesAnimationForUITests: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.environment["FMO_UI_TEST_SCENARIO"] != nil
+#else
+        false
+#endif
     }
 }
 

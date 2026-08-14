@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 import SwiftData
 import UIKit
@@ -11,17 +12,21 @@ struct ContentView: View {
     @State private var aprsMessageModel: APRSMessageModel
     @State private var remoteControlModel: FmoRemoteControlModel
     @State private var qsoModel: QSOModel
+    @State private var audioMonitor: FmoAudioMonitorModel
+    @State private var audioMonitorTask: Task<Void, Never>?
     @State private var dashboardHeroContext: DashboardHeroContext?
     @State private var dashboardHeroStage = DashboardHeroStage.presenting
     @State private var dashboardHeroTask: Task<Void, Never>?
+    @State private var showsFullscreenServerPicker = false
     @State private var selectedTab = AppTab.device
     @State private var dashboardViewportOrientation: DashboardViewportOrientation?
     @Namespace private var dashboardHeroNamespace
     private let fmoNetworkLocationProvider: any PhoneLocationProviding
-    private let audioClient: any FmoLocalAudioStreaming
     private let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
+    private let dashboardAreaResolver: any DashboardAreaResolving
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
+    @Environment(\.scenePhase) private var scenePhase
 
     @MainActor
     init(models: AppComposition.Models = AppComposition.makeModels()) {
@@ -32,9 +37,10 @@ struct ContentView: View {
         _aprsMessageModel = State(initialValue: models.aprsMessages)
         _remoteControlModel = State(initialValue: models.remoteControl)
         _qsoModel = State(initialValue: models.qso)
+        _audioMonitor = State(initialValue: FmoAudioMonitorModel(client: models.audioClient))
         fmoNetworkLocationProvider = models.fmoNetworkLocationProvider
-        audioClient = models.audioClient
         dashboardSpeakerLocationStore = models.dashboardSpeakerLocationStore
+        dashboardAreaResolver = models.dashboardAreaResolver
     }
 
     var body: some View {
@@ -62,18 +68,26 @@ struct ContentView: View {
                     ownCoordinate: deviceModel.deviceCoordinate,
                     networkSnapshot: fmoNetworkModel.networkSnapshot,
                     deviceName: context.deviceName,
-                    endpoint: context.endpoint,
-                    audioClient: audioClient,
+                    audioMonitor: audioMonitor,
+                    areaResolver: dashboardAreaResolver,
                     speakerLocationStore: dashboardSpeakerLocationStore,
                     heroNamespace: dashboardHeroNamespace,
                     showsExpandedContent: dashboardHeroStage.showsExpandedContent,
                     activatesExpandedServices: dashboardHeroStage.activatesExpandedServices,
+                    showsServerPicker: $showsFullscreenServerPicker,
                     close: closeDashboardHero
                 )
                 .zIndex(10)
                 .transition(.identity)
             }
+
+            if showsFullscreenServerPicker, dashboardHeroContext != nil {
+                fullscreenServerPickerOverlay
+                    .zIndex(20)
+                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
+            }
         }
+        .animation(.snappy(duration: 0.28), value: showsFullscreenServerPicker)
         .tint(.accentColor)
         .preferredColorScheme(
             (AppAppearance(rawValue: appearanceRawValue) ?? .system).colorScheme
@@ -99,8 +113,19 @@ struct ContentView: View {
             remoteControlModel.setNetworkReady(aprsMessageModel.phase == .ready)
             await adoptCurrentFMOCallsignIfAvailable()
         }
+        .task(id: audioSessionID) {
+            configureAudioSession()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { _ in
+            audioMonitor.setSoundEnabled(false)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.routeChangeNotification)) { _ in
+            audioMonitor.setSoundEnabled(false)
+        }
         .onDisappear {
             dashboardHeroTask?.cancel()
+            audioMonitorTask?.cancel()
+            Task { await audioMonitor.stop(resetWaveform: true) }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             locationAutomationModel.refreshAuthorization()
@@ -153,6 +178,26 @@ struct ContentView: View {
         }
     }
 
+    private var audioSessionID: String {
+        let endpointID = deviceModel.selectedEndpoint?.id ?? "none"
+        return "\(endpointID)-\(deviceModel.isConnected)-\(scenePhase == .active)"
+    }
+
+    private func configureAudioSession() {
+        audioMonitorTask?.cancel()
+        guard scenePhase == .active,
+              deviceModel.isConnected,
+              let endpoint = deviceModel.selectedEndpoint else {
+            audioMonitorTask = Task {
+                await audioMonitor.stop(resetWaveform: !deviceModel.isConnected)
+            }
+            return
+        }
+        audioMonitorTask = Task {
+            await audioMonitor.monitorContinuously(endpoint: endpoint)
+        }
+    }
+
     private var mainTabs: some View {
         TabView(selection: $selectedTab) {
             Tab("设备", systemImage: "antenna.radiowaves.left.and.right", value: .device) {
@@ -162,6 +207,9 @@ struct ContentView: View {
                         locationAutomationModel: locationAutomationModel,
                         officialWebModel: officialWebModel,
                         remoteControlModel: remoteControlModel,
+                        audioMonitor: audioMonitor,
+                        dashboardSpeakerLocationStore: dashboardSpeakerLocationStore,
+                        dashboardAreaResolver: dashboardAreaResolver,
                         dashboardHeroNamespace: dashboardHeroNamespace,
                         isDashboardHeroActive: keepsDashboardSourceHidden,
                         hidesDashboardChrome: hidesDashboardChrome,
@@ -192,6 +240,25 @@ struct ContentView: View {
                 }
             }
         }
+    }
+
+    private var fullscreenServerPickerOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.62)
+                .ignoresSafeArea()
+                .onTapGesture { showsFullscreenServerPicker = false }
+
+            DeviceServerPickerView(
+                model: deviceModel,
+                onDismiss: { showsFullscreenServerPicker = false }
+            )
+            .frame(maxWidth: 620, maxHeight: 520)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .shadow(color: .black.opacity(0.35), radius: 28, y: 12)
+            .padding(12)
+        }
+        .accessibilityAddTraits(.isModal)
     }
 
     private func dashboardForHero(_ context: DashboardHeroContext) -> DashboardSnapshot {
@@ -238,6 +305,7 @@ struct ContentView: View {
               dashboardHeroStage != .rotatingToPortrait else { return }
 
         dashboardHeroTask?.cancel()
+        showsFullscreenServerPicker = false
         withAnimation(dashboardHeroAnimation) {
             dashboardHeroStage = .rotatingToPortrait
         }

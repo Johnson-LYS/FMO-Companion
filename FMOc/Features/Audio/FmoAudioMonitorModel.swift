@@ -106,30 +106,46 @@ final class FmoAudioMonitorModel {
         endpointID = endpoint.id
         hasProtocolError = false
 
-        let stream = await client.frames(from: endpoint)
-        do {
-            for try await frame in stream {
-                try Task.checkCancellation()
-                isReceiving = true
-                oscilloscopeBuffer.append(frame)
-                if isSoundEnabled {
-                    do {
-                        try player.play(frame)
-                    } catch {
-                        setSoundEnabled(false)
-                    }
-                }
-            }
-        } catch is CancellationError {
-        } catch {
-            hasProtocolError = error is FmoLocalAudioError
-        }
+        _ = await consumeFrames(from: endpoint, monitoringID: id)
 
         guard monitoringID == id, endpointID == endpoint.id else { return }
         isReceiving = false
         isSoundEnabled = false
         player.stop()
         await client.disconnect()
+    }
+
+    /// 在 App 前台且设备保持连接时持续维护音频流。
+    ///
+    /// FMO 的音频 WebSocket 可能在网络切换、短暂不可达或长时间无数据后结束。
+    /// 这些瞬时中断不应改变用户的静音选择，因此只重建流，不重置开关。
+    func monitorContinuously(
+        endpoint: FmoDeviceEndpoint,
+        retryDelay: Duration = .seconds(1)
+    ) async {
+        await stop(resetWaveform: false)
+        let id = UUID()
+        monitoringID = id
+        endpointID = endpoint.id
+        hasProtocolError = false
+
+        while !Task.isCancelled, monitoringID == id, endpointID == endpoint.id {
+            let result = await consumeFrames(from: endpoint, monitoringID: id)
+            guard monitoringID == id, endpointID == endpoint.id else { return }
+
+            isReceiving = false
+            player.stop()
+            await client.disconnect()
+
+            guard monitoringID == id, endpointID == endpoint.id else { return }
+            if case .cancelled = result { return }
+
+            do {
+                try await Task.sleep(for: retryDelay)
+            } catch {
+                return
+            }
+        }
     }
 
     func setSoundEnabled(_ enabled: Bool) {
@@ -146,6 +162,43 @@ final class FmoAudioMonitorModel {
         await client.disconnect()
         if resetWaveform {
             oscilloscopeBuffer.reset()
+        }
+    }
+
+    private enum StreamResult {
+        case finished
+        case cancelled
+        case failed
+    }
+
+    private func consumeFrames(
+        from endpoint: FmoDeviceEndpoint,
+        monitoringID id: UUID
+    ) async -> StreamResult {
+        let stream = await client.frames(from: endpoint)
+        do {
+            for try await frame in stream {
+                try Task.checkCancellation()
+                guard monitoringID == id, endpointID == endpoint.id else {
+                    return .cancelled
+                }
+                isReceiving = true
+                hasProtocolError = false
+                oscilloscopeBuffer.append(frame)
+                if isSoundEnabled {
+                    do {
+                        try player.play(frame)
+                    } catch {
+                        setSoundEnabled(false)
+                    }
+                }
+            }
+            return .finished
+        } catch is CancellationError {
+            return .cancelled
+        } catch {
+            hasProtocolError = error is FmoLocalAudioError
+            return .failed
         }
     }
 }

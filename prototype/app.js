@@ -30,9 +30,9 @@
   };
 
   const dashboardEvents = [
-    { kind: "speaking", title: "BH4XYZ-15", time: "OM20xx · 刚刚" },
-    { kind: "history", title: "BH4XYZ-15", occurredAt: Date.now() - 28_000 },
-    { kind: "history", title: "BG0AAA", occurredAt: Date.now() - 64_000 },
+    { kind: "speaking", title: "BH4XYZ-15", qth: "浙江省湖州市附近" },
+    { kind: "history", title: "BH4XYZ-15", qth: "浙江省湖州市附近" },
+    { kind: "history", title: "BG0AAA", qth: "甘肃省兰州市附近" },
   ];
 
   const qsoFixtures = {
@@ -55,11 +55,13 @@
     headerDeviceSelector: document.querySelector("#headerDeviceSelector"),
     headerDeviceLabel: document.querySelector("#headerDeviceLabel"),
     dashboardFullscreenButton: document.querySelector("#dashboardFullscreenButton"),
+    dashboardAudioToggle: document.querySelector("#dashboardAudioToggle"),
     dashboardPanel: document.querySelector("#dashboardPanel"),
     dashboardEventType: document.querySelector("#dashboardEventType"),
     dashboardEventTitle: document.querySelector("#dashboardEventTitle"),
     dashboardEventTime: document.querySelector("#dashboardEventTime"),
     dashboardEventPulse: document.querySelector("#dashboardEventPulse"),
+    dashboardServerLabel: document.querySelector("#dashboardServerLabel"),
     discoverButton: document.querySelector("#discoverButton"),
     listScanButton: document.querySelector("#listScanButton"),
     deviceEmpty: document.querySelector("#deviceEmpty"),
@@ -70,6 +72,7 @@
     deviceCoordinate: document.querySelector("#deviceCoordinate"),
     onboardingModal: document.querySelector("#onboardingModal"),
     devicePickerModal: document.querySelector("#devicePickerModal"),
+    serverPickerModal: document.querySelector("#serverPickerModal"),
     aprsIdentityModal: document.querySelector("#aprsIdentityModal"),
     remoteSettingsModal: document.querySelector("#remoteSettingsModal"),
     recipientModal: document.querySelector("#recipientModal"),
@@ -133,31 +136,29 @@
     elements.headerStatus.classList.toggle("is-error", kind === "error");
   }
 
-  function formatDashboardElapsedTime(occurredAt) {
-    const seconds = Math.max(0, Math.floor((Date.now() - occurredAt) / 1000));
-    if (seconds < 60) return `${seconds} 秒前`;
-    const minutes = Math.floor(seconds / 60);
-    return `${minutes} 分钟前`;
-  }
-
   function updateDashboardEventTime() {
     const eventData = state.dashboardDisplayedEvent;
     if (!eventData) return;
-    elements.dashboardEventTime.textContent = eventData.kind === "speaking"
-      ? eventData.time
-      : `最近活动 · ${formatDashboardElapsedTime(eventData.occurredAt)}`;
+    elements.dashboardEventTime.textContent = eventData.qth;
   }
 
   function applyDashboardEvent(eventData) {
     const isSpeaking = eventData.kind === "speaking";
     state.dashboardDisplayedEvent = eventData;
     elements.dashboardEventType.closest(".dashboard-event").classList.toggle("is-recent", !isSpeaking);
-    elements.dashboardEventType.classList.toggle("is-voice", isSpeaking);
-    elements.dashboardEventType.textContent = isSpeaking ? "" : "◷";
+    elements.dashboardEventType.classList.add("is-voice");
+    elements.dashboardEventType.textContent = "";
     elements.dashboardEventType.setAttribute("aria-label", isSpeaking ? "当前讲话" : "最近讲话活动");
     elements.dashboardEventTitle.textContent = eventData.title;
     updateDashboardEventTime();
     elements.dashboardEventPulse.hidden = !isSpeaking;
+  }
+
+  function applyDashboardAudioState() {
+    const enabled = window.localStorage.getItem("fmo-prototype-audio-enabled") === "true";
+    elements.dashboardAudioToggle.classList.toggle("is-active", enabled);
+    elements.dashboardAudioToggle.setAttribute("aria-pressed", String(enabled));
+    elements.dashboardAudioToggle.setAttribute("aria-label", enabled ? "关闭设备声音" : "打开设备声音");
   }
 
   function renderDashboardEvent(eventData, animate = false) {
@@ -209,7 +210,7 @@
   function renderFavoriteState() {
     document.querySelectorAll("[data-favorite-id]").forEach((button) => {
       const isFavorite = state.favoriteIds.has(button.dataset.favoriteId);
-      const kind = button.dataset.favoriteId.startsWith("server:") ? "服务器" : "呼号";
+      const kind = "呼号";
       button.classList.toggle("is-selected", isFavorite);
       button.setAttribute("aria-pressed", String(isFavorite));
       button.setAttribute("aria-label", `${isFavorite ? "取消收藏" : "收藏"}${kind} ${button.dataset.favoriteLabel}`);
@@ -223,7 +224,7 @@
   }
 
   function loadFavoriteState() {
-    const fallback = ["call:BH4XYZ", "server:123"];
+    const fallback = ["call:BH4XYZ"];
     const knownIds = new Set([...document.querySelectorAll("[data-favorite-id]")].map((button) => button.dataset.favoriteId));
     try {
       const saved = JSON.parse(window.localStorage.getItem("fmo-prototype-favorites"));
@@ -282,6 +283,7 @@
     elements.discoverButton.hidden = false;
     elements.headerDeviceSelector.hidden = true;
     elements.dashboardFullscreenButton.hidden = true;
+    elements.dashboardAudioToggle.hidden = true;
 
     if (nextState === "searching") {
       elements.discoverButton.dataset.action = "open-device-picker";
@@ -323,6 +325,7 @@
       elements.headerDeviceSelector.hidden = false;
       elements.headerDeviceLabel.textContent = state.currentDeviceLabel || "当前设备";
       elements.dashboardFullscreenButton.hidden = false;
+      elements.dashboardAudioToggle.hidden = false;
       elements.deviceEmpty.hidden = true;
       elements.discoveredDevice.hidden = false;
       elements.alternateDevice.hidden = false;
@@ -769,6 +772,30 @@
       await connectDevice(actionTarget.dataset.deviceLabel || "FMO-7C2A");
     } else if (action === "open-device-picker") {
       showModal(elements.devicePickerModal);
+    } else if (action === "open-server-picker") {
+      showModal(elements.serverPickerModal);
+    } else if (action === "toggle-dashboard-audio") {
+      const enabled = window.localStorage.getItem("fmo-prototype-audio-enabled") !== "true";
+      window.localStorage.setItem("fmo-prototype-audio-enabled", String(enabled));
+      applyDashboardAudioState();
+    } else if (action === "refresh-server-list") {
+      await simulateSimpleCheck(actionTarget, "读取中…", "服务器列表已刷新");
+    } else if (action === "switch-device-server") {
+      const serverName = actionTarget.dataset.serverName;
+      if (actionTarget.classList.contains("is-current")) {
+        hideModal(elements.serverPickerModal);
+        return;
+      }
+      actionTarget.querySelector("span:last-child").textContent = "…";
+      await wait(650);
+      elements.serverPickerModal.querySelectorAll(".server-picker-row").forEach((row) => {
+        const isCurrent = row === actionTarget;
+        row.classList.toggle("is-current", isCurrent);
+        row.querySelector("span:last-child").textContent = isCurrent ? "✓" : "";
+      });
+      elements.dashboardServerLabel.textContent = serverName;
+      hideModal(elements.serverPickerModal);
+      showToast(`已切换到${serverName}`, "✓");
     } else if (action === "open-aprs-identity") {
       showModal(elements.aprsIdentityModal);
     } else if (action === "open-remote-settings") {
@@ -867,6 +894,14 @@
     }
   });
 
+  document.addEventListener("input", (event) => {
+    if (!event.target.matches(".server-picker-search input")) return;
+    const query = event.target.value.trim().toLocaleLowerCase();
+    elements.serverPickerModal.querySelectorAll(".server-picker-row").forEach((row) => {
+      row.hidden = query.length > 0 && !row.dataset.serverName.toLocaleLowerCase().includes(query);
+    });
+  });
+
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       const visibleModal = Array.from(document.querySelectorAll(".modal-backdrop.is-visible")).at(-1);
@@ -923,6 +958,7 @@
   });
 
   loadFavoriteState();
+  applyDashboardAudioState();
   setDirectoryView("stations");
   restoreLastDevice();
 })();

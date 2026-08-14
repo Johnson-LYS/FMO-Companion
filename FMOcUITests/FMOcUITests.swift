@@ -245,7 +245,7 @@ final class FMOcUITests: XCTestCase {
         XCTAssertTrue(callsign.label.contains("BG0TST"))
         let server = app.descendants(matching: .any)["dashboard-server-name"]
         XCTAssertTrue(server.waitForExistence(timeout: 2))
-        XCTAssertTrue(server.label.contains("测试服务器"))
+        XCTAssertTrue((server.value as? String)?.contains("测试服务器") == true)
         let maidenhead = app.descendants(matching: .any)["dashboard-maidenhead-value"]
         XCTAssertTrue(maidenhead.waitForExistence(timeout: 2))
         XCTAssertEqual(maidenhead.value as? String, "PM01rf")
@@ -261,6 +261,52 @@ final class FMOcUITests: XCTestCase {
     }
 
     @MainActor
+    func testConnectedDashboardLoadsDeviceServerListsAndSwitchesServer() throws {
+        let app = makeApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "dashboard-connected"
+        app.launch()
+
+        let serverEntry = app.descendants(matching: .any)["dashboard-server-name"]
+        XCTAssertTrue(serverEntry.waitForExistence(timeout: 30))
+        serverEntry.tap()
+
+        XCTAssertTrue(app.navigationBars["切换服务器"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["收藏服务器"].exists)
+        XCTAssertTrue(app.staticTexts["所有服务器"].exists)
+
+        let alternateServer = app.buttons.matching(identifier: "device-server-84").firstMatch
+        XCTAssertTrue(alternateServer.waitForExistence(timeout: 2))
+        alternateServer.tap()
+
+        XCTAssertTrue(app.navigationBars["设备"].waitForExistence(timeout: 2))
+        XCTAssertTrue(
+            (serverEntry.value as? String)?.contains("备用服务器") == true
+        )
+    }
+
+    @MainActor
+    func testServerPickerShowsFavoriteSectionWhileCatalogIsLoading() throws {
+        let app = makeApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "dashboard-connected"
+        app.launchEnvironment["FMO_UI_TEST_DELAY_SERVER_CATALOG"] = "1"
+        app.launch()
+
+        let serverEntry = app.descendants(matching: .any)["dashboard-server-name"]
+        XCTAssertTrue(serverEntry.waitForExistence(timeout: 30))
+        serverEntry.tap()
+
+        XCTAssertTrue(app.navigationBars["切换服务器"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["收藏服务器"].exists)
+        XCTAssertTrue(
+            app.descendants(matching: .any)["favorite-servers-loading"].exists
+        )
+        XCTAssertTrue(
+            app.buttons.matching(identifier: "device-server-84").firstMatch
+                .waitForExistence(timeout: 5)
+        )
+    }
+
+    @MainActor
     func testConnectedDashboardOpensAndClosesLandscapeFullscreenDashboard() throws {
         XCUIDevice.shared.orientation = .portrait
         let app = makeApplication()
@@ -270,6 +316,12 @@ final class FMOcUITests: XCTestCase {
         XCTAssertTrue(
             app.descendants(matching: .any)["dashboard-callsign"].waitForExistence(timeout: 30)
         )
+        XCTAssertTrue(app.descendants(matching: .any)["四川省南充市"].waitForExistence(timeout: 3))
+        let compactAudioToggle = app.buttons["dashboard-audio-toggle"]
+        XCTAssertTrue(compactAudioToggle.waitForExistence(timeout: 3))
+        XCTAssertEqual(compactAudioToggle.value as? String, "已关闭")
+        compactAudioToggle.tap()
+        XCTAssertEqual(compactAudioToggle.value as? String, "已开启")
         let fullscreen = app.buttons["dashboard-fullscreen-button"]
         XCTAssertTrue(fullscreen.waitForExistence(timeout: 5))
         fullscreen.tap()
@@ -284,12 +336,25 @@ final class FMOcUITests: XCTestCase {
         XCTAssertTrue(waveform.exists)
         let audioToggle = app.buttons["dashboard-audio-toggle"]
         XCTAssertTrue(audioToggle.exists)
-        XCTAssertEqual(audioToggle.value as? String, "已关闭")
+        XCTAssertEqual(audioToggle.value as? String, "已开启")
+
+        let serverPicker = app.buttons["dashboard-fullscreen-server-picker"]
+        XCTAssertTrue(serverPicker.exists)
+        XCTAssertTrue((serverPicker.value as? String)?.contains("测试服务器") == true)
+        serverPicker.tap()
+        XCTAssertTrue(app.navigationBars["切换服务器"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["收藏服务器"].exists)
+        XCTAssertTrue(app.staticTexts["所有服务器"].exists)
+        app.buttons.matching(identifier: "device-server-84").firstMatch.tap()
+        XCTAssertTrue(close.waitForExistence(timeout: 2))
+        XCTAssertTrue((serverPicker.value as? String)?.contains("备用服务器") == true)
+
         close.tap()
 
         XCTAssertTrue(app.navigationBars["设备"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["dashboard-device-selector"].exists)
         XCTAssertTrue(app.buttons["dashboard-fullscreen-button"].exists)
+        XCTAssertEqual(app.buttons["dashboard-audio-toggle"].value as? String, "已开启")
     }
 
     @MainActor

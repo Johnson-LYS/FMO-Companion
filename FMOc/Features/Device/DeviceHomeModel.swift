@@ -30,6 +30,7 @@ final class DeviceHomeModel {
     private let discovery: any FmoDeviceDiscovering
     private let geoClient: any FmoGeoClient
     private let localStatusProvider: any FmoLocalStatusProviding
+    private let stationController: any FmoStationControlling
     private let localEventStream: any FmoLocalEventStreaming
     private let locationProvider: any PhoneLocationProviding
     private let endpointStore: any FmoEndpointStoring
@@ -58,6 +59,11 @@ final class DeviceHomeModel {
     var issue: Issue?
     var lastOperationText: String?
     var dashboardSnapshot = DashboardSnapshot.empty()
+    var currentServer: FmoCurrentServer?
+    var serverCatalog = FmoDeviceServerCatalog(all: [], pinned: [])
+    var isLoadingServerCatalog = false
+    var switchingServerUID: Int64?
+    var serverSelectionError: String?
     var manualHost = "fmo.local"
     var manualPort = ""
     var isDiscovering = false
@@ -66,6 +72,7 @@ final class DeviceHomeModel {
         discovery: any FmoDeviceDiscovering,
         geoClient: any FmoGeoClient,
         localStatusProvider: any FmoLocalStatusProviding = UnavailableFmoLocalStatusProvider(),
+        stationController: any FmoStationControlling = UnavailableFmoStationController(),
         localEventStream: any FmoLocalEventStreaming = UnavailableFmoLocalEventStream(),
         locationProvider: any PhoneLocationProviding,
         endpointStore: any FmoEndpointStoring,
@@ -76,6 +83,7 @@ final class DeviceHomeModel {
         self.discovery = discovery
         self.geoClient = geoClient
         self.localStatusProvider = localStatusProvider
+        self.stationController = stationController
         self.localEventStream = localEventStream
         self.locationProvider = locationProvider
         self.endpointStore = endpointStore
@@ -89,6 +97,7 @@ final class DeviceHomeModel {
             discovery: NWBrowserFmoDeviceDiscovery(),
             geoClient: FmoGeoWebSocketClient(),
             localStatusProvider: FmoLocalStatusWebSocketClient(),
+            stationController: FmoStationControlWebSocketClient(),
             localEventStream: FmoLocalEventWebSocketClient(),
             locationProvider: CoreLocationProvider(),
             endpointStore: UserDefaultsFmoEndpointStore(),
@@ -368,6 +377,54 @@ final class DeviceHomeModel {
         }
     }
 
+    func loadServerCatalog() async {
+        guard let endpoint = selectedEndpoint, isConnected else { return }
+        serverCatalog = FmoDeviceServerCatalog(all: [], pinned: [])
+        isLoadingServerCatalog = true
+        serverSelectionError = nil
+        defer { isLoadingServerCatalog = false }
+
+        do {
+            try await stationController.connect(to: endpoint)
+            let catalog = try await stationController.getServerCatalog { [weak self] partialCatalog in
+                await self?.applyServerCatalogUpdate(partialCatalog, endpointID: endpoint.id)
+            }
+            guard !Task.isCancelled, selectedEndpoint?.id == endpoint.id, isConnected else { return }
+            serverCatalog = catalog
+        } catch is CancellationError {
+        } catch {
+            guard selectedEndpoint?.id == endpoint.id else { return }
+            serverSelectionError = String(localized: "无法读取服务器列表，请稍后重试。")
+        }
+    }
+
+    @discardableResult
+    func switchServer(to server: FmoDeviceServer) async -> Bool {
+        guard let endpoint = selectedEndpoint, isConnected else { return false }
+        if currentServer?.uid == server.uid { return true }
+        let availableUIDs = Set((serverCatalog.all + serverCatalog.pinned).map(\.uid))
+        guard availableUIDs.contains(server.uid), switchingServerUID == nil else { return false }
+
+        switchingServerUID = server.uid
+        serverSelectionError = nil
+        defer { switchingServerUID = nil }
+
+        do {
+            try await stationController.connect(to: endpoint)
+            let confirmed = try await stationController.switchCurrentServer(toUID: server.uid)
+            guard !Task.isCancelled, selectedEndpoint?.id == endpoint.id, isConnected else { return false }
+            currentServer = confirmed
+            dashboardSnapshot = await dashboardStore.recordCurrentServer(confirmed.name)
+            return true
+        } catch is CancellationError {
+            return false
+        } catch {
+            guard selectedEndpoint?.id == endpoint.id else { return false }
+            serverSelectionError = String(localized: "服务器切换失败，请重试。")
+            return false
+        }
+    }
+
     func disconnect() async {
         cancelConnectionAttempt()
         await stopLocalConnections()
@@ -375,6 +432,7 @@ final class DeviceHomeModel {
         deviceCoordinate = nil
         phoneLocation = nil
         selectedEndpoint = nil
+        resetServerSelection()
         lastOperationText = nil
         issue = nil
         dashboardSnapshot = await dashboardStore.recordGeoDisconnection()
@@ -394,6 +452,7 @@ final class DeviceHomeModel {
             deviceCoordinate = nil
             phoneLocation = nil
             selectedEndpoint = nil
+            resetServerSelection()
             lastOperationText = nil
             issue = nil
             dashboardSnapshot = await dashboardStore.reset()
@@ -593,6 +652,7 @@ final class DeviceHomeModel {
         }
         if let value = try? await localStatusProvider.getCurrentServer() {
             update.currentServerName = value.name
+            currentServer = value
             hasCurrentServer = true
         }
         if let value = try? await localStatusProvider.getServerFilter() {
@@ -644,6 +704,7 @@ final class DeviceHomeModel {
                     try await localStatusProvider.connect(to: endpoint)
                     let server = try await localStatusProvider.getCurrentServer()
                     guard !Task.isCancelled, selectedEndpoint?.id == endpoint.id else { return }
+                    currentServer = server
                     dashboardSnapshot = await dashboardStore.recordCurrentServer(server.name)
                 } catch {
                     guard !Task.isCancelled, selectedEndpoint?.id == endpoint.id else { return }
@@ -682,6 +743,24 @@ final class DeviceHomeModel {
         localEventTask = nil
         await localEventStream.disconnect()
         await localStatusProvider.disconnect()
+        await stationController.disconnect()
+        resetServerSelection()
+    }
+
+    private func resetServerSelection() {
+        currentServer = nil
+        serverCatalog = FmoDeviceServerCatalog(all: [], pinned: [])
+        isLoadingServerCatalog = false
+        switchingServerUID = nil
+        serverSelectionError = nil
+    }
+
+    private func applyServerCatalogUpdate(
+        _ catalog: FmoDeviceServerCatalog,
+        endpointID: String
+    ) {
+        guard !Task.isCancelled, selectedEndpoint?.id == endpointID, isConnected else { return }
+        serverCatalog = catalog
     }
 
     @discardableResult

@@ -454,6 +454,31 @@ struct DeviceHomeModelTests {
         #expect(await status.currentServerReadCount() >= 2)
         await model.disconnect()
     }
+
+    @Test
+    func loadsDeviceFavoritesAndUpdatesDashboardOnlyAfterVerifiedSwitch() async throws {
+        let endpoint = try FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+        let controller = FakeStationController()
+        let model = DeviceHomeModel(
+            discovery: FakeDiscovery(endpoint: endpoint),
+            geoClient: FakeGeoClient(coordinate: try GeoCoordinate(latitude: 31.2304, longitude: 121.4737)),
+            localStatusProvider: FakeLocalStatusProvider(),
+            stationController: controller,
+            locationProvider: FakeLocationProvider(coordinate: try GeoCoordinate(latitude: 31, longitude: 121)),
+            endpointStore: MemoryEndpointStore()
+        )
+
+        await model.connect(to: endpoint)
+        await model.loadServerCatalog()
+
+        #expect(model.serverCatalog.all.map(\.uid) == [42, 84])
+        #expect(model.serverCatalog.pinned.map(\.uid) == [84])
+        let target = try #require(model.serverCatalog.all.last)
+        #expect(await model.switchServer(to: target))
+        #expect(model.currentServer == FmoCurrentServer(uid: 84, name: "收藏服务器"))
+        #expect(model.dashboardSnapshot.currentServerName.currentValue == "收藏服务器")
+        #expect(await controller.requestedUIDs() == [84])
+    }
 }
 
 struct FmoEndpointStoreTests {
@@ -666,6 +691,27 @@ private actor SwitchingLocalStatusProvider: FmoLocalStatusProviding {
     func getQSOLogCount() -> Int { 18 }
     func disconnect() {}
     func currentServerReadCount() -> Int { serverReads }
+}
+
+private actor FakeStationController: FmoStationControlling {
+    private var switchedUIDs: [Int64] = []
+
+    func connect(to endpoint: FmoDeviceEndpoint) {}
+    func getServerCatalog() -> FmoDeviceServerCatalog {
+        FmoDeviceServerCatalog(
+            all: [
+                FmoDeviceServer(uid: 42, name: "测试服务器"),
+                FmoDeviceServer(uid: 84, name: "收藏服务器"),
+            ],
+            pinned: [FmoDeviceServer(uid: 84, name: "收藏服务器")]
+        )
+    }
+    func switchCurrentServer(toUID uid: Int64) -> FmoCurrentServer {
+        switchedUIDs.append(uid)
+        return FmoCurrentServer(uid: uid, name: "收藏服务器")
+    }
+    func disconnect() {}
+    func requestedUIDs() -> [Int64] { switchedUIDs }
 }
 
 private actor SingleImmediateStatusRefreshWaiter: FmoStatusRefreshWaiting {

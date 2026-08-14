@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-12
+last-reviewed: 2026-08-15
 ---
 
 # 项目简报
@@ -8,7 +8,7 @@ last-reviewed: 2026-08-12
 
 FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它把 iPhone 作为 FMO 盒子的局域网伴侣、GPS 来源、APRS 信息终端、远程控制器、QSO 日志工具和自建服务器运维入口。
 
-项目坚持公开与用户授权接口边界：使用官方 GEO WebSocket、FMO V4 APRS、官方 APRS 远控示例、ADR-0007 固定的本地只读 QSO 列表/详情、ADR-0009 固定的前台本地接收音频及用户自建 HTTPS API，不逆向 MQTT 语音或设备私钥。
+项目坚持公开与用户授权接口边界：使用官方 GEO WebSocket、FMO V4 APRS、官方 APRS 远控示例、ADR-0007 固定的本地只读 QSO 列表/详情、ADR-0009 固定的前台本地接收音频、ADR-0010 最小本地服务器切换及用户自建 HTTPS API，不逆向 MQTT 语音或设备私钥。
 
 ## 当前状态
 
@@ -18,6 +18,16 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
 
 ## 最近变更
+
+| 2026-08-15 | 服务器选择器改为无跨会话缓存的实时渐进加载：每次打开清空旧目录，首个 `getListRange` 分页通过校验后立即显示，剩余服务器与设备收藏继续串行加载，避免以旧缓存换取速度 | `FMOc/Features/Device/FmoStationControlWebSocketClient.swift`、`FMOc/Features/Device/DeviceServerPickerView.swift`、`docs/adr/0010-user-authorized-local-server-switching.md` |
+
+| 2026-08-14 | 修复共享音频会话的一次性连接缺口：`/audio` 首次失败、短暂断开或自然结束后在前台自动重连，瞬时恢复保留喇叭开关；后台、设备断线或切换设备仍终止会话并恢复静音 | `FMOc/Features/Audio/FmoAudioMonitorModel.swift`、`FMOc/ContentView.swift`、`docs/architecture/modules/audio.md` |
+
+| 2026-08-14 | 首页讲话者次要信息由网格/计时改为可滚动 QTH，讲话结束后与呼号、扬声器图标一起灰化；本地音频模型提升到组合根，首页与横屏共享声音开关及同一前台 `/audio` 会话，Hero 转场不再中断播放 | `FMOc/ContentView.swift`、`FMOc/Features/Dashboard/DeviceDashboardSummaryView.swift`、`docs/architecture/modules/audio.md` |
+
+| 2026-08-14 | 横屏仪表盘复用设备服务器选择 Sheet：顶部呼号改为主题色，服务器移除解释性标签并改为主题色实底、深色文字的大号切换按钮；切换仍使用 ADR-0010 设备收藏/全部目录与 UID 回读确认 | `FMOc/Features/Dashboard/DashboardFullscreenView.swift`、`FMOc/ContentView.swift`、`prototype/dashboard-fullscreen.html` |
+
+| 2026-08-14 | 采用 ADR-0010 增加设备服务器选择：点击首页当前服务器打开 Sheet，直接读取当前 FMO 的收藏与全部服务器，按 UID 切换并回读确认；公共 FMO 网络退出 App 独立服务器收藏，只保留呼号收藏 | `FMOc/Features/Device/FmoStationControlWebSocketClient.swift`、`FMOc/Features/Device/DeviceServerPickerView.swift`、`docs/adr/0010-user-authorized-local-server-switching.md` |
 
 | 2026-08-12 | 首版加入简体中文/英语双语：App、实时活动、Info.plist 权限与辅助功能文案统一进入 String Catalog，跟随系统或单 App 语言并回退英语；Xcode Cloud 增加翻译完整性校验，公网隐私政策在同一无脚本静态页面提供双语正文 | `FMOc/Resources/Localizable.xcstrings`、`FMOc/InfoPlist.xcstrings`、`FMOcLiveActivity/`、`privacy/`、`ci_scripts/validate_localizations.py` |
 

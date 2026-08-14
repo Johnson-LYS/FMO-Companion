@@ -47,6 +47,7 @@
               </div>
               <div class="hero-identity-row">
                 <h3 id="heroTitle">让 iPhone 找到你的 FMO</h3>
+                <button class="dashboard-audio-button" id="dashboardAudioToggle" type="button" data-action="toggle-dashboard-audio" aria-label="打开设备声音" aria-pressed="false" hidden>◖</button>
                 <a class="dashboard-fullscreen-button" id="dashboardFullscreenButton" href="dashboard-fullscreen.html" aria-label="打开横屏全屏仪表盘" hidden>
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"></path><path d="m3 8 6-6m12 6-6-6M3 16l6 6m12-6-6 6"></path></svg>
                 </a>
@@ -64,10 +65,10 @@
                   </div>
                 </div>
                 <div class="dashboard-relay-capsule">
-                  <div class="dashboard-server-name" aria-label="当前服务器 安吉 FMO 中继"><strong>安吉 FMO 中继</strong></div>
+                  <button class="dashboard-server-name" type="button" data-action="open-server-picker" aria-label="切换服务器，当前服务器 安吉 FMO 中继"><strong id="dashboardServerLabel">安吉 FMO 中继</strong><span aria-hidden="true">⇅</span></button>
                   <div class="dashboard-event" aria-live="polite">
                     <span class="dashboard-event-kind is-voice" id="dashboardEventType" aria-label="当前讲话"></span>
-                    <div><strong id="dashboardEventTitle">BH4XYZ-15</strong><small id="dashboardEventTime">OM20xx · 刚刚</small></div>
+                    <div><strong id="dashboardEventTitle">BH4XYZ-15</strong><small id="dashboardEventTime">浙江省湖州市附近</small></div>
                     <span class="event-pulse" id="dashboardEventPulse" aria-hidden="true"></span>
                   </div>
                 </div>
@@ -310,13 +311,12 @@
               </div>
             </div>
             <div data-directory-panel="servers" hidden>
-              <article class="server-directory-card"><button class="server-directory-main" type="button" data-action="show-directory-item" data-item-label="示例华东服务器"><span><strong>示例华东服务器</strong><small>fmo.example.invalid:1883 · 覆盖 60 km</small></span><span><b>24</b><small>在线</small></span><span><b>37</b><small>峰值</small></span></button><button class="favorite-button is-selected" type="button" data-action="toggle-item-favorite" data-favorite-id="server:123" data-favorite-label="示例华东服务器" aria-label="取消收藏服务器 示例华东服务器" aria-pressed="true">★</button></article>
-              <article class="server-directory-card"><button class="server-directory-main" type="button" data-action="show-directory-item" data-item-label="示例西南服务器"><span><strong>示例西南服务器</strong><small>southwest.example.invalid:1883 · 覆盖 80 km</small></span><span><b>11</b><small>在线</small></span><span><b>29</b><small>峰值</small></span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="server:456" data-favorite-label="示例西南服务器" aria-label="收藏服务器 示例西南服务器" aria-pressed="false">☆</button></article>
+              <article class="server-directory-card"><button class="server-directory-main" type="button" data-action="show-directory-item" data-item-label="示例华东服务器"><span><strong>示例华东服务器</strong><small>fmo.example.invalid:1883 · 覆盖 60 km</small></span><span><b>24</b><small>在线</small></span><span><b>37</b><small>峰值</small></span></button></article>
+              <article class="server-directory-card"><button class="server-directory-main" type="button" data-action="show-directory-item" data-item-label="示例西南服务器"><span><strong>示例西南服务器</strong><small>southwest.example.invalid:1883 · 覆盖 80 km</small></span><span><b>11</b><small>在线</small></span><span><b>29</b><small>峰值</small></span></button></article>
             </div>
             <div class="favorite-collection" data-directory-panel="favorites" hidden>
               <section><h4>收藏呼号</h4><article class="favorite-summary-row" data-favorite-copy="call:BH4XYZ"><button class="favorite-summary-main" type="button" data-action="open-detail" data-target="station-detail"><span class="station-avatar alt">BH</span><span><strong>BH4XYZ</strong><small>42 km · 刚刚活动</small></span></button><button class="favorite-button is-selected" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BH4XYZ" data-favorite-label="BH4XYZ" aria-label="取消收藏呼号 BH4XYZ" aria-pressed="true">★</button></article><article class="favorite-summary-row" data-favorite-copy="call:BI8SYN" hidden><button class="favorite-summary-main" type="button" data-action="open-detail" data-target="station-detail"><span class="station-avatar">BI</span><span><strong>BI8SYN</strong><small>18 km · 1 分钟前</small></span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BI8SYN" data-favorite-label="BI8SYN" aria-label="收藏呼号 BI8SYN" aria-pressed="false">☆</button></article><article class="favorite-summary-row" data-favorite-copy="call:BD7ABC" hidden><button class="favorite-summary-main" type="button" data-action="open-detail" data-target="station-detail"><span class="station-avatar muted">BD</span><span><strong>BD7ABC</strong><small>12 分钟前 · 收藏仍保留</small></span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="call:BD7ABC" data-favorite-label="BD7ABC" aria-label="收藏呼号 BD7ABC" aria-pressed="false">☆</button></article></section>
-              <section><h4>收藏服务器</h4><article class="favorite-summary-row server-favorite-row" data-favorite-copy="server:123"><button class="favorite-summary-main" type="button" data-action="show-directory-item" data-item-label="示例华东服务器"><span class="station-avatar">S</span><span><strong>示例华东服务器</strong><small>24 / 37 在线 · 数据新鲜</small></span></button><button class="favorite-button is-selected" type="button" data-action="toggle-item-favorite" data-favorite-id="server:123" data-favorite-label="示例华东服务器" aria-label="取消收藏服务器 示例华东服务器" aria-pressed="true">★</button></article><article class="favorite-summary-row server-favorite-row" data-favorite-copy="server:456" hidden><button class="favorite-summary-main" type="button" data-action="show-directory-item" data-item-label="示例西南服务器"><span class="station-avatar muted">S</span><span><strong>示例西南服务器</strong><small>11 / 29 在线 · 数据新鲜</small></span></button><button class="favorite-button" type="button" data-action="toggle-item-favorite" data-favorite-id="server:456" data-favorite-label="示例西南服务器" aria-label="收藏服务器 示例西南服务器" aria-pressed="false">☆</button></article></section>
-              <div class="empty-card compact-empty" id="favoriteEmpty" hidden><span class="empty-icon">☆</span><strong>尚无收藏</strong><p>可从台站或服务器目录点击星标添加。</p></div>
+              <div class="empty-card compact-empty" id="favoriteEmpty" hidden><span class="empty-icon">☆</span><strong>尚无收藏</strong><p>可从台站目录点击星标添加。</p></div>
             </div>
             <p class="prototype-disclaimer">呼号、服务器与距离均为虚构数据。</p>
           </section>
@@ -446,6 +446,23 @@
               </button>
             </div>
             <button class="manual-device-button" type="button" data-action="open-manual"><span>＋</span><span><strong>手动输入地址</strong><small>自动发现不可用时使用</small></span><b>›</b></button>
+          </section>
+        </div>
+
+        <div class="modal-backdrop" id="serverPickerModal" hidden>
+          <section class="bottom-sheet server-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="serverPickerTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="device-picker-heading"><div><span class="step-label">当前 FMO</span><h2 id="serverPickerTitle">切换服务器</h2></div><button class="scan-button" type="button" data-action="refresh-server-list">刷新</button></div>
+            <label class="server-picker-search"><span aria-hidden="true">⌕</span><input type="search" placeholder="搜索服务器" aria-label="搜索服务器"></label>
+            <div class="server-picker-list">
+              <h3>收藏服务器</h3>
+              <button class="server-picker-row" type="button" data-action="switch-device-server" data-server-name="彩云之南集群主节点"><span class="server-picker-mark">★</span><strong>彩云之南集群主节点</strong><span></span></button>
+              <h3>所有服务器</h3>
+              <button class="server-picker-row is-current" type="button" data-action="switch-device-server" data-server-name="安吉 FMO 中继"><span class="server-picker-mark">▤</span><strong>安吉 FMO 中继</strong><span>✓</span></button>
+              <button class="server-picker-row" type="button" data-action="switch-device-server" data-server-name="如意甘肃"><span class="server-picker-mark">▤</span><strong>如意甘肃</strong><span></span></button>
+              <button class="server-picker-row" type="button" data-action="switch-device-server" data-server-name="半间猫窝（洛）"><span class="server-picker-mark">▤</span><strong>半间猫窝（洛）</strong><span></span></button>
+            </div>
+            <button class="secondary-button full-width" type="button" data-action="close-modal">完成</button>
           </section>
         </div>
 
