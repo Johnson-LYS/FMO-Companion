@@ -23,6 +23,14 @@ Apple 官方说明 Xcode Cloud 可以按分支变更、PR 变更、标签变更�
 
 工作流在 Xcode Cloud 中可以使用其他显示名称，但启动条件必须符合上表。不要给 Release 工作流增加普通分支变更条件，否则日常提交可能误触发正式发布。
 
+## Action 配置基线
+
+Beta 与 Release 工作流的 App 入口统一选择共享 Scheme `FMO 助手`。Xcode Cloud 界面中的“计划”下拉会同时列出 `FMO 助手`、`FMOc` 与 `FMOcLiveActivity`；后两者是单一构建目标的 Scheme，不是 App 的完整测试入口，不应用来替代 `FMO 助手`。
+
+测试 Action 选择“测试（使用计划设置）”。当前 `FMO 助手` Scheme 使用 Xcode 自动生成的测试计划，并同时包含 `FMOcTests` 与 `FMOcUITests`；仓库未维护独立 `.xctestplan`，因此不选择“特定测试方案”。如未来需要拆分 Beta 快速测试与 Release 完整测试，应先把命名明确的 `.xctestplan` 随代码提交并验证，再修改云端选项，不能只在 Xcode Cloud 中创建不可追踪的测试集合。
+
+当前推荐 Action 顺序为“测试 → 归档”。测试 Action 自带 `build-for-testing`，无需再添加独立 Build Action；归档必须保留，因为测试使用 Debug 配置，无法替代 Release Archive 编译与签名验证。
+
 ## 分支与发布流程
 
 ### 日常开发与 Beta

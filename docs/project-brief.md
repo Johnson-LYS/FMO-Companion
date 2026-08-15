@@ -19,6 +19,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 最近变更
 
+| 2026-08-15 | 修复 Release Archive 引用仅在 DEBUG 存在的 UI 测试地区解析器：生产组合根固定装配 MapKit 实现；同步明确 Xcode Cloud 使用共享 `FMO 助手` Scheme、“测试（使用计划设置）”与“测试 → 归档”基线 | `FMOc/App/AppComposition.swift`、`docs/operations/xcode-cloud.md` |
+
 | 2026-08-15 | 修正 Xcode Cloud 测试复用动作误访问源码：预构建脚本识别 `test-without-building` 并在读取本地化或工程前退出，只在会实际编译/归档的 Action 同步构建号；新增无源码产物恢复环境与未知 Action 的回归测试 | `ci_scripts/ci_pre_xcodebuild.sh`、`ci_scripts/test_ci_pre_xcodebuild.py`、`docs/operations/xcode-cloud.md` |
 
 | 2026-08-15 | 修复 Xcode Cloud 本地化预检因源码导出漏掉 String Catalog 且不含 `.git` 而提前失败：校验器优先从本地 `HEAD` 恢复；云端无 Git 元数据时仅按 40 位 `CI_COMMIT` 从固定公开仓库的同一提交恢复白名单路径，并覆盖无 `.git`、非法提交与本地恢复回归测试 | `ci_scripts/validate_localizations.py`、`ci_scripts/test_validate_localizations.py`、`docs/operations/xcode-cloud.md` |

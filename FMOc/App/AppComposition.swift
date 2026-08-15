@@ -143,10 +143,14 @@ enum AppComposition {
             processInfo.environment["FMO_UI_TEST_SCENARIO"] == nil
             ? UserDefaultsDashboardSpeakerLocationStore()
             : VolatileDashboardSpeakerLocationStore()
-        let dashboardAreaResolver: any DashboardAreaResolving =
-            processInfo.environment["FMO_UI_TEST_SCENARIO"] == nil
+        let dashboardAreaResolver: any DashboardAreaResolving
+#if DEBUG
+        dashboardAreaResolver = processInfo.environment["FMO_UI_TEST_SCENARIO"] == nil
             ? MapKitDashboardAreaResolver()
             : UITestDashboardAreaResolver()
+#else
+        dashboardAreaResolver = MapKitDashboardAreaResolver()
+#endif
         let device = DeviceHomeModel(
             discovery: discovery,
             geoClient: geoClient,
