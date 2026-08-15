@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from ci_scripts.validate_localizations import restore_tracked_file
 
@@ -65,6 +67,46 @@ class RestoreTrackedFileTests(unittest.TestCase):
 
             with self.assertRaises(FileNotFoundError):
                 restore_tracked_file(root / "missing.xcstrings", repository_root=root)
+
+    def test_restores_from_exact_commit_without_git_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "FMOc/Resources/Localizable.xcstrings"
+            calls = []
+
+            def fetcher(commit_sha: str, relative_path: str) -> bytes:
+                calls.append((commit_sha, relative_path))
+                return b'{"sourceLanguage":"en"}\n'
+
+            with patch.dict(
+                os.environ,
+                {"CI_XCODE_CLOUD": "TRUE", "CI_COMMIT": "A" * 40},
+                clear=False,
+            ):
+                restore_tracked_file(
+                    target,
+                    repository_root=root,
+                    remote_fetcher=fetcher,
+                )
+
+            self.assertEqual(
+                calls,
+                [("a" * 40, "FMOc/Resources/Localizable.xcstrings")],
+            )
+            self.assertEqual(target.read_bytes(), b'{"sourceLanguage":"en"}\n')
+
+    def test_rejects_invalid_remote_commit(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "FMOc/Resources/Localizable.xcstrings"
+
+            with self.assertRaisesRegex(FileNotFoundError, "40 位 Git 提交哈希"):
+                restore_tracked_file(
+                    target,
+                    repository_root=root,
+                    commit_sha="beta",
+                    remote_fetcher=lambda _commit, _path: b"unexpected",
+                )
 
 
 if __name__ == "__main__":

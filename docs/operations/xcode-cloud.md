@@ -45,7 +45,7 @@ Apple 官方说明 Xcode Cloud 可以按分支变更、PR 变更、标签变更�
 - 缺少或收到非法 `CI_BUILD_NUMBER` 时失败关闭，不能静默产出错误版本。
 - 必须紧邻 `xcodebuild` 执行并验证 Xcode 实际解析的 App Build Settings；只验证项目文件写入成功不算完成。
 - App 与同包扩展使用相同构建号；不把 CI 变量写入源码、用户默认值或可见调试字段。
-- 本地化校验输入必须来自当前 Git `HEAD`。若 Xcode Cloud 工作树漏掉已跟踪的 String Catalog 或隐私政策，校验器只允许从同一 `HEAD` 的对应白名单路径恢复原始文件后继续；文件未被当前提交跟踪时仍应失败，不能跳过校验或使用缓存副本。
+- 本地化校验输入必须绑定到当前精确提交。校验器优先读取工作树文件；若 Xcode Cloud 的源码导出漏掉白名单内的 String Catalog 或隐私政策且不包含 `.git`，则仅允许使用 Apple 提供的 40 位 `CI_COMMIT`，通过 HTTPS 从固定公开仓库 `Johnson-LYS/FMO-Companion` 的同一提交恢复固定路径。不得使用移动分支、缓存副本或用户输入的仓库/路径；提交哈希无效、下载失败或文件超限时必须失败关闭。
 - Xcode Cloud 构建日志可记录最终构建号，但不得输出密钥、签名或其他 Secret。
 
 ### 正式发布

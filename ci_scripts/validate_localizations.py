@@ -4,10 +4,15 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
+import urllib.error
+import urllib.parse
+import urllib.request
 from pathlib import Path
+from typing import Callable, Optional
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -22,10 +27,58 @@ PLACEHOLDER = re.compile(
 )
 POSITION = re.compile(r"^%(?:\d+\$)?")
 HAN = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff]", re.UNICODE)
+COMMIT_SHA = re.compile(r"^[0-9a-fA-F]{40}$")
+GITHUB_RAW_BASE = "https://raw.githubusercontent.com/Johnson-LYS/FMO-Companion"
+MAX_RESTORE_BYTES = 5 * 1024 * 1024
+ALLOWED_RESTORE_PATHS = frozenset(
+    (
+        "FMOc/Resources/Localizable.xcstrings",
+        "FMOc/InfoPlist.xcstrings",
+        "FMOcLiveActivity/Localizable.xcstrings",
+        "FMOcLiveActivity/InfoPlist.xcstrings",
+        "privacy/index.html",
+    )
+)
+
+RemoteFetcher = Callable[[str, str], bytes]
 
 
-def restore_tracked_file(path: Path, repository_root: Path = ROOT) -> None:
-    """当 CI 工作树漏掉已跟踪输入时，从当前 HEAD 恢复完全相同的内容。"""
+def fetch_github_file(commit_sha: str, relative_path: str) -> bytes:
+    """从固定公开仓库的精确提交读取白名单文件。"""
+    encoded_path = urllib.parse.quote(relative_path, safe="/")
+    url = f"{GITHUB_RAW_BASE}/{commit_sha}/{encoded_path}"
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": "FMO-Companion-Xcode-Cloud"},
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            content_length = response.headers.get("Content-Length")
+            if content_length and int(content_length) > MAX_RESTORE_BYTES:
+                raise FileNotFoundError(f"远程文件超过 {MAX_RESTORE_BYTES} 字节限制")
+            payload = response.read(MAX_RESTORE_BYTES + 1)
+    except (urllib.error.URLError, TimeoutError, ValueError) as error:
+        raise FileNotFoundError(f"无法读取精确提交中的 {relative_path}：{error}") from error
+
+    if len(payload) > MAX_RESTORE_BYTES:
+        raise FileNotFoundError(f"远程文件超过 {MAX_RESTORE_BYTES} 字节限制")
+    return payload
+
+
+def xcode_cloud_commit() -> Optional[str]:
+    if os.environ.get("CI_XCODE_CLOUD", "").upper() != "TRUE":
+        return None
+    return os.environ.get("CI_COMMIT")
+
+
+def restore_tracked_file(
+    path: Path,
+    repository_root: Path = ROOT,
+    commit_sha: Optional[str] = None,
+    remote_fetcher: RemoteFetcher = fetch_github_file,
+) -> None:
+    """恢复源码导出遗漏的固定输入，同时保持内容绑定到精确提交。"""
     if path.is_file():
         return
 
@@ -34,21 +87,36 @@ def restore_tracked_file(path: Path, repository_root: Path = ROOT) -> None:
     except ValueError as error:
         raise FileNotFoundError(f"{path} 不在仓库目录内") from error
 
-    result = subprocess.run(
-        ["git", "-C", str(repository_root), "show", f"HEAD:{relative_path}"],
-        check=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    if result.returncode != 0:
-        detail = result.stderr.decode("utf-8", errors="replace").strip()
-        raise FileNotFoundError(
-            f"{path} 不存在，且无法从当前 HEAD 恢复：{detail or 'Git 对象不存在'}"
-        )
+    if relative_path not in ALLOWED_RESTORE_PATHS:
+        raise FileNotFoundError(f"{path} 不在允许恢复的输入白名单中")
 
+    git_detail = "工作目录不包含 Git 元数据"
+    if (repository_root / ".git").exists():
+        result = subprocess.run(
+            ["git", "-C", str(repository_root), "show", f"HEAD:{relative_path}"],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if result.returncode == 0:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(result.stdout)
+            print(f"Restored tracked localization input from HEAD: {relative_path}")
+            return
+        git_detail = result.stderr.decode("utf-8", errors="replace").strip()
+
+    exact_commit = commit_sha if commit_sha is not None else xcode_cloud_commit()
+    if not exact_commit:
+        raise FileNotFoundError(
+            f"{path} 不存在，且无法恢复：{git_detail or 'Git 对象不存在'}"
+        )
+    if not COMMIT_SHA.fullmatch(exact_commit):
+        raise FileNotFoundError("CI_COMMIT 不是有效的 40 位 Git 提交哈希，拒绝远程恢复")
+
+    payload = remote_fetcher(exact_commit.lower(), relative_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(result.stdout)
-    print(f"Restored tracked localization input from HEAD: {relative_path}")
+    path.write_bytes(payload)
+    print(f"Restored localization input from exact CI commit: {relative_path}")
 
 
 def placeholder_signature(value: str) -> list[str]:
