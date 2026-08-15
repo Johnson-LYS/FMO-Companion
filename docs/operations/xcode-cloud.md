@@ -42,6 +42,7 @@ Apple 官方说明 Xcode Cloud 可以按分支变更、PR 变更、标签变更�
 脚本必须满足以下约束：
 
 - 只在 `CI_XCODE_CLOUD=TRUE` 时修改临时检出的工程。
+- `ci_pre_xcodebuild.sh` 会在每个 Action 前运行。`test-without-building` 只消费先前 `build-for-testing` 产生的构建产物，恢复环境可不包含源码；该 Action 必须在访问本地化输入或 `.xcodeproj` 前直接跳过。只有 `analyze`、`archive`、`build` 与 `build-for-testing` 可以校验源码并同步构建号。
 - 缺少或收到非法 `CI_BUILD_NUMBER` 时失败关闭，不能静默产出错误版本。
 - 必须紧邻 `xcodebuild` 执行并验证 Xcode 实际解析的 App Build Settings；只验证项目文件写入成功不算完成。
 - App 与同包扩展使用相同构建号；不把 CI 变量写入源码、用户默认值或可见调试字段。
