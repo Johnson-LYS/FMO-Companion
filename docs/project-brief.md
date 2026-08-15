@@ -19,7 +19,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 最近变更
 
-| 2026-08-15 | 修复 Xcode Cloud 本地化预检因工作树漏掉已跟踪 String Catalog 而提前失败：校验器仅从当前 Git `HEAD` 的固定路径恢复原始输入，未跟踪文件仍失败关闭，并增加恢复/拒绝回归测试 | `ci_scripts/validate_localizations.py`、`ci_scripts/test_validate_localizations.py`、`docs/operations/xcode-cloud.md` |
+| 2026-08-15 | 修复 Xcode Cloud 本地化预检因源码导出漏掉 String Catalog 且不含 `.git` 而提前失败：校验器优先从本地 `HEAD` 恢复；云端无 Git 元数据时仅按 40 位 `CI_COMMIT` 从固定公开仓库的同一提交恢复白名单路径，并覆盖无 `.git`、非法提交与本地恢复回归测试 | `ci_scripts/validate_localizations.py`、`ci_scripts/test_validate_localizations.py`、`docs/operations/xcode-cloud.md` |
 
 | 2026-08-15 | 服务器选择器改为无跨会话缓存的实时渐进加载：每次打开清空旧目录，首个 `getListRange` 分页通过校验后立即显示，剩余服务器与设备收藏继续串行加载，避免以旧缓存换取速度 | `FMOc/Features/Device/FmoStationControlWebSocketClient.swift`、`FMOc/Features/Device/DeviceServerPickerView.swift`、`docs/adr/0010-user-authorized-local-server-switching.md` |
 
