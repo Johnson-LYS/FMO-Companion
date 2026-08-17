@@ -174,7 +174,7 @@ struct DashboardFullscreenView: View {
             .accessibilityIdentifier("dashboard-fullscreen-close")
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(dashboard.callsign.currentValue ?? "FMO")
+                Text(dashboard.callsign.value ?? "FMO")
                     .font(.title.bold().monospaced())
                     .foregroundStyle(Color.accentColor)
                     .lineLimit(1)
@@ -186,7 +186,7 @@ struct DashboardFullscreenView: View {
                         isSource: false
                     )
                 HStack(spacing: 7) {
-                    if let grid = dashboard.maidenhead.currentValue {
+                    if let grid = dashboard.maidenhead.value {
                         compactMetadata(grid, symbol: "location.fill", heroElement: .maidenhead)
                     }
                     if let filter = filterText {
@@ -199,7 +199,7 @@ struct DashboardFullscreenView: View {
             }
             .layoutPriority(2)
 
-            if let server = dashboard.currentServerName.currentValue {
+            if let server = dashboard.currentServerName.value {
                 Button {
                     showsServerPicker = true
                 } label: {
@@ -455,7 +455,7 @@ struct DashboardFullscreenView: View {
     }
 
     private var filterText: String? {
-        guard let filter = dashboard.filterDistance.currentValue else { return nil }
+        guard let filter = dashboard.filterDistance.value else { return nil }
         switch filter {
         case .disabled: return "OFF"
         case .kilometers(let value): return "\(value)km"

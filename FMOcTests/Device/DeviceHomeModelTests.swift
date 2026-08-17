@@ -357,6 +357,79 @@ struct DeviceHomeModelTests {
     }
 
     @Test
+    func backgroundKeepsConnectedDeviceSessionAndDashboardCurrent() async throws {
+        let endpoint = try FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+        let geo = CountingGeoClient(
+            coordinate: try GeoCoordinate(latitude: 31.2304, longitude: 121.4737)
+        )
+        let model = DeviceHomeModel(
+            discovery: MultipleDeviceDiscovery(endpoints: []),
+            geoClient: geo,
+            localStatusProvider: FakeLocalStatusProvider(),
+            locationProvider: FakeLocationProvider(
+                coordinate: try GeoCoordinate(latitude: 31, longitude: 121)
+            ),
+            endpointStore: MemoryEndpointStore(
+                endpoints: [endpoint],
+                lastSuccessfulEndpointID: endpoint.id
+            )
+        )
+
+        await model.setActive(true)
+        await model.waitForConnection()
+        #expect(model.isConnected)
+        #expect(model.dashboardSnapshot.callsign.currentValue == "BG0TST")
+
+        await model.setActive(false)
+        #expect(model.isConnected)
+        #expect(model.selectedEndpoint == endpoint)
+        #expect(model.dashboardSnapshot.callsign.currentValue == "BG0TST")
+
+        await model.setActive(true)
+
+        #expect(model.isConnected)
+        #expect(model.selectedEndpoint == endpoint)
+        #expect(model.dashboardSnapshot.callsign.currentValue == "BG0TST")
+        #expect(await geo.connectedEndpoints() == [endpoint])
+    }
+
+    @Test
+    func foregroundImmediatelyReadsServerChangedWhileAppWasInBackground() async throws {
+        let endpoint = try FmoDeviceEndpoint(host: "fmo.local", source: .manual)
+        let geo = CountingGeoClient(
+            coordinate: try GeoCoordinate(latitude: 31.2304, longitude: 121.4737)
+        )
+        let status = ForegroundRefreshingStatusProvider()
+        let model = DeviceHomeModel(
+            discovery: MultipleDeviceDiscovery(endpoints: []),
+            geoClient: geo,
+            localStatusProvider: status,
+            locationProvider: FakeLocationProvider(
+                coordinate: try GeoCoordinate(latitude: 31, longitude: 121)
+            ),
+            endpointStore: MemoryEndpointStore(
+                endpoints: [endpoint],
+                lastSuccessfulEndpointID: endpoint.id
+            )
+        )
+
+        await model.setActive(true)
+        await model.waitForConnection()
+        #expect(model.dashboardSnapshot.currentServerName.currentValue == "服务器 A")
+        let disconnectsBeforeBackground = await status.disconnectCount()
+
+        await model.setActive(false)
+        await status.changeServerToBAndInvalidatePreservedConnection()
+        await model.setActive(true)
+
+        #expect(model.isConnected)
+        #expect(model.dashboardSnapshot.currentServerName.currentValue == "服务器 B")
+        #expect(model.currentServer?.name == "服务器 B")
+        #expect(await status.disconnectCount() == disconnectsBeforeBackground + 1)
+        #expect(await geo.connectedEndpoints() == [endpoint])
+    }
+
+    @Test
     func manualSelectionCancelsTheRemainingAutomaticQueue() async throws {
         let saved = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual, name: "FMO A")
         let queued = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual, name: "FMO B")
@@ -691,6 +764,33 @@ private actor SwitchingLocalStatusProvider: FmoLocalStatusProviding {
     func getQSOLogCount() -> Int { 18 }
     func disconnect() {}
     func currentServerReadCount() -> Int { serverReads }
+}
+
+private actor ForegroundRefreshingStatusProvider: FmoLocalStatusProviding {
+    private var server = FmoCurrentServer(uid: 1, name: "服务器 A")
+    private var rejectsNextServerRead = false
+    private var disconnects = 0
+
+    func connect(to endpoint: FmoDeviceEndpoint) {}
+    func getCallsign() -> String { "BG0TST" }
+    func getCurrentServer() throws -> FmoCurrentServer {
+        if rejectsNextServerRead {
+            rejectsNextServerRead = false
+            throw FmoDeviceError.disconnected
+        }
+        return server
+    }
+    func getServerFilter() -> FmoServerFilter { .kilometers(500) }
+    func getWorkingFrequencyMHz() -> Double { 438.5 }
+    func getQSOLogCount() -> Int { 18 }
+    func disconnect() { disconnects += 1 }
+
+    func changeServerToBAndInvalidatePreservedConnection() {
+        server = FmoCurrentServer(uid: 2, name: "服务器 B")
+        rejectsNextServerRead = true
+    }
+
+    func disconnectCount() -> Int { disconnects }
 }
 
 private actor FakeStationController: FmoStationControlling {

@@ -73,7 +73,6 @@ struct DeviceHomeView: View {
                 }
             }
         }
-        .task { await model.start() }
         .onDisappear {
             actionTask?.cancel()
             model.stopDiscovery()

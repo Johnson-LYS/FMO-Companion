@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-14
+last-reviewed: 2026-08-17
 ---
 
 # 模块：本地接收音频
@@ -48,12 +48,14 @@ selected FmoDeviceEndpoint
 └→ user enabled only → AVAudioEngine → local speaker
 ```
 
-`ContentView` 为当前设备持有唯一 `FmoAudioMonitorModel`。连接只在 App active 且当前 FMO 已连接时存在；首页和横屏消费同一实例，所以 Hero 转场、自然旋转和退出全屏既不重连 `/audio`，也不改变声音开关。音频 WebSocket 首次失败、短暂断开或自然结束时，模型暂停播放器并以可取消的一秒间隔自动重建流；这种瞬时恢复保留用户的声音开关，收到新帧后继续波形与播放。首次连接默认静音；后台、设备断线或设备变化才取消整个会话并恢复静音。静音期间的帧不会缓存供稍后回放。
+`ContentView` 为当前设备持有唯一 `FmoAudioMonitorModel`。连接随当前 FMO 连接存在，不以 `scenePhase` 作为会话身份；首页、横屏及前后台切换消费同一实例，所以不会重连 `/audio`，也不会改变声音开关。`audioSessionID` 对应的 SwiftUI `.task(id:)` 直接等待 `FmoAudioSessionCoordinator`，不再派生脱离结构化取消的子任务；旧端点或旧连接状态任务被取消后，不能延迟执行 `stop()` 并关闭替代会话。音频 WebSocket 首次失败、短暂断开或自然结束时，模型暂停播放器并以可取消的一秒间隔自动重建流；这种瞬时恢复保留用户的声音开关，收到新帧后继续波形与播放。握手按官方本地页面设置与当前端点匹配的 HTTP `Origin`，不硬编码设备地址。首次连接和切换设备默认静音；临时断线及前后台切换保留选择。静音期间的帧不会缓存供稍后回放。音频会话自身产生的 category route change 不关闭声音，只有系统中断开始或旧输出设备移除才静音。
+
+工程声明 `UIBackgroundModes = audio, location`。用户打开声音时立即启动 `.playback + .spokenAudio` 连续接收播放链，不等待第一帧才准备音频会话；无人讲话时输出自然空闲，后续 PCM 到达即可直接播放。Audio 后台模式承担锁屏/切换 App 后的持续可听监听；关闭声音会立即停用播放器，不另行生成静音媒体保活。设备 WebSocket 不因进后台主动断开，因此返回 App 时 Dashboard 保持连接态；但静音时 iOS 可挂起进程，系统中断、网络变化和资源回收也可能结束连接，恢复仍依赖各客户端既有重连逻辑。
 
 ## 依赖与边界
 
 - Foundation / URLSession：WebSocket 与取消感知流。
-- AVFoundation：用户显式开启后的 `.playback + .spokenAudio` 本地播放；不申请麦克风权限，也不启用仅适用于录音类别的 HFP 输入选项。
+- AVFoundation：用户显式开启后的 `.playback + .spokenAudio` 本地及后台播放；不申请麦克风权限，也不启用仅适用于录音类别的 HFP 输入选项。
 - Device 的 `FmoDeviceEndpoint`：唯一端点来源，不硬编码主机或端口。
 - Dashboard：只消费类型化模型；Audio 不读取 Dashboard 讲话状态，Dashboard 不解析 PCM。
 - 无第三方依赖。
@@ -65,6 +67,7 @@ selected FmoDeviceEndpoint
 - `FMOc/Features/Audio/FmoLocalAudioProtocol.swift`
 - `FMOc/Features/Audio/FmoLocalAudioClient.swift`
 - `FMOc/Features/Audio/FmoAudioMonitorModel.swift`
+- `FMOc/Features/Audio/FmoAudioSessionCoordinator.swift`
 - `FMOc/ContentView.swift`
 - `FMOc/Features/Dashboard/DeviceDashboardSummaryView.swift`
 - `FMOc/Features/Dashboard/DashboardFullscreenView.swift`
@@ -74,6 +77,6 @@ selected FmoDeviceEndpoint
 - Int16 little-endian 正负边界、固定帧长和 0.28 秒帧时长。
 - 波形点数、归一化范围和静音时持续更新。
 - 精确 `p` 保活忽略；未知文本、消息类型和错误长度失败关闭。
-- URL 只由所选设备端点构造。
-- 默认静音、新帧播放、瞬时断流自动重连且保持声音开关、关闭/停止后按钮重置与有界缓冲。
-- iPhone 真机验收：首页默认无声，任一喇叭按钮开启/关闭均即时生效；进入与退出横屏时状态和播放连续，后台后停止播放。
+- URL 与对应 HTTP `Origin` 只由所选设备端点构造。
+- 默认静音、新帧播放、瞬时断流自动重连且保持声音开关、临时停止不重置选择、显式结束重置选择与有界缓冲；会话协调测试覆盖取消的旧状态任务不能停止替代会话，握手测试覆盖官方页面同源头，事件策略测试覆盖 category change 不误静音。
+- iPhone 真机验收：首页默认无声，任一喇叭按钮开启/关闭均即时生效；进入与退出横屏、锁屏及切换其他 App 时状态和播放连续，返回 App 不出现主动重连卡片。

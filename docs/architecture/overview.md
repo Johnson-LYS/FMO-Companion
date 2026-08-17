@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-12
+last-reviewed: 2026-08-17
 ---
 
 # 架构总览
@@ -79,7 +79,7 @@ flowchart LR
 
 ### Audio
 
-使用与状态、事件和 QSO 分离的 `FmoLocalAudioClient` 接收 ADR-0009 固定 PCM，把有界瞬时波形交给横屏仪表盘，并在用户显式开启时通过 AVFoundation 播放后续帧。它只在 App active 且横屏可见时工作，不录制、不持久化、不上传、不转发，也不参与讲话者判定。详细边界见 `docs/architecture/modules/audio.md`。
+使用与状态、事件和 QSO 分离的 `FmoLocalAudioClient` 接收 ADR-0009 固定 PCM，把有界瞬时波形交给首页与横屏共享的仪表盘会话，并在用户显式开启时通过 AVFoundation 播放后续帧。设备连接不因前后台切换主动关闭；声音开启时使用 Audio 后台模式继续锁屏/切换 App 后的可听播放，静音时不使用静音样本保活。它不录制、不持久化、不上传、不转发，也不参与讲话者判定。详细边界见 `docs/architecture/modules/audio.md`。
 
 ### APRS
 
