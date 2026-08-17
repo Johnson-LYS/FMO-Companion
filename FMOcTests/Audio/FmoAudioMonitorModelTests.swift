@@ -1,3 +1,4 @@
+import AVFoundation
 import Foundation
 import Testing
 @testable import FMOc
@@ -5,12 +6,46 @@ import Testing
 @MainActor
 struct FmoAudioMonitorModelTests {
     @Test
+    func audioSessionEventsOnlyMuteForRealInterruptionOrRemovedRoute() {
+        let categoryChange = Notification(
+            name: AVAudioSession.routeChangeNotification,
+            userInfo: [
+                AVAudioSessionRouteChangeReasonKey: AVAudioSession.RouteChangeReason.categoryChange.rawValue
+            ]
+        )
+        let removedRoute = Notification(
+            name: AVAudioSession.routeChangeNotification,
+            userInfo: [
+                AVAudioSessionRouteChangeReasonKey: AVAudioSession.RouteChangeReason.oldDeviceUnavailable.rawValue
+            ]
+        )
+        let interruptionEnded = Notification(
+            name: AVAudioSession.interruptionNotification,
+            userInfo: [
+                AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue
+            ]
+        )
+        let interruptionBegan = Notification(
+            name: AVAudioSession.interruptionNotification,
+            userInfo: [
+                AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue
+            ]
+        )
+
+        #expect(!FmoAudioSessionEventPolicy.shouldDisableSound(forRouteChange: categoryChange))
+        #expect(FmoAudioSessionEventPolicy.shouldDisableSound(forRouteChange: removedRoute))
+        #expect(!FmoAudioSessionEventPolicy.shouldDisableSound(forInterruption: interruptionEnded))
+        #expect(FmoAudioSessionEventPolicy.shouldDisableSound(forInterruption: interruptionBegan))
+    }
+
+    @Test
     func avFoundationPlayerStartsFixedPCMWithPlaybackSession() throws {
         let player = AVFoundationFmoAudioPlayer()
         let frame = try FmoPCMFrame(
             samples: Array(repeating: 0, count: FmoPCMFrame.sampleCount)
         )
 
+        try player.start()
         try player.play(frame)
         player.stop()
     }
@@ -33,7 +68,7 @@ struct FmoAudioMonitorModelTests {
     }
 
     @Test
-    func enablingSoundOnlyPlaysNewFramesAndStopResetsToggle() async throws {
+    func enablingSoundOnlyPlaysNewFramesAndExplicitStopResetsToggle() async throws {
         let frame = try FmoPCMFrame(samples: Array(repeating: 1_000, count: FmoPCMFrame.sampleCount))
         let client = DelayedAudioStream(frame: frame)
         let player = AudioPlayerSpy()
@@ -46,7 +81,7 @@ struct FmoAudioMonitorModelTests {
         await monitoringTask.value
 
         #expect(player.playCount == 1)
-        #expect(model.isSoundEnabled == false)
+        #expect(model.isSoundEnabled)
 
         await model.stop()
         #expect(model.isSoundEnabled == false)
@@ -87,6 +122,38 @@ struct FmoAudioMonitorModelTests {
         await monitoringTask.value
         await model.stop()
         #expect(model.isSoundEnabled == false)
+    }
+
+    @Test
+    func temporaryStopCanPreserveSoundPreferenceForAutomaticRecovery() async throws {
+        let client = DelayedAudioStream(
+            frame: try FmoPCMFrame(samples: Array(repeating: 0, count: FmoPCMFrame.sampleCount))
+        )
+        let player = AudioPlayerSpy()
+        let model = FmoAudioMonitorModel(client: client, player: player)
+
+        model.setSoundEnabled(true)
+        await model.stop(resetWaveform: false, resetSound: false)
+
+        #expect(model.isSoundEnabled)
+        #expect(player.startCount == 1)
+    }
+
+    @Test
+    func switchingDeviceResetsTheSoundPreference() async throws {
+        let client = DelayedAudioStream(
+            frame: try FmoPCMFrame(samples: Array(repeating: 0, count: FmoPCMFrame.sampleCount))
+        )
+        let model = FmoAudioMonitorModel(client: client, player: AudioPlayerSpy())
+        let first = try FmoDeviceEndpoint(host: "192.0.2.10", source: .manual)
+        let second = try FmoDeviceEndpoint(host: "192.0.2.11", source: .manual)
+
+        await model.monitor(endpoint: first)
+        model.setSoundEnabled(true)
+        await model.stop(resetWaveform: false, resetSound: false)
+        await model.monitor(endpoint: second)
+
+        #expect(!model.isSoundEnabled)
     }
 }
 
@@ -137,9 +204,11 @@ private actor ReconnectingAudioStream: FmoLocalAudioStreaming {
 
 @MainActor
 private final class AudioPlayerSpy: FmoAudioPlaying {
+    private(set) var startCount = 0
     private(set) var playCount = 0
     private(set) var stopCount = 0
 
+    func start() throws { startCount += 1 }
     func play(_ frame: FmoPCMFrame) throws { playCount += 1 }
     func stop() { stopCount += 1 }
 }

@@ -24,7 +24,7 @@ actor URLSessionFmoAudioWebSocketTransport: FmoAudioWebSocketTransport {
 
     func connect(to url: URL) async throws {
         disconnect()
-        let task = session.webSocketTask(with: url)
+        let task = session.webSocketTask(with: FmoAudioWebSocketRequest.make(url: url))
         self.task = task
         task.resume()
     }
@@ -41,6 +41,24 @@ actor URLSessionFmoAudioWebSocketTransport: FmoAudioWebSocketTransport {
     func disconnect() {
         task?.cancel(with: .normalClosure, reason: nil)
         task = nil
+    }
+}
+
+nonisolated enum FmoAudioWebSocketRequest {
+    static func make(url: URL) -> URLRequest {
+        var request = URLRequest(url: url)
+        request.cachePolicy = .reloadIgnoringLocalCacheData
+        request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
+        request.setValue("no-cache", forHTTPHeaderField: "Pragma")
+
+        var origin = URLComponents()
+        origin.scheme = "http"
+        origin.host = url.host
+        origin.port = url.port
+        if let value = origin.string {
+            request.setValue(value, forHTTPHeaderField: "Origin")
+        }
+        return request
     }
 }
 

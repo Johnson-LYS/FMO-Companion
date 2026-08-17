@@ -50,6 +50,9 @@ final class DeviceHomeModel {
     private var connectionTask: Task<Void, Never>?
     private var localStatusTask: Task<Void, Never>?
     private var localEventTask: Task<Void, Never>?
+    private var activityTransitionTask: Task<Void, Never>?
+    private var isApplicationActive = true
+    private var hasPausedConnectionAttempts = false
 
     var phase: Phase = .idle
     var endpoints: [FmoDeviceEndpoint] = []
@@ -149,6 +152,18 @@ final class DeviceHomeModel {
         beginAutomaticConnectionCycle(with: savedEndpoints)
         startDiscovery()
         startAutomaticConnectionQueueIfNeeded()
+    }
+
+    /// 串行处理 App 前后台切换，避免发现或连接尝试与生命周期事件交错。
+    func setActive(_ active: Bool) async {
+        let previousTransition = activityTransitionTask
+        let transition = Task { [weak self] in
+            await previousTransition?.value
+            guard let self, !Task.isCancelled else { return }
+            await self.performActivityTransition(active)
+        }
+        activityTransitionTask = transition
+        await transition.value
     }
 
     @discardableResult
@@ -262,6 +277,7 @@ final class DeviceHomeModel {
         attemptID: Int,
         presentsFailure: Bool
     ) async -> Bool {
+        let reconnectsSelectedEndpoint = selectedEndpoint?.id == endpoint.id
         let replacesActiveConnection = selectedEndpoint != nil && (isConnected || phase == .connecting)
 
         await stopLocalConnections()
@@ -273,7 +289,9 @@ final class DeviceHomeModel {
         issue = nil
         selectedEndpoint = endpoint
         phase = .connecting
-        dashboardSnapshot = await dashboardStore.beginConnection()
+        dashboardSnapshot = reconnectsSelectedEndpoint
+            ? await dashboardStore.beginReconnection()
+            : await dashboardStore.beginConnection()
 
         do {
             try await geoClient.connect(to: endpoint)
@@ -523,6 +541,77 @@ final class DeviceHomeModel {
         connectionTask = nil
     }
 
+    private func performActivityTransition(_ active: Bool) async {
+        if active {
+            let resumesFromBackground = !isApplicationActive
+            isApplicationActive = true
+
+            if resumesFromBackground,
+               isConnected,
+               let endpoint = selectedEndpoint {
+                await refreshConnectedDeviceAfterForeground(endpoint)
+                await start()
+                return
+            }
+
+            guard hasPausedConnectionAttempts || (resumesFromBackground && !isConnected) else {
+                await start()
+                return
+            }
+
+            hasPausedConnectionAttempts = false
+            issue = nil
+            phase = endpoints.isEmpty ? .idle : .found
+            beginAutomaticConnectionCycle(with: endpoints)
+            startDiscovery()
+            startAutomaticConnectionQueueIfNeeded()
+            return
+        }
+
+        guard isApplicationActive else { return }
+        isApplicationActive = false
+
+        // 已建立的设备会话跨前后台保持。后台音频开启时，系统允许 App
+        // 继续处理可听播放；静音时系统可能挂起执行，但 App 不主动断开
+        // WebSocket，也不把卡片投影成“重新连接”。
+        guard !isConnected else {
+            stopDiscovery()
+            await waitForDiscovery()
+            return
+        }
+
+        hasPausedConnectionAttempts = true
+        cancelAutomaticConnectionCycle()
+        cancelConnectionAttempt()
+        stopDiscovery()
+        await waitForDiscovery()
+    }
+
+    private func refreshConnectedDeviceAfterForeground(_ endpoint: FmoDeviceEndpoint) async {
+        let previousRefreshTask = localStatusTask
+        localStatusTask = nil
+        previousRefreshTask?.cancel()
+        await previousRefreshTask?.value
+
+        guard isConnected, selectedEndpoint?.id == endpoint.id else { return }
+
+        var hasCurrentServer = await refreshLocalStatus(from: endpoint)
+        if !hasCurrentServer,
+           isConnected,
+           selectedEndpoint?.id == endpoint.id {
+            // 保留的 URLSessionWebSocketTask 可能已被系统或网络层终止。
+            // 第一次读取负责发现失效，随后只重建状态链路，不改变设备连接相位。
+            await localStatusProvider.disconnect()
+            hasCurrentServer = await refreshLocalStatus(from: endpoint)
+        }
+
+        guard isConnected, selectedEndpoint?.id == endpoint.id else { return }
+        startLocalStatusRefresh(
+            from: endpoint,
+            requiresFullSnapshot: !hasCurrentServer
+        )
+    }
+
     private func beginAutomaticConnectionCycle(with candidates: [FmoDeviceEndpoint]) {
         automaticConnectionCycleID += 1
         automaticConnectionEnabled = true
@@ -694,6 +783,7 @@ final class DeviceHomeModel {
                 guard !Task.isCancelled,
                       selectedEndpoint?.id == endpoint.id,
                       isConnected else { return }
+                guard isApplicationActive else { continue }
 
                 if needsFullSnapshot {
                     needsFullSnapshot = !(await refreshLocalStatus(from: endpoint))

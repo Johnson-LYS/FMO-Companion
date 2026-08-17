@@ -13,7 +13,6 @@ struct ContentView: View {
     @State private var remoteControlModel: FmoRemoteControlModel
     @State private var qsoModel: QSOModel
     @State private var audioMonitor: FmoAudioMonitorModel
-    @State private var audioMonitorTask: Task<Void, Never>?
     @State private var dashboardHeroContext: DashboardHeroContext?
     @State private var dashboardHeroStage = DashboardHeroStage.presenting
     @State private var dashboardHeroTask: Task<Void, Never>?
@@ -100,6 +99,7 @@ struct ContentView: View {
             handleDashboardViewportOrientation(orientation)
         }
         .task {
+            await deviceModel.setActive(true)
             locationAutomationModel.refreshAuthorization()
             await locationAutomationModel.restoreIfNeeded()
             aprsMessageModel.configure(modelContext: modelContext)
@@ -116,23 +116,27 @@ struct ContentView: View {
             await adoptCurrentFMOCallsignIfAvailable()
         }
         .task(id: audioSessionID) {
-            configureAudioSession()
+            await configureAudioSession()
         }
-        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { _ in
-            audioMonitor.setSoundEnabled(false)
+        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { notification in
+            if FmoAudioSessionEventPolicy.shouldDisableSound(forInterruption: notification) {
+                audioMonitor.setSoundEnabled(false)
+            }
         }
-        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.routeChangeNotification)) { _ in
-            audioMonitor.setSoundEnabled(false)
+        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.routeChangeNotification)) { notification in
+            if FmoAudioSessionEventPolicy.shouldDisableSound(forRouteChange: notification) {
+                audioMonitor.setSoundEnabled(false)
+            }
         }
         .onDisappear {
             dashboardHeroTask?.cancel()
-            audioMonitorTask?.cancel()
             dashboardIdleTimerController.restore()
-            Task { await audioMonitor.stop(resetWaveform: true) }
+            Task { await audioMonitor.stop(resetWaveform: true, resetSound: true) }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             locationAutomationModel.refreshAuthorization()
             Task {
+                await deviceModel.setActive(true)
                 await fmoNetworkModel.setActive(true)
                 await aprsMessageModel.setActive(true)
                 await qsoModel.setActive(true)
@@ -144,6 +148,7 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
             Task {
+                await deviceModel.setActive(false)
                 await fmoNetworkModel.setActive(false)
                 await aprsMessageModel.setActive(false)
                 await qsoModel.setActive(false)
@@ -186,22 +191,14 @@ struct ContentView: View {
 
     private var audioSessionID: String {
         let endpointID = deviceModel.selectedEndpoint?.id ?? "none"
-        return "\(endpointID)-\(deviceModel.isConnected)-\(scenePhase == .active)"
+        return "\(endpointID)-\(deviceModel.isConnected)"
     }
 
-    private func configureAudioSession() {
-        audioMonitorTask?.cancel()
-        guard scenePhase == .active,
-              deviceModel.isConnected,
-              let endpoint = deviceModel.selectedEndpoint else {
-            audioMonitorTask = Task {
-                await audioMonitor.stop(resetWaveform: !deviceModel.isConnected)
-            }
-            return
-        }
-        audioMonitorTask = Task {
-            await audioMonitor.monitorContinuously(endpoint: endpoint)
-        }
+    private func configureAudioSession() async {
+        await FmoAudioSessionCoordinator(monitor: audioMonitor).run(
+            endpoint: deviceModel.selectedEndpoint,
+            isConnected: deviceModel.isConnected
+        )
     }
 
     private var mainTabs: some View {
