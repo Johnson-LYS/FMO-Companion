@@ -19,6 +19,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 最近变更
 
+| 2026-08-17 | 设备与音频生命周期改为后台连续：前后台切换不主动关闭 GEO、状态、事件或 `/audio` WebSocket，也不重置声音选择；用户开启声音后通过系统 Audio 后台模式在锁屏/切换 App 时继续可听播放；恢复前台立即回读后台期间变更的当前服务器，失效状态链路只局部重建一次 | `FMOc/ContentView.swift`、`FMOc/Features/Device/DeviceHomeModel.swift`、`FMOc/Features/Audio/`、`FMOc/Info.plist`、`docs/adr/0009-user-authorized-local-receive-audio.md` |
+
 | 2026-08-17 | 横屏全屏仪表盘在前台展示期间接管系统 Idle Timer 以保持屏幕常亮；退出全屏、转入后台或根页面销毁时恢复原值，并以注入的控制器覆盖生命周期单元测试 | `FMOc/Features/Dashboard/DashboardIdleTimerController.swift`、`FMOc/ContentView.swift`、`docs/architecture/modules/dashboard.md` |
 
 | 2026-08-15 | 修复 Release Archive 引用仅在 DEBUG 存在的 UI 测试地区解析器：生产组合根固定装配 MapKit 实现；同步明确 Xcode Cloud 使用共享 `FMO 助手` Scheme、“测试（使用计划设置）”与“测试 → 归档”基线 | `FMOc/App/AppComposition.swift`、`docs/operations/xcode-cloud.md` |
@@ -161,7 +163,7 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 本轮开发入口
 
-1. 设备横屏全屏仪表盘已进入原生真机验收：确认入口/退出旋转、iPhone 13 Pro 尺寸、讲话者切换动画、最近呼号容量、方位/地图两种主视觉，以及波形在静音时持续更新、声音开关即时生效、退出/后台后停止播放。
+1. 设备横屏全屏仪表盘已进入原生真机验收：确认入口/退出旋转、iPhone 13 Pro 尺寸、讲话者切换动画、最近呼号容量、方位/地图两种主视觉，以及波形在静音时持续更新、声音开关即时生效、锁屏/切换 App 后继续播放并在返回时保持设备连接态。
 2. 使用真实 FMO 本地事件与 APRS-IS 数据分别验收三种位置结果：唯一近期 APRS 精细位置、六位网格估算、同基础呼号多 SSID 冲突时不猜测。
 3. 0.8 QSO 继续确认多设备切换和离线缓存，并补齐离线、切换、部分失败与空日志自动化矩阵。
 4. 用户导出 SQLite 与 P-256 签名归档不再是 0.8 主流程；若后续保留，作为单独评审的可选归档能力，不得阻塞日常 QSO 浏览。

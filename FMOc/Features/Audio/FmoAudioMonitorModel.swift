@@ -4,6 +4,7 @@ import Observation
 
 @MainActor
 protocol FmoAudioPlaying: AnyObject {
+    func start() throws
     func play(_ frame: FmoPCMFrame) throws
     func stop()
 }
@@ -31,9 +32,16 @@ final class AVFoundationFmoAudioPlayer: FmoAudioPlaying {
         engine.connect(playerNode, to: engine.mainMixerNode, format: format)
     }
 
+    func start() throws {
+        try prepareIfNeeded()
+        if !playerNode.isPlaying {
+            playerNode.play()
+        }
+    }
+
     func play(_ frame: FmoPCMFrame) throws {
         guard scheduledBufferCount < maximumScheduledBufferCount else { return }
-        try prepareIfNeeded()
+        try start()
         guard let buffer = AVAudioPCMBuffer(
             pcmFormat: format,
             frameCapacity: AVAudioFrameCount(frame.samples.count)
@@ -53,7 +61,6 @@ final class AVFoundationFmoAudioPlayer: FmoAudioPlaying {
                 self.scheduledBufferCount = max(0, self.scheduledBufferCount - 1)
             }
         }
-        if !playerNode.isPlaying { playerNode.play() }
     }
 
     func stop() {
@@ -84,6 +91,7 @@ final class FmoAudioMonitorModel {
     private let client: any FmoLocalAudioStreaming
     private let player: any FmoAudioPlaying
     private var monitoringID = UUID()
+    private var soundPreferenceEndpointID: String?
 
     private(set) var oscilloscopeBuffer = FmoOscilloscopeBuffer()
     private(set) var isReceiving = false
@@ -100,7 +108,9 @@ final class FmoAudioMonitorModel {
     }
 
     func monitor(endpoint: FmoDeviceEndpoint) async {
-        await stop(resetWaveform: false)
+        let changesDevice = soundPreferenceEndpointID != nil && soundPreferenceEndpointID != endpoint.id
+        await stop(resetWaveform: false, resetSound: changesDevice)
+        soundPreferenceEndpointID = endpoint.id
         let id = UUID()
         monitoringID = id
         endpointID = endpoint.id
@@ -110,8 +120,9 @@ final class FmoAudioMonitorModel {
 
         guard monitoringID == id, endpointID == endpoint.id else { return }
         isReceiving = false
-        isSoundEnabled = false
-        player.stop()
+        if !isSoundEnabled {
+            player.stop()
+        }
         await client.disconnect()
     }
 
@@ -123,18 +134,29 @@ final class FmoAudioMonitorModel {
         endpoint: FmoDeviceEndpoint,
         retryDelay: Duration = .seconds(1)
     ) async {
-        await stop(resetWaveform: false)
+        let changesDevice = soundPreferenceEndpointID != nil && soundPreferenceEndpointID != endpoint.id
+        await stop(resetWaveform: false, resetSound: changesDevice)
+        soundPreferenceEndpointID = endpoint.id
         let id = UUID()
         monitoringID = id
         endpointID = endpoint.id
         hasProtocolError = false
+        if isSoundEnabled {
+            do {
+                try player.start()
+            } catch {
+                setSoundEnabled(false)
+            }
+        }
 
         while !Task.isCancelled, monitoringID == id, endpointID == endpoint.id {
             let result = await consumeFrames(from: endpoint, monitoringID: id)
             guard monitoringID == id, endpointID == endpoint.id else { return }
 
             isReceiving = false
-            player.stop()
+            if !isSoundEnabled {
+                player.stop()
+            }
             await client.disconnect()
 
             guard monitoringID == id, endpointID == endpoint.id else { return }
@@ -149,15 +171,29 @@ final class FmoAudioMonitorModel {
     }
 
     func setSoundEnabled(_ enabled: Bool) {
-        isSoundEnabled = enabled
-        if !enabled { player.stop() }
+        guard enabled else {
+            isSoundEnabled = false
+            player.stop()
+            return
+        }
+
+        do {
+            try player.start()
+            isSoundEnabled = true
+        } catch {
+            isSoundEnabled = false
+            player.stop()
+        }
     }
 
-    func stop(resetWaveform: Bool = false) async {
+    func stop(resetWaveform: Bool = false, resetSound: Bool = true) async {
         monitoringID = UUID()
         endpointID = nil
         isReceiving = false
-        isSoundEnabled = false
+        if resetSound {
+            isSoundEnabled = false
+            soundPreferenceEndpointID = nil
+        }
         player.stop()
         await client.disconnect()
         if resetWaveform {
@@ -200,5 +236,23 @@ final class FmoAudioMonitorModel {
             hasProtocolError = error is FmoLocalAudioError
             return .failed
         }
+    }
+}
+
+nonisolated enum FmoAudioSessionEventPolicy {
+    static func shouldDisableSound(forInterruption notification: Notification) -> Bool {
+        guard let rawValue = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: rawValue) else {
+            return false
+        }
+        return type == .began
+    }
+
+    static func shouldDisableSound(forRouteChange notification: Notification) -> Bool {
+        guard let rawValue = notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
+              let reason = AVAudioSession.RouteChangeReason(rawValue: rawValue) else {
+            return false
+        }
+        return reason == .oldDeviceUnavailable
     }
 }

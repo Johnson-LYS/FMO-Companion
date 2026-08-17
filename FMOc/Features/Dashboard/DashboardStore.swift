@@ -33,6 +33,22 @@ actor DashboardStore {
         return snapshot
     }
 
+    /// 同一台设备从系统挂起状态恢复时保留最后一次可用内容，避免重连期间仪表盘退化为空卡片。
+    func beginReconnection() -> DashboardSnapshot {
+        let now = dateProvider.now()
+        snapshot.generatedAt = now
+        snapshot.geoLink = .connecting
+        snapshot.maidenhead = stale(snapshot.maidenhead, at: now)
+        snapshot.callsign = stale(snapshot.callsign, at: now)
+        snapshot.currentServerName = stale(snapshot.currentServerName, at: now)
+        snapshot.filterDistance = stale(snapshot.filterDistance, at: now)
+        snapshot.workingFrequencyMHz = stale(snapshot.workingFrequencyMHz, at: now)
+        snapshot.qsoLogCount = stale(snapshot.qsoLogCount, at: now)
+        snapshot.currentSpeaker = stale(snapshot.currentSpeaker, at: now)
+        snapshot.recentLocalActivity = stale(snapshot.recentLocalActivity, at: now)
+        return snapshot
+    }
+
     func recordGeoCoordinate(_ coordinate: GeoCoordinate) -> DashboardSnapshot {
         let now = dateProvider.now()
         snapshot.generatedAt = now

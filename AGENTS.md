@@ -18,13 +18,13 @@ FMO Companion is a native iOS companion app for FMO (NFM Over Internet) hardware
 - Bonjour/mDNS and the documented local GEO WebSocket API.
 - The strictly allowlisted, user-authorized local read-only status API described by ADR-0005.
 - The isolated, strictly allowlisted local server catalog and UID switching contract described by ADR-0010.
-- The isolated, foreground-only local receive-audio contract described by ADR-0009.
+- The isolated, user-controlled local receive-audio contract described by ADR-0009, including audible background playback while the user leaves sound enabled.
 - Public FMO V4 APRS frames and standard APRS-IS behavior.
 - The documented APRS remote-control format.
 - The user-authorized, strictly read-only local QSO list/detail contract fixed by ADR-0007, plus user-exported QSO archives when explicitly chosen.
 - A separately authenticated HTTPS API for the user's own FMO server.
 
-The app must not perform runtime packet sniffing or rely on firmware reverse engineering, private-key extraction, audio formats beyond ADR-0009's fixed user-confirmed receive-only PCM contract, or impersonating an FMO device. The ADR-0005 status client and ADR-0007 QSO client are limited to sanitized, typed, read-only behavior observed in the official UI; they must never expose generic management commands, secrets, write operations, backup/restore triggers, or `/audio`. ADR-0010 server switching must remain a separate client limited to device server lists, current-server readback, and switching to a previously listed UID; it must never expose generic commands or other device writes. ADR-0009 audio must remain a separate foreground-only client and must never record, persist, upload, transmit, or log PCM.
+The app must not perform runtime packet sniffing or rely on firmware reverse engineering, private-key extraction, audio formats beyond ADR-0009's fixed user-confirmed receive-only PCM contract, or impersonating an FMO device. The ADR-0005 status client and ADR-0007 QSO client are limited to sanitized, typed, read-only behavior observed in the official UI; they must never expose generic management commands, secrets, write operations, backup/restore triggers, or `/audio`. ADR-0010 server switching must remain a separate client limited to device server lists, current-server readback, and switching to a previously listed UID; it must never expose generic commands or other device writes. ADR-0009 audio must remain a separate receive-only client; background execution is allowed only for audible playback explicitly enabled by the user, never as silent keepalive, and PCM must never be recorded, persisted, uploaded, transmitted, or logged.
 
 ## Documentation Map
 

@@ -4,6 +4,17 @@ import Testing
 
 struct FmoLocalAudioClientTests {
     @Test
+    func audioRequestMatchesOfficialLocalPageOrigin() throws {
+        let request = FmoAudioWebSocketRequest.make(
+            url: try #require(URL(string: "ws://fmo.local/audio"))
+        )
+
+        #expect(request.value(forHTTPHeaderField: "Origin") == "http://fmo.local")
+        #expect(request.value(forHTTPHeaderField: "Cache-Control") == "no-cache")
+        #expect(request.value(forHTTPHeaderField: "Pragma") == "no-cache")
+    }
+
+    @Test
     func connectsToAudioIgnoresKeepaliveAndYieldsPCM() async throws {
         let transport = AudioFakeTransport(messages: [
             .text("p"),

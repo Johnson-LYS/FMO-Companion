@@ -46,7 +46,7 @@ struct DeviceDashboardSummaryView: View {
 
     private var callsign: some View {
         HStack(alignment: .center, spacing: 12) {
-            if let callsign = snapshot.callsign.currentValue {
+            if let callsign = snapshot.callsign.value {
                 Text(callsign)
                     .font(.largeTitle.bold().monospaced())
                     .foregroundStyle(.white)
@@ -151,7 +151,7 @@ struct DeviceDashboardSummaryView: View {
 
     @ViewBuilder
     private var relayCapsule: some View {
-        let server = snapshot.currentServerName.currentValue
+        let server = snapshot.currentServerName.value
         let activity = currentActivity
 
         if server != nil || activity != nil {
@@ -276,7 +276,7 @@ struct DeviceDashboardSummaryView: View {
     private var factItems: [FactItem] {
         var items: [FactItem] = []
 
-        if let maidenhead = snapshot.maidenhead.currentValue {
+        if let maidenhead = snapshot.maidenhead.value {
             items.append(
                 FactItem(
                     id: "grid",
@@ -289,7 +289,7 @@ struct DeviceDashboardSummaryView: View {
             )
         }
 
-        if let filter = snapshot.filterDistance.currentValue {
+        if let filter = snapshot.filterDistance.value {
             switch filter {
             case .disabled:
                 items.append(
