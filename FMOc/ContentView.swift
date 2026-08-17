@@ -24,6 +24,7 @@ struct ContentView: View {
     private let fmoNetworkLocationProvider: any PhoneLocationProviding
     private let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
     private let dashboardAreaResolver: any DashboardAreaResolving
+    private let dashboardIdleTimerController: any DashboardIdleTimerControlling
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
     @Environment(\.scenePhase) private var scenePhase
@@ -41,6 +42,7 @@ struct ContentView: View {
         fmoNetworkLocationProvider = models.fmoNetworkLocationProvider
         dashboardSpeakerLocationStore = models.dashboardSpeakerLocationStore
         dashboardAreaResolver = models.dashboardAreaResolver
+        dashboardIdleTimerController = models.dashboardIdleTimerController
     }
 
     var body: some View {
@@ -125,6 +127,7 @@ struct ContentView: View {
         .onDisappear {
             dashboardHeroTask?.cancel()
             audioMonitorTask?.cancel()
+            dashboardIdleTimerController.restore()
             Task { await audioMonitor.stop(resetWaveform: true) }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
@@ -175,6 +178,9 @@ struct ContentView: View {
         }
         .onChange(of: aprsMessageModel.phase) { _, phase in
             remoteControlModel.setNetworkReady(phase == .ready)
+        }
+        .onChange(of: dashboardIdleTimerState, initial: true) { _, state in
+            dashboardIdleTimerController.update(state)
         }
     }
 
@@ -358,6 +364,13 @@ struct ContentView: View {
 
     private var keepsDashboardSourceHidden: Bool {
         dashboardHeroContext != nil && dashboardHeroStage != .rotatingToPortrait
+    }
+
+    private var dashboardIdleTimerState: DashboardIdleTimerState {
+        DashboardIdleTimerState(
+            isFullscreenPresented: dashboardHeroContext != nil,
+            isSceneActive: scenePhase == .active
+        )
     }
 
     private func adoptCurrentFMOCallsignIfAvailable() async {
