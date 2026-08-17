@@ -14,6 +14,7 @@ enum AppComposition {
         let fmoNetworkLocationProvider: any PhoneLocationProviding
         let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
         let dashboardAreaResolver: any DashboardAreaResolving
+        let dashboardIdleTimerController: any DashboardIdleTimerControlling
     }
 
     @MainActor
@@ -225,7 +226,8 @@ enum AppComposition {
             audioClient: audioClient,
             fmoNetworkLocationProvider: fmoNetworkLocationProvider,
             dashboardSpeakerLocationStore: dashboardSpeakerLocationStore,
-            dashboardAreaResolver: dashboardAreaResolver
+            dashboardAreaResolver: dashboardAreaResolver,
+            dashboardIdleTimerController: DashboardIdleTimerController()
         )
     }
 

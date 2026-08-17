@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-15
+last-reviewed: 2026-08-17
 ---
 
 # 项目简报
@@ -18,6 +18,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
 
 ## 最近变更
+
+| 2026-08-17 | 横屏全屏仪表盘在前台展示期间接管系统 Idle Timer 以保持屏幕常亮；退出全屏、转入后台或根页面销毁时恢复原值，并以注入的控制器覆盖生命周期单元测试 | `FMOc/Features/Dashboard/DashboardIdleTimerController.swift`、`FMOc/ContentView.swift`、`docs/architecture/modules/dashboard.md` |
 
 | 2026-08-15 | 修复 Release Archive 引用仅在 DEBUG 存在的 UI 测试地区解析器：生产组合根固定装配 MapKit 实现；同步明确 Xcode Cloud 使用共享 `FMO 助手` Scheme、“测试（使用计划设置）”与“测试 → 归档”基线 | `FMOc/App/AppComposition.swift`、`docs/operations/xcode-cloud.md` |
 

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-14
+last-reviewed: 2026-08-17
 ---
 
 # 模块：Dashboard
@@ -89,6 +89,7 @@ protocol DashboardLiveActivityClient: Sendable {
 - 首页投影采用已确认的三段式深色卡片：上部以显式白色放大显示呼号，同一行右侧放共享声音开关与横屏全屏入口；设备选择改在导航栏以“绿点、设备名、下箭头”打开统一 Sheet。呼号下方用小号定位/范围图标呈现 Maidenhead 和过滤距离；下部容器内的当前服务器采用与横屏一致的主题色实底、深色文字，并在右侧显示上下切换符号，整行点击后打开 ADR-0010 设备服务器选择 Sheet；最新动态紧随其下。动态以规范化呼号作为整行切换身份：说话人变化时纵向替换；同一说话人由讲话转为非讲话状态时，扬声器图标、呼号和 QTH 原位过渡为灰阶，不显示计时器。QTH 优先读取按呼号持久化的已解析地区，缺失时才由当前坐标或六位网格中心反查；超长时单行横向滚动。卡片不显示 QSO 数、频率、分隔线、解释性标签或断开操作，字段未知时直接省略而不使用示例值补位。
 - `DashboardFullscreenPresentation` 是无状态纯投影：先按规范化基础呼号选取 30 分钟内的可信 APRS 台站，再使用事件六位网格和当前服务器稳定 UID 缩小候选；完整 SSID 精确匹配或最终唯一候选才使用精细坐标。候选冲突、过期或不存在时依次回退到持久化坐标及合法网格中心，三者均不存在才不提供距离或指向。最近讲话按轮次而非呼号去重，排除当前一次后取最新 10 条；SwiftUI 使用“呼号 + 讲话时间”作为稳定行身份执行原生顶部插入过渡。
 - `ContentView` 在 Tab/Navigation 之上的同一 SwiftUI 根层维护 `DashboardHeroContext`、分阶段转场状态和当前设备唯一的 `FmoAudioMonitorModel`。进入时使用单一 `Namespace` 把首页卡片容器、呼号、网格、过滤距离、服务器和讲话者匹配到全屏布局，并在同一个用户动作中立即通过 `UIWindowScene.requestGeometryUpdate` 请求横屏；共享元素扩展、左右面板自底部滑入和系统方向动画同步开始，并在同一时间窗结束。根层还通过实际 Viewport 宽高变化识别系统已经执行的自然旋转：仅当设备 Tab 可见、FMO 已连接且方向由竖变横时复用进入流程；全屏稳定后由横变竖则复用退出流程。首次布局、其他 Tab、连接前以及程序化旋转产生的重复变化均由当前上下文与阶段去重；旋转锁定时 Viewport 不改变，因此不会触发。方位/地图解析直到视觉转场稳定后才激活；音频前台会话不随 Hero 转场重建，首页与横屏按钮操作同一播放状态。退出时左右面板滑出、共享元素缩回、首页与导航恢复和竖屏方向更新同样并行；全屏层与深色 Backdrop 保留到旋转最后一帧才移除，避免内容先消失或浅色首页从旋转中的安全区、刘海及圆角外露。转场期间首页辅助功能树退出并禁止交互，进入阶段的首页源元素只保留不参与匹配的隐藏布局占位，避免重复源、底栏穿透和误触。只有 Backdrop 和全屏背景忽略安全区，所有可读信息与操作控件继续使用系统横屏安全区。横屏顶部以主题色呼号强化设备身份；当前服务器不显示解释性标签，而以主题色实底、深色文字的大号按钮直接呈现，点击后由根层打开与首页相同的 ADR-0010 设备服务器选择器，切换完成后实时刷新全屏快照。方向请求被拒绝时使用可滚动的竖屏自适应布局并始终保留退出；减少动态效果时缩短共享元素转场，左右面板只淡入淡出。方位盘只显示随绝对方位旋转的中央无柄箭头；MapKit 地图默认框选双方，拖动或缩放暂停追踪，显式恢复后才重新接管相机。
+- 根层通过注入的 `DashboardIdleTimerControlling` 管理全屏常亮：只在 Dashboard Hero 上下文存在且 Scene 处于 active 时接管 `UIApplication.isIdleTimerDisabled`；退出、后台或根 View 消失时恢复接管前的值，不把常亮状态泄漏到其他页面。
 - 横屏服务器选择器的显示状态由 `ContentView` 根组合持有，以免实时仪表盘刷新重建局部状态；根层在 Hero 上方呈现复用的 `DeviceServerPickerView`，目录、收藏和切换状态仍只存在于 `DeviceHomeModel`。横屏不把系统 `.sheet` 挂在非活动的底层 Tab，也不复制服务器业务逻辑。
 - 区县/城市文本通过 iOS 26 `MKReverseGeocodingRequest` 异步解析；成功结果与对应坐标一起进入讲话者位置缓存，重启后坐标相同则直接复用。解析失败只回退已缓存地区或“位置未知”，不影响坐标、距离、方位和地图。解析器由 `DashboardAreaResolving` 注入，HTML 轮换数据不进入生产组合。
 - ActivityKit 投影、状态机、客户端与独立 Widget Extension target 已形成可编译的探索 checkpoint；主 App target 不依赖、不嵌入该扩展，也不声明实时活动能力。为维持 checkpoint 的编译与单元测试，支持类型仍随主模块编译，但不进入 `AppComposition`，不会读取、创建或恢复活动。0.3 App 不展示入口、不启动活动，后续恢复前须重新经过文档与原型评审并显式恢复 Release composition。
@@ -131,6 +132,7 @@ FmoLocalAudioStreaming → FmoAudioMonitorModel
 - `FMOc/Features/Dashboard/DeviceDashboardSummaryView.swift`
 - `FMOc/Features/Dashboard/DashboardFullscreenPresentation.swift`
 - `FMOc/Features/Dashboard/DashboardFullscreenView.swift`
+- `FMOc/Features/Dashboard/DashboardIdleTimerController.swift`
 - `FMOc/Features/Audio/FmoAudioMonitorModel.swift`
 - `FMOc/Features/Dashboard/FmoDashboardActivityAttributes.swift`
 - `FMOc/Features/Dashboard/DashboardLiveActivityProjection.swift`
@@ -154,6 +156,7 @@ FmoLocalAudioStreaming → FmoAudioMonitorModel
 - 客户端测试覆盖 `/events` 固定路径、帧大小上限与异常后会话失效。
 - `DeviceHomeModel` 把 GEO 和本地只读字段投影为 Dashboard 状态。
 - 横屏投影测试覆盖 APRS 唯一候选、SSID 冲突不猜测、持久化坐标/网格回退、距离/方位向量、重复呼号讲话轮次及历史讲话的唯一 APRS 坐标关联；位置存储测试覆盖跨实例恢复坐标、网格、地区和无网格历史回填。
+- Idle Timer 测试覆盖仅在前台全屏时禁用，以及退出或后台时恢复接管前的系统值；真机验收补充实际自动锁屏计时验证。
 - XCUITest 覆盖卡片入口、Hero 期间首页交互树退出、自动横屏、主要讲话信息、横屏服务器选择器与切换回写、退出恢复竖屏以及导航栏设备选择与全屏入口重新可用。
 - 音频测试覆盖 PCM 端序/帧长、保活忽略、异常消息失败关闭、默认静音仍更新波形以及停止后重置声音按钮。
 - Debug-only UI 场景验证图标优先的完整首页投影，以及正式依赖组合不出现原型 fixture。
