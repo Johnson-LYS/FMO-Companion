@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-17
+last-reviewed: 2026-08-18
 ---
 
 # 产品规格
@@ -10,7 +10,7 @@ last-reviewed: 2026-08-17
 - 英文产品与文档名继续使用 “FMO Companion”。
 - App 首版支持简体中文与英语，默认跟随 iOS 系统或系统中的单 App 语言设置；不在 App 内重复提供语言开关。未支持的系统语言回退英语。
 - App Bundle ID 为 `com.bi8syn.fmoassistant`；测试 Target 与保留的实时活动 Target 使用同一命名空间下的后缀。
-- App Icon 使用无预制圆角、全幅不透明的 1024 × 1024 主图；系统负责最终蒙版，未提供的外观变体由系统生成。
+- App Icon 使用无预制圆角、全幅不透明的 1024 × 1024 主图，并提供专门的深色与着色外观变体；系统负责最终蒙版及各展示尺寸缩放。深色变体以深石墨机身和品牌橙色保持夜间辨识度，着色变体仅用中性灰阶建立明度层级，由系统应用用户选择的色调。
 - App Store 主分类采用“工具”（Utilities）；副分类可采用“导航”（Navigation），不将 App 归类为社交网络或娱乐。
 - App 仅调用 Apple 操作系统提供的 CryptoKit（Ed25519 数字签名验证、SHA-256）与 URLSession HTTPS/TLS，不实现自研或随 App 分发的第三方密码算法；`ITSAppUsesNonExemptEncryption` 为 `NO`，无需提交非豁免加密文稿。
 
