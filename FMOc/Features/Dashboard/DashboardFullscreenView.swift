@@ -26,7 +26,7 @@ struct DashboardFullscreenView: View {
     private let speakerLocationStore: any DashboardSpeakerLocationStoring
     @Binding var showsServerPicker: Bool
 
-    @State private var visualMode = VisualMode.bearing
+    @State private var visualMode = VisualMode.map
     @State private var areaName: String?
     @State private var historyAreaNames: [String: String] = [:]
     @State private var retainedAreaNames: [String: String] = [:]
@@ -801,7 +801,7 @@ private struct DashboardTrackingMap: View {
         ZStack(alignment: .bottom) {
             Map(position: $cameraPosition) {
                 if let ownCoordinate {
-                    Annotation("我的 FMO", coordinate: ownCoordinate.clCoordinate) {
+                    Annotation("我", coordinate: ownCoordinate.clCoordinate) {
                         Circle()
                             .fill(.blue)
                             .stroke(.white, lineWidth: 4)

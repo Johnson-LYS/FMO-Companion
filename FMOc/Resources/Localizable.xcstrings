@@ -4838,6 +4838,22 @@
         }
       }
     },
+    "我" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Me"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我"
+          }
+        }
+      }
+    },
     "本机" : {
       "localizations" : {
         "en" : {

@@ -23,10 +23,10 @@
         <span class="server-switch-icon" aria-hidden="true">⇅</span>
       </button>
       <div class="view-switch" role="group" aria-label="选择位置视图">
-        <button class="is-selected" type="button" data-view="compass" aria-pressed="true" aria-label="方位">
+        <button type="button" data-view="compass" aria-pressed="false" aria-label="方位">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m15.5 8.5-2.1 4.9-4.9 2.1 2.1-4.9 4.9-2.1Z"></path></svg>
         </button>
-        <button type="button" data-view="map" aria-pressed="false" aria-label="地图">
+        <button class="is-selected" type="button" data-view="map" aria-pressed="true" aria-label="地图">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 6 5-2 8 3 5-2v13l-5 2-8-3-5 2V6Z"></path><path d="M8 4v13m8-10v13"></path></svg>
         </button>
       </div>
@@ -69,7 +69,7 @@
       </aside>
 
       <section class="visual-stage" aria-label="讲话者位置">
-        <div class="visual-panel compass-panel is-active" data-panel="compass">
+        <div class="visual-panel compass-panel" data-panel="compass" hidden>
           <div class="compass-readout"><span id="compassCardinal">东北</span><strong id="compassDegrees">42°</strong></div>
           <div class="compass-distance"><strong id="compassDistance">187</strong><span>km</span></div>
           <div class="compass-wrap" aria-label="讲话者位于东北方向约 187 公里">
@@ -81,7 +81,7 @@
           </div>
         </div>
 
-        <div class="visual-panel map-panel" data-panel="map" hidden>
+        <div class="visual-panel map-panel is-active" data-panel="map">
           <div class="map-canvas" id="mapCanvas" aria-label="我的位置与讲话者位置地图">
             <div class="map-world" id="mapWorld">
               <svg class="map-roads" viewBox="0 0 900 520" preserveAspectRatio="none" aria-hidden="true">
@@ -91,7 +91,7 @@
               </svg>
               <div class="map-grid-area" id="mapGridArea"><span>OM20xx</span></div>
               <div class="map-connection" id="mapConnection"></div>
-              <div class="map-marker me-marker"><i></i><span>我的 FMO</span></div>
+              <div class="map-marker me-marker"><i></i><span>我</span></div>
               <div class="map-marker speaker-marker" id="mapSpeakerMarker"><span>BH</span><strong>BH4XYZ</strong></div>
               <div class="map-distance" id="mapDistance"><strong>187 km</strong><span>东北 42°</span></div>
             </div>
