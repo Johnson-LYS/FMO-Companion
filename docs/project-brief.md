@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-18
+last-reviewed: 2026-08-20
 ---
 
 # 项目简报
@@ -18,6 +18,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
 
 ## 最近变更
+
+| 2026-08-20 | 主 App 营销版本提升为 `1.0.0`，发布设备族收敛为仅 iPhone；继续明确关闭 Mac Catalyst、Apple Silicon Mac 与 Apple Vision Pro 兼容运行 | `FMOc.xcodeproj/project.pbxproj`、`docs/spec/product-spec.md` |
 
 | 2026-08-18 | 补齐 App Icon 深色与着色外观：深色版采用深石墨机身并保留品牌橙色，着色版使用纯中性灰阶供系统施加用户色调；三种资源均保持 1024 × 1024、全幅不透明且不预制圆角 | `FMOc/Assets.xcassets/AppIcon.appiconset/`、`docs/spec/product-spec.md` |
 
