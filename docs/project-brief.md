@@ -19,6 +19,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 最近变更
 
+| 2026-08-20 | 横屏全屏仪表盘主视觉默认改为地图，自身地图标注收敛为“我 / Me”，保留方位盘图标切换 | `FMOc/Features/Dashboard/DashboardFullscreenView.swift`、`prototype/dashboard-fullscreen.html`、`docs/design/ui-design-system.md` |
+
 | 2026-08-20 | 主 App 营销版本提升为 `1.0.0`，发布设备族收敛为仅 iPhone；继续明确关闭 Mac Catalyst、Apple Silicon Mac 与 Apple Vision Pro 兼容运行 | `FMOc.xcodeproj/project.pbxproj`、`docs/spec/product-spec.md` |
 
 | 2026-08-18 | 补齐 App Icon 深色与着色外观：深色版采用深石墨机身并保留品牌橙色，着色版使用纯中性灰阶供系统施加用户色调；三种资源均保持 1024 × 1024、全幅不透明且不预制圆角 | `FMOc/Assets.xcassets/AppIcon.appiconset/`、`docs/spec/product-spec.md` |
