@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-18
+last-reviewed: 2026-08-20
 ---
 
 # 产品规格
@@ -8,6 +8,7 @@ last-reviewed: 2026-08-18
 
 - 中文显示名采用“FMO 助手”，避免与已有硬件产品“FMO 伴侣”混淆；“FMO 手机伴侣”可作为 App Store 中文副标题候选。
 - 英文产品与文档名继续使用 “FMO Companion”。
+- 首个正式发布版本使用营销版本号 `1.0.0`；首版仅面向 iPhone，不提供 iPad、Mac Catalyst、Apple Silicon Mac 或 Apple Vision Pro 兼容版本。
 - App 首版支持简体中文与英语，默认跟随 iOS 系统或系统中的单 App 语言设置；不在 App 内重复提供语言开关。未支持的系统语言回退英语。
 - App Bundle ID 为 `com.bi8syn.fmoassistant`；测试 Target 与保留的实时活动 Target 使用同一命名空间下的后缀。
 - App Icon 使用无预制圆角、全幅不透明的 1024 × 1024 主图，并提供专门的深色与着色外观变体；系统负责最终蒙版及各展示尺寸缩放。深色变体以深石墨机身和品牌橙色保持夜间辨识度，着色变体仅用中性灰阶建立明度层级，由系统应用用户选择的色调。
