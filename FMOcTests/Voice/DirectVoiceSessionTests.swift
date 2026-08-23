@@ -35,6 +35,45 @@ struct DirectVoiceSessionTests {
         await session.stop()
     }
 
+    @Test func mutedReceiveAdvancesDecoderAndNewStreamResetsIt() async throws {
+        let suiteName = "DirectVoiceMutedReceiveTests.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let profileStore = UserDefaultsFMOServerProfileStore(defaults: defaults)
+        try profileStore.save(Self.profile)
+        let transport = RecordingVoiceTransport()
+        let codec = ObservingVoiceCodec()
+        let session = DirectVoiceSession(
+            identityProvider: StubVoiceIdentityProvider(identity: Self.identity),
+            profileStore: profileStore,
+            transport: transport,
+            codec: codec,
+            installSuffix: "test"
+        )
+
+        await session.start()
+        await session.setMuted(true)
+        try await transport.yield(Self.incomingPacket(streamBeginUTC: 100))
+        try await codec.waitForDecodedFrames(1)
+        #expect(await codec.resetCount() == 1)
+
+        try await transport.yield(Self.incomingPacket(streamBeginUTC: 200))
+        try await codec.waitForDecodedFrames(2)
+        #expect(await codec.resetCount() == 2)
+        await session.stop()
+    }
+
+    private static func incomingPacket(streamBeginUTC: UInt32) throws -> Data {
+        try FMORawEncoder().encode(
+            uid: 42,
+            callsign: "BG5ESN",
+            streamBeginUTC: streamBeginUTC,
+            timestamp: streamBeginUTC,
+            serverUID: profile.serverUID,
+            frames: [Data([0xF8, 0xFF, 0xFE])]
+        )
+    }
+
     private static let userCertificateJSON = Data(
         """
         {"type":"userCert","issuerSn":1001,"subject":{"callsign":"BI8SYN","uid":1000000001,"publicKey":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"iat":1700000000,"exp":4102444800,"signatureAlgorithm":"Ed25519","signature":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}
@@ -100,7 +139,44 @@ private actor RecordingVoiceTransport: FMOMQTTTransport {
         continuation = nil
     }
 
+    func yield(_ payload: Data) throws {
+        guard let continuation else { throw FMOMQTTTransportError.notConnected }
+        continuation.yield(payload)
+    }
+
     func publishedPayloads() -> [Data] { published }
+}
+
+private actor ObservingVoiceCodec: FMOAudioCodec {
+    private var decodedFrames = 0
+    private var resets = 0
+
+    func encode40ms(_ pcm: [Int16]) -> Data { Data([0xF8, 0xFF, 0xFE]) }
+
+    func decode40ms(_ data: Data) -> [Int16] {
+        decodedFrames += 1
+        return [Int16](repeating: 0, count: 320)
+    }
+
+    func concealLoss() -> [Int16] { [Int16](repeating: 0, count: 320) }
+
+    func reset() {
+        resets += 1
+    }
+
+    func resetCount() -> Int { resets }
+
+    func waitForDecodedFrames(_ expected: Int) async throws {
+        for _ in 0 ..< 100 {
+            if decodedFrames >= expected { return }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        throw DirectVoiceSessionTestError.timedOut
+    }
+}
+
+private enum DirectVoiceSessionTestError: Error {
+    case timedOut
 }
 
 private actor StubVoiceCodec: FMOAudioCodec {

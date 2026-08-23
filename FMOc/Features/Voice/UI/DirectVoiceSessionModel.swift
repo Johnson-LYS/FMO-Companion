@@ -154,21 +154,23 @@ final class DirectVoiceSessionModel {
         captureTask = Task { [weak self] in
             guard let self else { return }
             let granted = await AVAudioApplication.requestRecordPermission()
-            guard granted, !Task.isCancelled else {
+            guard !Task.isCancelled else { return }
+            guard granted else {
                 configurationError = String(localized: "请在系统设置中允许麦克风访问")
                 return
             }
             do {
                 try await session.beginTransmit()
                 let stream = try audioEngine.startCapture()
+                defer { audioEngine.stopCapture() }
                 for await samples in stream {
                     guard !Task.isCancelled else { break }
                     await session.appendCapturedSamples(samples)
                 }
+                if !Task.isCancelled { await session.endTransmit() }
             } catch {
                 configurationError = String(localized: "当前无法发射，请检查连接和通道状态")
                 await session.endTransmit()
-                audioEngine.stopCapture()
             }
         }
     }

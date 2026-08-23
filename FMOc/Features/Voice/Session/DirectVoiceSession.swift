@@ -61,7 +61,7 @@ actor DirectVoiceSession {
     }
 
     func playback() -> AsyncStream<[Int16]> {
-        AsyncStream(bufferingPolicy: .bufferingNewest(12)) { continuation in
+        AsyncStream(bufferingPolicy: .bufferingNewest(10)) { continuation in
             playbackContinuation = continuation
         }
     }
@@ -228,12 +228,12 @@ actor DirectVoiceSession {
             updatePhase(.busy)
             return
         }
-        if case .preempted = decision { try? await codec.reset() }
+        if decision != .continued { try? await codec.reset() }
         snapshot.currentCallsign = packet.header.callsign
         updatePhase(.receiving(callsign: packet.header.callsign))
-        if !snapshot.isMuted {
-            for frame in packet.frames where frame.codec == .opus {
-                if let samples = try? await codec.decode40ms(frame.payload) {
+        for frame in packet.frames where frame.codec == .opus {
+            if let samples = try? await codec.decode40ms(frame.payload) {
+                if !snapshot.isMuted {
                     playbackContinuation?.yield(samples)
                 }
             }

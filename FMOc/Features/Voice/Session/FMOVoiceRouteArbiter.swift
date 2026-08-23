@@ -30,9 +30,13 @@ nonisolated struct FMOVoiceRouteArbiter: Sendable {
             current = FMOVoiceRoute(uid: uid, streamBeginUTC: streamBeginUTC, lastPacketMonotonicMilliseconds: nowMilliseconds)
             return .accepted
         }
-        if active.uid == uid {
+        if active.uid == uid, active.streamBeginUTC == streamBeginUTC {
             current = FMOVoiceRoute(uid: uid, streamBeginUTC: streamBeginUTC, lastPacketMonotonicMilliseconds: nowMilliseconds)
             return .continued
+        }
+        if active.uid == uid {
+            current = FMOVoiceRoute(uid: uid, streamBeginUTC: streamBeginUTC, lastPacketMonotonicMilliseconds: nowMilliseconds)
+            return .accepted
         }
         if nowMilliseconds &- active.lastPacketMonotonicMilliseconds > occupancyMilliseconds {
             current = FMOVoiceRoute(uid: uid, streamBeginUTC: streamBeginUTC, lastPacketMonotonicMilliseconds: nowMilliseconds)

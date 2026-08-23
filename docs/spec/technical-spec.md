@@ -90,7 +90,7 @@ UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 
 - FMO/RAW 的所有多字节字段按小端序严格解析；验证 64 字节头、逐层长度、连续 frame index、仅覆盖帧区的 CRC32 与无尾随字节后才能交给 codec。
 - 首版编码 Opus：8 kHz、单声道、40 ms/320 样本、VOIP、自动码率、complexity 4、VOICE、VBR + constrained VBR。聚合同时受 1400 字节与 250 ms 上限约束。
 - 接收只播放官方路由仲裁接受的单一流；发射只在 App active、用户持续按住 PTT、身份/连接/麦克风均有效时进行。1500 ms 占用窗口、2 秒早流抢占、相同起点小 UID 和默认 60 秒上行上限必须实现。
-- iPhone 硬件音频通过 `AVAudioConverter` 在设备格式与 8 kHz Int16 间转换；实时 PCM/Opus/RAW 只在有界内存中存在，不录音、不持久化、不进入日志、分析或崩溃附件。
+- iPhone 硬件音频通过 `AVAudioConverter` 在设备格式与 8 kHz Int16 间转换；AVFoundation 实时回调不得继承 MainActor，必须经显式 nonisolated/Sendable 桥接进入有界异步流。接收播放器最多积压 400 ms，超限丢帧而不播放历史语音；实时 PCM/Opus/RAW 只在有界内存中存在，不录音、不持久化、不进入日志、分析或崩溃附件。
 - 首版只承诺前台收听/PTT；进入 inactive/background、音频中断、MQTT 断线或路由被抢时立即停止发送。后台系统 PTT 需要 PushToTalk framework + APNs 的独立设计，不能靠静音音频保活。
 - 完整字段、数据模型、文件布局、状态机、依赖、测试与完成定义见 `docs/plans/0010-direct-fmo-voice-client.md`。
 

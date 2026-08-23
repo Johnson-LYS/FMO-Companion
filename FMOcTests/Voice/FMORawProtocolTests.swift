@@ -47,6 +47,13 @@ struct FMOVoiceRouteArbiterTests {
         #expect(arbiter.consider(uid: 10, streamBeginUTC: 100, nowMilliseconds: 1_300) == .preempted(previousUID: 20))
     }
 
+    @Test func sameUIDWithNewStreamStartsFreshDecoderRoute() {
+        var arbiter = FMOVoiceRouteArbiter()
+        _ = arbiter.consider(uid: 20, streamBeginUTC: 100, nowMilliseconds: 1_000)
+
+        #expect(arbiter.consider(uid: 20, streamBeginUTC: 200, nowMilliseconds: 1_200) == .accepted)
+    }
+
     @Test func expiredRouteAcceptsNewStream() {
         var arbiter = FMOVoiceRouteArbiter()
         _ = arbiter.consider(uid: 20, streamBeginUTC: 500, nowMilliseconds: 100)
@@ -57,5 +64,25 @@ struct FMOVoiceRouteArbiterTests {
         var arbiter = FMOVoiceRouteArbiter()
         _ = arbiter.consider(uid: 20, streamBeginUTC: 100, nowMilliseconds: 100)
         #expect(arbiter.consider(uid: 30, streamBeginUTC: UInt32.max - 899, nowMilliseconds: 200) == .preempted(previousUID: 20))
+    }
+}
+
+struct DirectVoicePlaybackBacklogTests {
+    @Test func capsQueuedAudioAtFourHundredMillisecondsAndIgnoresOldCallbacks() {
+        var backlog = DirectVoicePlaybackBacklog()
+        let generation = backlog.reserveNewestFrame().generation
+        for _ in 1 ..< DirectVoicePlaybackBacklog.maximumFrames {
+            let reservation = backlog.reserveNewestFrame()
+            #expect(reservation.generation == generation)
+            #expect(!reservation.discardedBacklog)
+        }
+        #expect(backlog.scheduledFrames == 10)
+
+        let newest = backlog.reserveNewestFrame()
+        #expect(newest.discardedBacklog)
+        #expect(backlog.scheduledFrames == 1)
+        backlog.completeFrame(generation: generation)
+        #expect(backlog.scheduledFrames == 1)
+        #expect(newest.generation != generation)
     }
 }

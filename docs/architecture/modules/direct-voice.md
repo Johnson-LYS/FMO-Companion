@@ -53,8 +53,8 @@ SwiftUI 只依赖 `DirectVoiceSessionModel` 的身份、服务器 Profile、会�
 - `FMORawParser` / `FMORawEncoder`：固定 64 字节头、小端序、嵌套长度、连续 frame index、帧区 IEEE CRC32、软件 vendor `0x2000` 和尾随字节拒绝。
 - `LibOpusCodec`：官方 libopus 1.6.1 XCFramework，经最小 C bridge 固定 8 kHz、单声道、VOIP、complexity 4、VOICE、VBR、constrained VBR 和最大带宽参数；每帧 320 样本/40 ms。
 - `FMOVoiceRouteArbiter`：1500 ms 占用窗口、较早流抢占和同起点较小 UID 决胜；只把当前获胜流交给解码器。
-- `DirectVoiceSession`：Actor 隔离 MQTT、路由、编码缓存和状态；发送同时受五帧/200 ms 与 1400 字节限制，释放 PTT 立即发送尾包。
-- `DirectVoiceAudioEngine`：在 MainActor 上管理 AVAudioSession、AVAudioConverter、麦克风 tap 和播放节点；PCM 不离开实时内存。
+- `DirectVoiceSession`：Actor 隔离 MQTT、路由、编码缓存和状态；发送同时受五帧/200 ms 与 1400 字节限制，释放 PTT 立即发送尾包。静音只阻止 PCM 进入播放器，Opus decoder 仍持续推进；UID 或 `streamBeginUTC` 变化时先重置 decoder，避免跨语音流复用状态。
+- `DirectVoiceAudioEngine`：在 MainActor 上管理 AVAudioSession、麦克风 tap 生命周期和播放节点，但系统调用的采集/播放完成回调由显式 nonisolated、Sendable 桥接对象处理，不继承 MainActor。音频会话每轮只配置一次，播放器最多排队十个 40 ms 帧；达到 400 ms 上限后清空旧积压并从最新帧恢复，停止时以 generation 忽略迟到完成回调，PCM 不离开实时内存。
 
 ## 数据与生命周期
 
@@ -65,6 +65,8 @@ incoming RAW → strict parse + CRC → route arbiter → Opus decode → 8 kHz 
 hold PTT → microphone → 8 kHz Int16 → Opus → RAW/CRC → QoS 0 publish
 release / inactive / switch terminal / disconnect / 60 s → stop capture + flush or discard bounded state
 ```
+
+MQTT 到 Session 的待处理 RAW 队列只保留最近四包，Session 到播放器只保留最近十帧；AVAudioPlayerNode 自身也限制为十帧。该首版背压用于阻止秒级历史音频累积，不等同于计划 0010 中尚待完成的 80 ms 启动水位、PLC 和抖动统计。
 
 `ContentView` 持有唯一 `DirectVoiceSessionModel`。首页和横屏只改变投影，不创建第二条 MQTT 或音频会话。选择 App 直连后，盒子管理入口、坐标、诊断和本地 `/audio` 投影隐藏；选择网络 FMO 时 App PTT 收起并停止 Direct Voice。
 

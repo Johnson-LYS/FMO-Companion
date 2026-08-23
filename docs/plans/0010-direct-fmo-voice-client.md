@@ -459,6 +459,7 @@ MQTT FMO/RAW payload
 - 只播放路由仲裁器当前接受的 UID/stream；被拒绝的竞争流不能混音。
 - MQTT QoS 0 不补发。TCP 单连接保证到达顺序，App 不建立离线重放。
 - 抖动缓冲以“低延迟优先”：建议启动水位 80 ms，上限 400 ms；超过上限丢最旧未播放帧并记录脱敏计数。
+- 当前实验首版已先落实 RAW 四包、PCM 十帧和 AVAudioPlayerNode 十帧的背压上限，防止播放器排队增长为秒级历史语音；80 ms 启动水位、按 timestamp 驱动的 PLC 与脱敏抖动统计仍属于完整 jitter buffer 后续工作。
 - 仅当 timestamp 差值能可靠推断少量丢帧时，最多调用 3 个连续 40 ms PLC 帧；更大缺口直接重置 decoder，避免制造长段伪音频。
 - 新路由获胜时停止旧流、清空旧 jitter buffer、重置 decoder，再开始新流。
 - 用户静音只停止扬声器输出，不应改变网络仲裁；但无可见监听需求时可以断开整个 Direct Voice 会话节能。
@@ -499,6 +500,7 @@ PTT 使用“按住发射、松开发送尾包并立即停止”，首版不提�
 - 请求 `NSMicrophoneUsageDescription`，权限说明必须双语本地化。
 - 使用 `AVAudioSession.Category.playAndRecord` 与适合双向话音的 mode；路由策略默认扬声器，可让用户选择系统支持的耳机/蓝牙 HFP。
 - iPhone 硬件通常以 48 kHz Float32 提供音频，必须通过 `AVAudioConverter` 转换；不能假设输入节点直接输出 8 kHz Int16。
+- `AVAudioEngine` tap 和播放器完成回调运行在系统实时音频队列，不得继承 MainActor；MainActor 只管理引擎生命周期，回调通过 nonisolated、Sendable 桥接对象投递有界 PCM。
 - 输入环形缓冲有界，只生成完整 320-sample 帧。结束时不足 320 样本直接丢弃或补零策略必须固定并测试；首选短补零后发送一个尾帧，但总补零不得超过 39.875 ms。
 - 麦克风 PCM、Opus payload 和 FMO/RAW 包均不落盘、不进入诊断或崩溃附件。
 

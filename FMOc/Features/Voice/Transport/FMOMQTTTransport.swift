@@ -72,7 +72,7 @@ actor MQTTNIOFMOMQTTTransport: FMOMQTTTransport {
         guard let client else { throw FMOMQTTTransportError.notConnected }
         listenerTask?.cancel()
         continuation?.finish()
-        let stream = AsyncThrowingStream<Data, Error>(bufferingPolicy: .bufferingNewest(16)) { continuation in
+        let stream = AsyncThrowingStream<Data, Error>(bufferingPolicy: .bufferingNewest(4)) { continuation in
             self.continuation = continuation
         }
         let continuation = self.continuation

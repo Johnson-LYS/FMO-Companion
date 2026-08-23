@@ -117,6 +117,7 @@
       }
     },
     "%@:%u · UID %llu" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -128,6 +129,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@:%2$u · UID %3$llu"
+          }
+        }
+      }
+    },
+    "%@:%u · UID %u" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@:%2$u · UID %3$u"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@:%2$u · UID %3$u"
           }
         }
       }
@@ -4679,22 +4696,6 @@
         }
       }
     },
-    "无法保存服务器配置" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to save server configuration"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法保存服务器配置"
-          }
-        }
-      }
-    },
     "无法保存已验证服务器目录" : {
       "localizations" : {
         "en" : {
@@ -4707,6 +4708,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "无法保存已验证服务器目录"
+          }
+        }
+      }
+    },
+    "无法保存服务器配置" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to save server configuration"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存服务器配置"
           }
         }
       }
@@ -5352,6 +5369,7 @@
       }
     },
     "服务器身份数据不完整" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
