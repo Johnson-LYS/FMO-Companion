@@ -50,7 +50,7 @@ struct SidePTTControl: View {
 
     private var expandedPanel: some View {
         VStack(alignment: .leading, spacing: 7) {
-            Text(String(localized: "此 iPhone · \(model.identity?.callsign ?? String(localized: "未配置"))"))
+            Text(String(localized: "FMO 助手 · \(model.identity?.callsign ?? String(localized: "未配置"))"))
                 .font(.caption2.bold())
                 .foregroundStyle(isFullscreen ? .white.opacity(0.68) : .secondary)
                 .lineLimit(1)

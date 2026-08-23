@@ -79,7 +79,9 @@ final class FMOcUITests: XCTestCase {
 
         app.buttons["open-device-picker"].tap()
         XCTAssertTrue(app.navigationBars["选择终端"].waitForExistence(timeout: 2))
-        app.buttons["direct-voice-terminal-row"].tap()
+        let directTerminal = app.buttons["direct-voice-terminal-row"]
+        XCTAssertTrue(directTerminal.label.contains("FMO 助手"))
+        directTerminal.tap()
 
         XCTAssertTrue(app.descendants(matching: .any)["direct-voice-home-card"].waitForExistence(timeout: 3))
         XCTAssertFalse(app.buttons["连接诊断"].exists)

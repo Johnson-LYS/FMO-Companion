@@ -6,7 +6,7 @@ last-reviewed: 2026-08-23
 
 ## 目的
 
-让“此 iPhone（App 直连）”作为独立的软件 FMO 语音终端，在 App 前台通过用户配置的 MQTT 服务器接收 `FMO/RAW`，并仅在用户持续按住 PTT 时采集和发送语音。模块遵守 ADR-0011：使用 App 自有 Ed25519 私钥、User Certificate 和软件 vendor，不读取、导入或复用 FMO 盒子私钥。
+让“FMO 助手（App 直连）”作为独立的软件 FMO 语音终端，在 App 前台通过用户配置的 MQTT 服务器接收 `FMO/RAW`，并仅在用户持续按住 PTT 时采集和发送语音。模块遵守 ADR-0011：使用 App 自有 Ed25519 私钥、User Certificate 和软件 vendor，不读取、导入或复用 FMO 盒子私钥。
 
 ## 首版交付范围
 

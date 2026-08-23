@@ -389,7 +389,7 @@ struct DeviceHomeView: View {
                                 .frame(width: 42, height: 42)
                                 .background(Color.accentColor.opacity(0.12), in: .rect(cornerRadius: 12))
                             VStack(alignment: .leading, spacing: 3) {
-                                Text("此 iPhone（App 直连）").font(.headline)
+                                Text("FMO 助手（App 直连）").font(.headline)
                                 Text(directVoiceModel.identity?.callsign ?? String(localized: "需要配置 App 身份")).font(.subheadline).foregroundStyle(.secondary)
                             }
                             Spacer()
@@ -512,7 +512,7 @@ struct DeviceHomeView: View {
 
     private var currentTerminalName: String {
         directVoiceModel.isDirectTerminalSelected
-            ? String(localized: "此 iPhone")
+            ? String(localized: "FMO 助手")
             : (model.selectedEndpoint?.displayName ?? "FMO")
     }
 

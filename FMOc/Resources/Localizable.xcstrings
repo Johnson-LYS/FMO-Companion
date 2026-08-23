@@ -9046,18 +9046,18 @@
         }
       }
     },
-    "此 iPhone · %@" : {
+    "FMO 助手 · %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This iPhone · %1$@"
+            "value" : "FMO Companion · %1$@"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "此 iPhone · %@"
+            "value" : "FMO 助手 · %@"
           }
         }
       }
@@ -9158,34 +9158,18 @@
         }
       }
     },
-    "此 iPhone" : {
+    "FMO 助手（App 直连）" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This iPhone"
+            "value" : "FMO Companion (App Direct)"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "此 iPhone"
-          }
-        }
-      }
-    },
-    "此 iPhone（App 直连）" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This iPhone (App Direct)"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "此 iPhone（App 直连）"
+            "value" : "FMO 助手（App 直连）"
           }
         }
       }
