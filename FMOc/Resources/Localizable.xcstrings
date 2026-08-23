@@ -4,134 +4,6 @@
     "" : {
 
     },
-    "保存手动配置" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Save Manual Configuration"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "保存手动配置"
-          }
-        }
-      }
-    },
-    "服务器身份来自已验签的 FMO V4 STATION 广播；选择后会自动填写鉴权所需字段。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Server identities come from verified FMO V4 STATION broadcasts. Selecting one fills in the authentication fields automatically."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "服务器身份来自已验签的 FMO V4 STATION 广播；选择后会自动填写鉴权所需字段。"
-          }
-        }
-      }
-    },
-    "服务器身份数据不完整" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The server identity data is incomplete"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "服务器身份数据不完整"
-          }
-        }
-      }
-    },
-    "手动配置（高级）" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manual Configuration (Advanced)"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "手动配置（高级）"
-          }
-        }
-      }
-    },
-    "先在“FMO 网络”中接收经过证书验证的 STATION 广播，或使用下方的手动配置。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Receive a certificate-verified STATION broadcast in FMO Network first, or use the manual configuration below."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "先在“FMO 网络”中接收经过证书验证的 STATION 广播，或使用下方的手动配置。"
-          }
-        }
-      }
-    },
-    "选择语音服务器" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select Voice Server"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "选择语音服务器"
-          }
-        }
-      }
-    },
-    "已验证服务器" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verified Servers"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已验证服务器"
-          }
-        }
-      }
-    },
-    "暂无已验证服务器" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Verified Servers"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "暂无已验证服务器"
-          }
-        }
-      }
-    },
     "· %@" : {
       "localizations" : {
         "en" : {
@@ -240,6 +112,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@，%2$@"
+          }
+        }
+      }
+    },
+    "%@:%u · UID %llu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@:%2$u · UID %3$llu"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@:%2$u · UID %3$llu"
           }
         }
       }
@@ -1540,6 +1428,22 @@
         }
       }
     },
+    "保存手动配置" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save Manual Configuration"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存手动配置"
+          }
+        }
+      }
+    },
     "保留最近 24 小时，最多 200 条" : {
       "localizations" : {
         "en" : {
@@ -1600,6 +1504,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "停止自动同步"
+          }
+        }
+      }
+    },
+    "先在“FMO 网络”中接收经过证书验证的 STATION 广播，或使用下方的手动配置。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Receive a certificate-verified STATION broadcast in FMO Network first, or use the manual configuration below."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先在“FMO 网络”中接收经过证书验证的 STATION 广播，或使用下方的手动配置。"
           }
         }
       }
@@ -3780,6 +3700,22 @@
         }
       }
     },
+    "已验证服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verified Servers"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已验证服务器"
+          }
+        }
+      }
+    },
     "广播台站" : {
       "localizations" : {
         "en" : {
@@ -4257,6 +4193,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "手动连接"
+          }
+        }
+      }
+    },
+    "手动配置（高级）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual Configuration (Advanced)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手动配置（高级）"
           }
         }
       }
@@ -4743,6 +4695,22 @@
         }
       }
     },
+    "无法保存已验证服务器目录" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to save the verified server directory"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存已验证服务器目录"
+          }
+        }
+      }
+    },
     "无法保存远控设置" : {
       "localizations" : {
         "en" : {
@@ -5063,6 +5031,22 @@
         }
       }
     },
+    "暂无已验证服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Verified Servers"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无已验证服务器"
+          }
+        }
+      }
+    },
     "暂无收藏服务器" : {
       "localizations" : {
         "en" : {
@@ -5363,6 +5347,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "服务器详情"
+          }
+        }
+      }
+    },
+    "服务器身份数据不完整" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server identity data is incomplete"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务器身份数据不完整"
+          }
+        }
+      }
+    },
+    "服务器身份来自已验签的 FMO V4 STATION 广播；选择后会自动填写鉴权所需字段。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server identities come from verified FMO V4 STATION broadcasts. Selecting one fills in the authentication fields automatically."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务器身份来自已验签的 FMO V4 STATION 广播；选择后会自动填写鉴权所需字段。"
           }
         }
       }
@@ -9174,6 +9190,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "选择设备"
+          }
+        }
+      }
+    },
+    "选择语音服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Voice Server"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择语音服务器"
           }
         }
       }

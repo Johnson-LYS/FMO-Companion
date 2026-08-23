@@ -8,6 +8,7 @@ final class DirectVoiceSessionModel {
     private let session: DirectVoiceSession
     private let identityProvider: any DirectVoiceIdentityProviding
     private let profileStore: UserDefaultsFMOServerProfileStore
+    private let verifiedServerCatalogStore: UserDefaultsVerifiedFMOServerCatalogStore
     private let audioEngine: DirectVoiceAudioEngine
     private let defaults: UserDefaults
     private var stateTask: Task<Void, Never>?
@@ -17,6 +18,7 @@ final class DirectVoiceSessionModel {
     var snapshot = DirectVoiceSessionSnapshot()
     var identity: DirectVoiceIdentity?
     var serverProfile: FMOServerProfile?
+    var verifiedServerProfiles: [FMOServerProfile]
     var isDirectTerminalSelected = false
     var isPTTExpanded = false
     var enrollmentCallsign = ""
@@ -28,12 +30,17 @@ final class DirectVoiceSessionModel {
         session: DirectVoiceSession,
         identityProvider: any DirectVoiceIdentityProviding,
         profileStore: UserDefaultsFMOServerProfileStore,
+        verifiedServerCatalogStore: UserDefaultsVerifiedFMOServerCatalogStore? = nil,
         audioEngine: DirectVoiceAudioEngine = DirectVoiceAudioEngine(),
         defaults: UserDefaults = .standard
     ) {
         self.session = session
         self.identityProvider = identityProvider
         self.profileStore = profileStore
+        let resolvedCatalogStore = verifiedServerCatalogStore
+            ?? UserDefaultsVerifiedFMOServerCatalogStore(defaults: defaults)
+        self.verifiedServerCatalogStore = resolvedCatalogStore
+        verifiedServerProfiles = resolvedCatalogStore.load()
         self.audioEngine = audioEngine
         self.defaults = defaults
         isDirectTerminalSelected = defaults.bool(forKey: "directVoiceTerminalSelected")
@@ -124,6 +131,20 @@ final class DirectVoiceSessionModel {
             await reconnect()
         } catch {
             configurationError = String(localized: "无法保存服务器配置")
+        }
+    }
+
+    func rememberVerifiedServers(_ servers: [FMOV4ServerRecord]) {
+        let merged = verifiedServerCatalogStore.merging(
+            verifiedServers: servers,
+            into: verifiedServerProfiles
+        )
+        guard merged != verifiedServerProfiles else { return }
+        do {
+            try verifiedServerCatalogStore.save(merged)
+            verifiedServerProfiles = merged
+        } catch {
+            configurationError = String(localized: "无法保存已验证服务器目录")
         }
     }
 

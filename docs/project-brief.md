@@ -19,6 +19,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 最近变更
 
+| 2026-08-23 | 修复 Direct Voice 在 iOS 错用 POSIX EventLoop 导致 mqtt-nio bootstrap 崩溃；已验签 STATION Profile 按 UID 独立缓存并由后续广播刷新，服务器重启 App 后仍可选择 | `FMOc/Features/Voice/Transport/FMOMQTTTransport.swift`、`FMOc/Features/Voice/Authentication/DirectVoiceAuthentication.swift` |
+
 | 2026-08-23 | App 直连语音服务器改为优先选择 FMO 网络已验签 STATION，自动带入 SAS 所需服务器身份与指纹；实体盒子 UID/名称目录继续隔离，手动配置降为高级回退 | `FMOc/Features/APRS/FMOV4NetworkStore.swift`、`FMOc/Features/Voice/` |
 
 | 2026-08-23 | Direct Voice 原生首版：统一终端选择、首页/横屏共享侧边 PTT、App Keychain 身份、SAS proof、mqtt-nio、FMO/RAW、libopus、AVFoundation 收发链路、双语隐私与自动化测试 | `FMOc/Features/Voice/`、`docs/architecture/modules/direct-voice.md` |

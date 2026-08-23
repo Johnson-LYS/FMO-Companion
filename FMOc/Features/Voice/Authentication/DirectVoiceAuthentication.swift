@@ -49,7 +49,7 @@ nonisolated enum VerifiedFMOServerProfileError: Error, Equatable, Sendable {
 }
 
 extension FMOServerProfile {
-    init(verifiedServer server: FMOV4ServerRecord, id: UUID = UUID()) throws {
+    nonisolated init(verifiedServer server: FMOV4ServerRecord, id: UUID = UUID()) throws {
         guard let serverUID = UInt32(exactly: server.uid) else {
             throw VerifiedFMOServerProfileError.unsupportedUID
         }
@@ -192,5 +192,55 @@ nonisolated final class UserDefaultsFMOServerProfileStore: @unchecked Sendable {
 
     func remove() {
         defaults.removeObject(forKey: key)
+    }
+}
+
+nonisolated final class UserDefaultsVerifiedFMOServerCatalogStore: @unchecked Sendable {
+    private let defaults: UserDefaults
+    private let key: String
+
+    init(defaults: UserDefaults = .standard, key: String = "directVoiceVerifiedServerCatalog") {
+        self.defaults = defaults
+        self.key = key
+    }
+
+    func load() -> [FMOServerProfile] {
+        guard let data = defaults.data(forKey: key),
+              let profiles = try? JSONDecoder().decode([FMOServerProfile].self, from: data) else {
+            return []
+        }
+        return profiles.filter(Self.isValid)
+    }
+
+    func save(_ profiles: [FMOServerProfile]) throws {
+        defaults.set(try JSONEncoder().encode(profiles.filter(Self.isValid)), forKey: key)
+    }
+
+    func merging(
+        verifiedServers: [FMOV4ServerRecord],
+        into existingProfiles: [FMOServerProfile]
+    ) -> [FMOServerProfile] {
+        var profilesByUID: [UInt32: FMOServerProfile] = [:]
+        for profile in existingProfiles where Self.isValid(profile) {
+            profilesByUID[profile.serverUID] = profile
+        }
+        for server in verifiedServers {
+            guard let serverUID = UInt32(exactly: server.uid) else { continue }
+            let id = profilesByUID[serverUID]?.id ?? UUID()
+            guard let profile = try? FMOServerProfile(verifiedServer: server, id: id) else { continue }
+            profilesByUID[serverUID] = profile
+        }
+        return profilesByUID.values.sorted {
+            $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending
+        }
+    }
+
+    private static func isValid(_ profile: FMOServerProfile) -> Bool {
+        !profile.displayName.isEmpty
+            && !profile.dialHost.isEmpty
+            && !profile.targetHost.isEmpty
+            && !profile.serverCallsign.isEmpty
+            && profile.serverCertificateFingerprint.count == 32
+            && profile.role == "user"
     }
 }

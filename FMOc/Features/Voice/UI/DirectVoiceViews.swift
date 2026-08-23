@@ -198,15 +198,14 @@ struct DirectVoiceServerView: View {
                             description: Text("先在“FMO 网络”中接收经过证书验证的 STATION 广播，或使用下方的手动配置。")
                         )
                     } else {
-                        ForEach(availableServers) { server in
+                        ForEach(availableServers) { profile in
                             Button {
-                                select(server)
+                                select(profile)
                             } label: {
-                                verifiedServerRow(server)
+                                verifiedServerRow(profile)
                             }
                             .buttonStyle(.plain)
-                            .disabled(UInt32(exactly: server.uid) == nil || server.certificateFingerprint.count != 32)
-                            .accessibilityIdentifier("direct-voice-server-\(server.uid)")
+                            .accessibilityIdentifier("direct-voice-server-\(profile.serverUID)")
                         }
                     }
                 } header: {
@@ -243,31 +242,34 @@ struct DirectVoiceServerView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
             }
-            .onAppear(perform: load)
+            .onAppear {
+                model.rememberVerifiedServers(verifiedServers)
+                load()
+            }
+            .onChange(of: verifiedServers) { _, servers in
+                model.rememberVerifiedServers(servers)
+            }
         }
     }
 
-    private var availableServers: [FMOV4ServerRecord] {
-        verifiedServers.sorted {
-            if $0.countryCode != $1.countryCode { return $0.countryCode < $1.countryCode }
-            return $0.name.localizedStandardCompare($1.name) == .orderedAscending
-        }
+    private var availableServers: [FMOServerProfile] {
+        model.verifiedServerProfiles
     }
 
-    private func verifiedServerRow(_ server: FMOV4ServerRecord) -> some View {
+    private func verifiedServerRow(_ profile: FMOServerProfile) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: server.port == 8_883 ? "lock.shield.fill" : "checkmark.shield.fill")
-                .foregroundStyle(server.port == 8_883 ? Color.green : Color.orange)
+            Image(systemName: profile.transportSecurity == .tls ? "lock.shield.fill" : "checkmark.shield.fill")
+                .foregroundStyle(profile.transportSecurity == .tls ? Color.green : Color.orange)
             VStack(alignment: .leading, spacing: 3) {
-                Text(server.name)
+                Text(profile.displayName)
                     .font(.headline)
                     .foregroundStyle(.primary)
-                Text("\(server.host):\(server.port) · UID \(server.uid)")
+                Text("\(profile.dialHost):\(profile.mqttPort) · UID \(profile.serverUID)")
                     .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            if model.serverProfile?.serverUID == UInt32(exactly: server.uid) {
+            if model.serverProfile?.serverUID == profile.serverUID {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(Color.accentColor)
             }
@@ -301,16 +303,8 @@ struct DirectVoiceServerView: View {
         Task { await model.saveServerProfile(profile); dismiss() }
     }
 
-    private func select(_ server: FMOV4ServerRecord) {
-        do {
-            let profile = try FMOServerProfile(
-                verifiedServer: server,
-                id: model.serverProfile?.id ?? UUID()
-            )
-            Task { await model.saveServerProfile(profile); dismiss() }
-        } catch {
-            model.configurationError = String(localized: "服务器身份数据不完整")
-        }
+    private func select(_ profile: FMOServerProfile) {
+        Task { await model.saveServerProfile(profile); dismiss() }
     }
 }
 

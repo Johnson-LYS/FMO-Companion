@@ -193,6 +193,9 @@ struct ContentView: View {
                 await remoteControlModel.setSource(identity)
             }
         }
+        .onChange(of: fmoNetworkModel.networkSnapshot.servers, initial: true) { _, servers in
+            directVoiceModel.rememberVerifiedServers(servers)
+        }
         .onChange(of: aprsMessageModel.phase) { _, phase in
             remoteControlModel.setNetworkReady(phase == .ready)
         }

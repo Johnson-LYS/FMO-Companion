@@ -49,7 +49,7 @@ SwiftUI 只依赖 `DirectVoiceSessionModel` 的身份、服务器 Profile、会�
 
 - `KeychainDirectVoiceIdentityProvider`：生成 `ThisDeviceOnly` Ed25519 seed，验证并保存证书元数据，按需签名 SAS proof；MQTT 与 UI 无法读取 seed。
 - `SASAuthPayloadBuilder`：为每次 CONNECT 构造 User TBS 指纹、12 元确定性 CBOR proof 和无 padding Base64url JSON password；TLS SNI 使用鉴权目标域名。
-- `MQTTNIOFMOMQTTTransport`：封装 mqtt-nio 2.13.0，只允许 `FMO/RAW`、QoS 0、clean session 和不超过 1400 字节的 payload。
+- `MQTTNIOFMOMQTTTransport`：封装 mqtt-nio 2.13.0，在 iOS 使用 `NIOTSEventLoopGroup.singleton` 对接 Network.framework，只允许 `FMO/RAW`、QoS 0、clean session 和不超过 1400 字节的 payload；不得传入 iOS 上无法创建 bootstrap 的 POSIX `MultiThreadedEventLoopGroup`。
 - `FMORawParser` / `FMORawEncoder`：固定 64 字节头、小端序、嵌套长度、连续 frame index、帧区 IEEE CRC32、软件 vendor `0x2000` 和尾随字节拒绝。
 - `LibOpusCodec`：官方 libopus 1.6.1 XCFramework，经最小 C bridge 固定 8 kHz、单声道、VOIP、complexity 4、VOICE、VBR、constrained VBR 和最大带宽参数；每帧 320 样本/40 ms。
 - `FMOVoiceRouteArbiter`：1500 ms 占用窗口、较早流抢占和同起点较小 UID 决胜；只把当前获胜流交给解码器。
@@ -68,7 +68,7 @@ release / inactive / switch terminal / disconnect / 60 s → stop capture + flus
 
 `ContentView` 持有唯一 `DirectVoiceSessionModel`。首页和横屏只改变投影，不创建第二条 MQTT 或音频会话。选择 App 直连后，盒子管理入口、坐标、诊断和本地 `/audio` 投影隐藏；选择网络 FMO 时 App PTT 收起并停止 Direct Voice。
 
-实体 FMO 的 ADR-0010 目录只有服务器 UID 和名称，不能提供 SAS proof 所需的服务器证书呼号与指纹，因此不得直接转成 `FMOServerProfile`。App 直连选择器只消费 `FMOV4NetworkStore` 验签后保留的 STATION 服务器身份；端口 `8883` 按 TLS 连接，其余端口按明文连接并显示风险状态。所选完整 Profile 独立持久化，之后不依赖该 STATION 继续在线。
+实体 FMO 的 ADR-0010 目录只有服务器 UID 和名称，不能提供 SAS proof 所需的服务器证书呼号与指纹，因此不得直接转成 `FMOServerProfile`。App 直连选择器只消费 `FMOV4NetworkStore` 验签后保留的 STATION 服务器身份；端口 `8883` 按 TLS 连接，其余端口按明文连接并显示风险状态。经过验签的完整 Profile 按 UID 保存为 Direct Voice 独立目录，后续同 UID 广播刷新字段；该目录只缓存公开鉴权元数据，不表示服务器当前在线，也不等同于公共服务器收藏。所选 Profile 另行持久化，之后不依赖该 STATION 继续在线。
 
 ## 依赖、许可与复现
 

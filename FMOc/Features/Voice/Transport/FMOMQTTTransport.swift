@@ -2,7 +2,7 @@ import Foundation
 @preconcurrency import MQTTNIO
 import NIOCore
 import NIOFoundationCompat
-import NIOPosix
+import NIOTransportServices
 
 protocol FMOMQTTTransport: Sendable {
     func connect(_ request: FMOMQTTConnectRequest) async throws
@@ -20,6 +20,14 @@ nonisolated enum FMOMQTTTransportError: Error, Equatable, Sendable {
 }
 
 actor MQTTNIOFMOMQTTTransport: FMOMQTTTransport {
+    nonisolated static var eventLoopGroup: any EventLoopGroup {
+        NIOTSEventLoopGroup.singleton
+    }
+
+    nonisolated static var eventLoopGroupProvider: NIOEventLoopGroupProvider {
+        .shared(eventLoopGroup)
+    }
+
     private var client: MQTTClient?
     private var listenerTask: Task<Void, Never>?
     private var continuation: AsyncThrowingStream<Data, Error>.Continuation?
@@ -42,7 +50,7 @@ actor MQTTNIOFMOMQTTTransport: FMOMQTTTransport {
             host: request.host,
             port: Int(request.port),
             identifier: request.clientID,
-            eventLoopGroupProvider: .shared(MultiThreadedEventLoopGroup.singleton),
+            eventLoopGroupProvider: Self.eventLoopGroupProvider,
             configuration: configuration
         )
         do {

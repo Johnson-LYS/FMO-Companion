@@ -1,8 +1,42 @@
 import Foundation
+import NIOTransportServices
 import Testing
 @testable import FMOc
 
 struct DirectVoiceAuthenticationTests {
+    @Test func mqttTransportLetsMQTTNIOCreateThePlatformEventLoop() {
+        #expect(MQTTNIOFMOMQTTTransport.eventLoopGroup is NIOTSEventLoopGroup)
+    }
+
+    @Test func verifiedServerCatalogPersistsAndRefreshesKnownServer() throws {
+        let suiteName = "VerifiedFMOServerCatalogTests.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let store = UserDefaultsVerifiedFMOServerCatalogStore(defaults: defaults)
+        let first = makeVerifiedServer(
+            name: "BI8SYN FMO",
+            host: "fmo.bi8syn.com",
+            port: 1_883
+        )
+
+        let initial = store.merging(verifiedServers: [first], into: [])
+        try store.save(initial)
+        let refreshedServer = makeVerifiedServer(
+            name: "BI8SYN FMO Voice",
+            host: "fmo.bi8syn.com",
+            port: 8_883
+        )
+        let refreshed = store.merging(verifiedServers: [refreshedServer], into: store.load())
+
+        let profile = try #require(refreshed.first)
+        #expect(refreshed.count == 1)
+        #expect(profile.id == initial.first?.id)
+        #expect(profile.displayName == "BI8SYN FMO Voice")
+        #expect(profile.dialHost == "fmo.bi8syn.com")
+        #expect(profile.mqttPort == 8_883)
+        #expect(profile.transportSecurity == .tls)
+    }
+
     @Test func verifiedStationCreatesCompleteServerProfile() throws {
         let fingerprint = Data(repeating: 0x5a, count: 32)
         let server = FMOV4ServerRecord(
@@ -84,6 +118,26 @@ struct DirectVoiceAuthenticationTests {
         #expect(object["role"] as? String == "user")
         #expect((object["proof"] as? [String: Any])?["signature"] as? String == FMOV4Base64URL.encode(Data(repeating: 0x44, count: 64)))
         #expect(await capture.payload()?.count ?? 0 > 64)
+    }
+
+    private func makeVerifiedServer(name: String, host: String, port: UInt16) -> FMOV4ServerRecord {
+        FMOV4ServerRecord(
+            uid: 5_001,
+            name: name,
+            countryCode: "CN",
+            host: host,
+            port: port,
+            filterKilometers: 500,
+            onlineUserCount: 12,
+            peakUserCount: 20,
+            latitude: 31.2,
+            longitude: 121.4,
+            broadcasterCallsign: "BG5ESN-15",
+            certificateCallsign: "BG5ESN",
+            certificateFingerprint: Data(repeating: 0x5a, count: 32),
+            observedAt: Date(timeIntervalSince1970: 1_800_000_000),
+            trustLevel: .trusted
+        )
     }
 }
 
