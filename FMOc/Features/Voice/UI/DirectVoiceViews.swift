@@ -169,6 +169,7 @@ struct DirectVoiceIdentityView: View {
 
 struct DirectVoiceServerView: View {
     @Bindable var model: DirectVoiceSessionModel
+    let verifiedServers: [FMOV4ServerRecord]
     @Environment(\.dismiss) private var dismiss
     @State private var displayName = ""
     @State private var host = ""
@@ -178,31 +179,100 @@ struct DirectVoiceServerView: View {
     @State private var callsign = ""
     @State private var fingerprint = ""
     @State private var usesTLS = true
+    @State private var showsManualConfiguration = false
 
     var body: some View {
         NavigationStack {
             Form {
-                Section("服务器") {
-                    TextField("名称", text: $displayName)
-                    TextField("连接地址", text: $host).textInputAutocapitalization(.never).autocorrectionDisabled()
-                    TextField("鉴权目标域名", text: $targetHost).textInputAutocapitalization(.never).autocorrectionDisabled()
-                    TextField("端口", text: $port).keyboardType(.numberPad)
-                    TextField("服务器 UID", text: $uid).keyboardType(.numberPad)
-                    TextField("服务器呼号", text: $callsign).textInputAutocapitalization(.characters).autocorrectionDisabled()
-                    TextField("服务器证书指纹（Base64url）", text: $fingerprint).textInputAutocapitalization(.never).autocorrectionDisabled()
-                    Toggle("使用 TLS", isOn: $usesTLS)
+                if let profile = model.serverProfile {
+                    Section("当前服务器") {
+                        LabeledContent(profile.displayName, value: "\(profile.dialHost):\(profile.mqttPort)")
+                    }
                 }
-                if !usesTLS { Section { Text("明文 MQTT 会暴露呼号、证书元数据和语音内容。").foregroundStyle(.red) } }
-                if let error = model.configurationError { Section { Text(error).foregroundStyle(.red) } }
+
+                Section {
+                    if availableServers.isEmpty {
+                        ContentUnavailableView(
+                            "暂无已验证服务器",
+                            systemImage: "server.rack",
+                            description: Text("先在“FMO 网络”中接收经过证书验证的 STATION 广播，或使用下方的手动配置。")
+                        )
+                    } else {
+                        ForEach(availableServers) { server in
+                            Button {
+                                select(server)
+                            } label: {
+                                verifiedServerRow(server)
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(UInt32(exactly: server.uid) == nil || server.certificateFingerprint.count != 32)
+                            .accessibilityIdentifier("direct-voice-server-\(server.uid)")
+                        }
+                    }
+                } header: {
+                    Text("已验证服务器")
+                } footer: {
+                    Text("服务器身份来自已验签的 FMO V4 STATION 广播；选择后会自动填写鉴权所需字段。")
+                }
+
+                Section {
+                    DisclosureGroup("手动配置（高级）", isExpanded: $showsManualConfiguration) {
+                        TextField("名称", text: $displayName)
+                        TextField("连接地址", text: $host).textInputAutocapitalization(.never).autocorrectionDisabled()
+                        TextField("鉴权目标域名", text: $targetHost).textInputAutocapitalization(.never).autocorrectionDisabled()
+                        TextField("端口", text: $port).keyboardType(.numberPad)
+                        TextField("服务器 UID", text: $uid).keyboardType(.numberPad)
+                        TextField("服务器呼号", text: $callsign).textInputAutocapitalization(.characters).autocorrectionDisabled()
+                        TextField("服务器证书指纹（Base64url）", text: $fingerprint).textInputAutocapitalization(.never).autocorrectionDisabled()
+                        Toggle("使用 TLS", isOn: $usesTLS)
+                        if !usesTLS {
+                            Text("明文 MQTT 会暴露呼号、证书元数据和语音内容。")
+                                .foregroundStyle(.red)
+                        }
+                        Button("保存手动配置", action: save)
+                            .disabled(!isValid)
+                    }
+                }
+
+                if let error = model.configurationError {
+                    Section { Text(error).foregroundStyle(.red) }
+                }
             }
-            .navigationTitle("语音服务器")
+            .navigationTitle("选择语音服务器")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) { Button("保存", action: save).disabled(!isValid) }
             }
             .onAppear(perform: load)
         }
+    }
+
+    private var availableServers: [FMOV4ServerRecord] {
+        verifiedServers.sorted {
+            if $0.countryCode != $1.countryCode { return $0.countryCode < $1.countryCode }
+            return $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }
+    }
+
+    private func verifiedServerRow(_ server: FMOV4ServerRecord) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: server.port == 8_883 ? "lock.shield.fill" : "checkmark.shield.fill")
+                .foregroundStyle(server.port == 8_883 ? Color.green : Color.orange)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(server.name)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Text("\(server.host):\(server.port) · UID \(server.uid)")
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            if model.serverProfile?.serverUID == UInt32(exactly: server.uid) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(Color.accentColor)
+            }
+        }
+        .contentShape(.rect)
     }
 
     private var isValid: Bool {
@@ -229,6 +299,18 @@ struct DirectVoiceServerView: View {
             role: "user", transportSecurity: usesTLS ? .tls : .plain
         )
         Task { await model.saveServerProfile(profile); dismiss() }
+    }
+
+    private func select(_ server: FMOV4ServerRecord) {
+        do {
+            let profile = try FMOServerProfile(
+                verifiedServer: server,
+                id: model.serverProfile?.id ?? UUID()
+            )
+            Task { await model.saveServerProfile(profile); dismiss() }
+        } catch {
+            model.configurationError = String(localized: "服务器身份数据不完整")
+        }
     }
 }
 

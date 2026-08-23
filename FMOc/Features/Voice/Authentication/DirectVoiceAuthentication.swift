@@ -43,6 +43,34 @@ nonisolated struct FMOServerProfile: Codable, Equatable, Identifiable, Sendable 
     }
 }
 
+nonisolated enum VerifiedFMOServerProfileError: Error, Equatable, Sendable {
+    case unsupportedUID
+    case invalidCertificateFingerprint
+}
+
+extension FMOServerProfile {
+    init(verifiedServer server: FMOV4ServerRecord, id: UUID = UUID()) throws {
+        guard let serverUID = UInt32(exactly: server.uid) else {
+            throw VerifiedFMOServerProfileError.unsupportedUID
+        }
+        guard server.certificateFingerprint.count == 32 else {
+            throw VerifiedFMOServerProfileError.invalidCertificateFingerprint
+        }
+        self.init(
+            id: id,
+            displayName: server.name,
+            dialHost: server.host,
+            targetHost: server.host,
+            mqttPort: server.port,
+            serverUID: serverUID,
+            serverCallsign: server.certificateCallsign,
+            serverCertificateFingerprint: server.certificateFingerprint,
+            role: "user",
+            transportSecurity: server.port == 8_883 ? .tls : .plain
+        )
+    }
+}
+
 nonisolated struct FMOMQTTConnectRequest: Equatable, Sendable {
     let host: String
     let port: UInt16

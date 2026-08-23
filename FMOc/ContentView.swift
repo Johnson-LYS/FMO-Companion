@@ -224,6 +224,7 @@ struct ContentView: View {
                         remoteControlModel: remoteControlModel,
                         audioMonitor: audioMonitor,
                         directVoiceModel: directVoiceModel,
+                        verifiedVoiceServers: fmoNetworkModel.networkSnapshot.servers,
                         dashboardSpeakerLocationStore: dashboardSpeakerLocationStore,
                         dashboardAreaResolver: dashboardAreaResolver,
                         dashboardHeroNamespace: dashboardHeroNamespace,

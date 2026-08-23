@@ -224,7 +224,7 @@ struct FMOServerProfile: Sendable, Equatable, Identifiable {
 - proof 必须签 `targetHost`，不能签 `dialHost`；`targetHost/port/UID/callsign/fingerprint` 任一项与 SAS 不一致都会拒绝。
 - 服务器指纹必须是服务器 User Certificate TBS CBOR 的 SHA-256，不是 TLS 证书指纹、域名哈希或公钥哈希。
 - 普通 App 身份的 `expectedRole` 为 `user`。管理员显式配置 `admin/super` 时，SAS 仍会独立重算角色，不会因客户端声明而提权。
-- 配置可来自完整验证的 FMO V4 STATION 广播或用户手动导入的签名配置。手工输入时 UI 必须逐项展示并要求确认。
+- 配置优先来自完整验证的 FMO V4 STATION 广播：聚合层必须保留签名证书的规范呼号和 TBS SHA-256 指纹，选择器据此自动生成完整 Profile。实体盒子 ADR-0010 的 UID/名称目录字段不足，不能作为 Direct Voice 身份来源。手工输入仅作为高级回退，UI 必须逐项展示并要求确认。
 - 服务器配置不含秘密，可以用 SwiftData 保存；私钥与任何未来签发令牌仍只在 Keychain。
 
 当前自建服务器可能只开放 MQTT 1883。Debug/内部验证可连接明文端口，但 Release 应优先支持 EMQX TLS 8883，并对明文公网连接显示明确警告。MQTT over TLS 只保护传输，不能替代 FMO 证书 proof。
@@ -602,7 +602,8 @@ idle
 
 ### 18.3 服务器页
 
-- 添加/编辑服务器名称、目标域名、端口、UID、呼号、服务器证书指纹和角色。
+- 默认列出当前 FMO 网络快照中经过完整证书验证的 STATION；选择后自动保存名称、目标域名、端口、UID、证书呼号、服务器证书 TBS 指纹和普通用户角色。
+- 没有已验证 STATION 时显示可行动空状态，引导用户先在 FMO 网络接收服务器广播；手动添加/编辑上述字段收进高级配置。
 - 显示 TLS/明文传输状态；公网 1883 给出风险提示。
 - “测试连接”只做一次鉴权、订阅和立即断开，不发射。
 - 保存前验证字段长度、端口、指纹 32 字节和规范化呼号。

@@ -3,6 +3,62 @@ import Testing
 @testable import FMOc
 
 struct DirectVoiceAuthenticationTests {
+    @Test func verifiedStationCreatesCompleteServerProfile() throws {
+        let fingerprint = Data(repeating: 0x5a, count: 32)
+        let server = FMOV4ServerRecord(
+            uid: 5_001,
+            name: "华东服务器",
+            countryCode: "CN",
+            host: "mqtt.example.invalid",
+            port: 8_883,
+            filterKilometers: 500,
+            onlineUserCount: 12,
+            peakUserCount: 20,
+            latitude: 31.2,
+            longitude: 121.4,
+            broadcasterCallsign: "BG5ESN-15",
+            certificateCallsign: "BG5ESN",
+            certificateFingerprint: fingerprint,
+            observedAt: Date(timeIntervalSince1970: 1_800_000_000),
+            trustLevel: .trusted
+        )
+
+        let profile = try FMOServerProfile(verifiedServer: server)
+
+        #expect(profile.displayName == server.name)
+        #expect(profile.dialHost == server.host)
+        #expect(profile.targetHost == server.host)
+        #expect(profile.mqttPort == server.port)
+        #expect(profile.serverUID == 5_001)
+        #expect(profile.serverCallsign == "BG5ESN")
+        #expect(profile.serverCertificateFingerprint == fingerprint)
+        #expect(profile.transportSecurity == .tls)
+    }
+
+    @Test func verifiedStationRejectsUIDOutsideVoiceProtocolRange() {
+        let server = FMOV4ServerRecord(
+            uid: UInt64(UInt32.max) + 1,
+            name: "Unsupported",
+            countryCode: "CN",
+            host: "mqtt.example.invalid",
+            port: 1_883,
+            filterKilometers: 500,
+            onlineUserCount: 0,
+            peakUserCount: 0,
+            latitude: 0,
+            longitude: 0,
+            broadcasterCallsign: "BG5ESN-15",
+            certificateCallsign: "BG5ESN",
+            certificateFingerprint: Data(repeating: 0x5a, count: 32),
+            observedAt: .now,
+            trustLevel: .trusted
+        )
+
+        #expect(throws: VerifiedFMOServerProfileError.unsupportedUID) {
+            _ = try FMOServerProfile(verifiedServer: server)
+        }
+    }
+
     @Test func sasRequestUsesBase64URLJSONAndFreshSignedProof() async throws {
         let identity = DirectVoiceSessionTests.identityForAuthentication
         let profile = DirectVoiceSessionTests.profileForAuthentication

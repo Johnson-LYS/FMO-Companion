@@ -41,6 +41,8 @@ nonisolated struct FMOV4ServerRecord: Identifiable, Equatable, Sendable {
     let latitude: Double
     let longitude: Double
     let broadcasterCallsign: String
+    let certificateCallsign: String
+    let certificateFingerprint: Data
     let observedAt: Date
     let trustLevel: FMOV4TrustLevel
 }
@@ -172,6 +174,8 @@ actor FMOV4NetworkStore: FMOV4NetworkProcessing {
                 latitude: frame.latitude,
                 longitude: frame.longitude,
                 broadcasterCallsign: frame.source.formatted,
+                certificateCallsign: frame.certificate.callsign,
+                certificateFingerprint: frame.certificate.fingerprint,
                 observedAt: frame.verifiedAt,
                 trustLevel: frame.trustLevel
             )

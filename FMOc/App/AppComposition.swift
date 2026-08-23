@@ -336,6 +336,8 @@ enum AppComposition {
             latitude: station.latitude,
             longitude: station.longitude,
             broadcasterCallsign: station.id,
+            certificateCallsign: "BG0SRV",
+            certificateFingerprint: Data(repeating: 0x31, count: 32),
             observedAt: date,
             trustLevel: .trusted
         )

@@ -15,8 +15,9 @@ last-reviewed: 2026-08-23
 - 前台 MQTT 3.1.1 连接、`FMO/RAW` QoS 0 订阅/发布、单路半双工仲裁、Opus 收发和 AVFoundation 播放/采集。
 - App 进入非 active 状态、切换网络 FMO、松手、连接结束、路由抢占或达到 60 秒时停止发射，不补发旧音频。
 - 身份申请只导出公钥；私钥 seed 与稳定安装后缀存放在独立 Keychain 命名空间。导入时验证 Root、Intermediate、User Certificate 的 Ed25519 签名、有效期、issuer、UID 范围和本机公钥绑定。
+- 语音服务器页优先展示当前 FMO 网络快照中经过完整证书验证的 STATION；选择后从该服务器证书自动生成 UID、呼号、TBS SHA-256 指纹、主机和端口，手动配置只作为高级回退。
 
-首版不承诺后台 MQTT 常驻、PushToTalk framework/APNs、自动服务器发现、断线退避重连、CRL 客户端刷新、网络抖动缓冲或真实服务器互通验收。这些仍按计划 0010 的后续门槛推进，不能把当前模拟器/离线测试表述为真机射频闭环。
+首版不承诺后台 MQTT 常驻、PushToTalk framework/APNs、独立于 APRS STATION 的服务器发现、断线退避重连、CRL 客户端刷新、网络抖动缓冲或真实服务器互通验收。这些仍按计划 0010 的后续门槛推进，不能把当前模拟器/离线测试表述为真机射频闭环。
 
 ## 公共边界
 
@@ -59,13 +60,15 @@ SwiftUI 只依赖 `DirectVoiceSessionModel` 的身份、服务器 Profile、会�
 
 ```text
 App public key → administrator-issued certificate bundle → verified metadata + Keychain seed
-server profile + fresh timestamp → SAS proof → MQTT CONNECT → FMO/RAW subscription
+verified STATION certificate → server profile + fresh timestamp → SAS proof → MQTT CONNECT → FMO/RAW subscription
 incoming RAW → strict parse + CRC → route arbiter → Opus decode → 8 kHz playback
 hold PTT → microphone → 8 kHz Int16 → Opus → RAW/CRC → QoS 0 publish
 release / inactive / switch terminal / disconnect / 60 s → stop capture + flush or discard bounded state
 ```
 
 `ContentView` 持有唯一 `DirectVoiceSessionModel`。首页和横屏只改变投影，不创建第二条 MQTT 或音频会话。选择 App 直连后，盒子管理入口、坐标、诊断和本地 `/audio` 投影隐藏；选择网络 FMO 时 App PTT 收起并停止 Direct Voice。
+
+实体 FMO 的 ADR-0010 目录只有服务器 UID 和名称，不能提供 SAS proof 所需的服务器证书呼号与指纹，因此不得直接转成 `FMOServerProfile`。App 直连选择器只消费 `FMOV4NetworkStore` 验签后保留的 STATION 服务器身份；端口 `8883` 按 TLS 连接，其余端口按明文连接并显示风险状态。所选完整 Profile 独立持久化，之后不依赖该 STATION 继续在线。
 
 ## 依赖、许可与复现
 

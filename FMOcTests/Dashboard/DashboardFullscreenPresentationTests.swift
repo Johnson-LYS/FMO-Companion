@@ -362,6 +362,8 @@ struct DashboardFullscreenPresentationTests {
             latitude: 0,
             longitude: 1,
             broadcasterCallsign: "BH4XYZ-15",
+            certificateCallsign: "BH4XYZ",
+            certificateFingerprint: Data(repeating: 0x32, count: 32),
             observedAt: now,
             trustLevel: .trusted
         )

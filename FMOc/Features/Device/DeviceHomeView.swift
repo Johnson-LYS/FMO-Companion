@@ -8,6 +8,7 @@ struct DeviceHomeView: View {
     @Bindable var remoteControlModel: FmoRemoteControlModel
     @Bindable var audioMonitor: FmoAudioMonitorModel
     @Bindable var directVoiceModel: DirectVoiceSessionModel
+    let verifiedVoiceServers: [FMOV4ServerRecord]
     let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
     let dashboardAreaResolver: any DashboardAreaResolving
     let dashboardHeroNamespace: Namespace.ID
@@ -104,7 +105,10 @@ struct DeviceHomeView: View {
                 .presentationDetents([.large])
         }
         .sheet(isPresented: $showsDirectServer) {
-            DirectVoiceServerView(model: directVoiceModel)
+            DirectVoiceServerView(
+                model: directVoiceModel,
+                verifiedServers: verifiedVoiceServers
+            )
                 .presentationDetents([.large])
         }
         .sheet(item: $officialWebModel.destination) { destination in

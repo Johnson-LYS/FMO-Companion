@@ -101,6 +101,7 @@ trusted future sources ─┘
 - 横屏服务器选择器的显示状态由 `ContentView` 根组合持有，并在 Hero 上方以居中模态层复用 `DeviceServerPickerView`；这样实时仪表盘刷新不会清空显示状态。不得在 Dashboard 内复制服务器目录、收藏或切换状态，也不要把系统 `.sheet` 挂到非活动的底层 Tab。
 - 当前设备连接成功时，根层建立唯一 `/audio` 会话；首页与横屏声音按钮共享同一 `FmoAudioMonitorModel`。首次连接或切换设备默认关闭声音；进入/退出横屏及前后台切换不得重连、停止音频或改变按钮状态。会话内的 WebSocket 首次失败或瞬时断流必须自动重建，重连期间保留用户声音开关；声音开启时允许锁屏/切换 App 后继续可听播放，声音关闭后不得以静音样本保活。设备断线、切换设备或根页面销毁时才取消整个会话。横屏左侧波形在声音关闭时也持续更新。
 - Direct Voice 实验模式把设备选择提升为终端选择；“FMO 助手（App 直连）”与实体 FMO 使用互斥的能力投影，不能以假数据填充盒子专属字段。
+- Direct Voice 语音服务器选择器只消费 `FMOV4NetworkStore` 已验签 STATION，并用签名证书呼号与 TBS 指纹生成 Profile；ADR-0010 的实体设备目录只有 UID/名称，不得混入。没有 STATION 时显示空状态并保留高级手动回退。
 - `SidePTTControl` 由根组合层持有展开状态并绑定同一个 `DirectVoiceSessionModel`。首页与横屏只负责布局投影，不各自创建手势 token、麦克风或 MQTT 会话。
 - 收起手柄使用 `Button` 切换展开；展开按钮使用 `DragGesture(minimumDistance: 0)` 的按下/释放语义，`onEnded`、场景离开 active 和终端切换都必须调用幂等 `endTransmit()`。系统手势取消通过场景与会话生命周期兜底，不能依赖 `deinit`。
 - 横屏当前讲话者仍只由本地 `/events` 决定。位置关联顺序为：同基础呼号且通过内部准入的近期 FMO V4/APRS 候选 → 使用事件六位网格、当前服务器 UID 与观测时间缩小候选 → 唯一候选使用精细坐标并显示年龄 → 候选冲突或不存在则使用网格中心。讲话事件缺少 SSID 时不得任意选择同呼号台站；APRS-IS 呼号过滤是后续报文订阅，不是可靠的即时历史查询。
