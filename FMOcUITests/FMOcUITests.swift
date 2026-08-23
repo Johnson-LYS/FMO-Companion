@@ -59,12 +59,38 @@ final class FMOcUITests: XCTestCase {
 
         app.swipeDown()
         app.buttons["open-device-picker"].tap()
-        XCTAssertTrue(app.navigationBars["选择设备"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.navigationBars["选择终端"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.buttons["device-discovery-toggle"].exists)
-        app.buttons["manual-address-entry"].tap()
+        app.swipeUp()
+        let manualAddressEntry = app.buttons["manual-address-entry"]
+        XCTAssertTrue(manualAddressEntry.waitForExistence(timeout: 2))
+        manualAddressEntry.tap()
         XCTAssertTrue(app.navigationBars["手动连接"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.textFields["主机名或 IPv4"].exists)
         XCTAssertTrue(app.textFields["端口（可选）"].exists)
+    }
+
+    @MainActor
+    func testAppDirectTerminalShowsSharedSidePTTOnHomeAndFullscreen() throws {
+        XCUIDevice.shared.orientation = .portrait
+        let app = makeApplication()
+        app.launchEnvironment["FMO_UI_TEST_SCENARIO"] = "empty"
+        app.launch()
+
+        app.buttons["open-device-picker"].tap()
+        XCTAssertTrue(app.navigationBars["选择终端"].waitForExistence(timeout: 2))
+        app.buttons["direct-voice-terminal-row"].tap()
+
+        XCTAssertTrue(app.descendants(matching: .any)["direct-voice-home-card"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["连接诊断"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["home-side-ptt"].exists)
+        app.buttons["展开 PTT"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["direct-voice-ptt-panel"].waitForExistence(timeout: 2))
+        app.buttons["收起 PTT"].tap()
+
+        app.buttons["打开横屏仪表盘"].tap()
+        let fullscreenPTT = app.buttons["fullscreen-side-ptt"]
+        XCTAssertTrue(fullscreenPTT.waitForExistence(timeout: 5))
     }
 
     @MainActor
@@ -331,7 +357,6 @@ final class FMOcUITests: XCTestCase {
         XCTAssertFalse(app.buttons["dashboard-fullscreen-button"].exists)
         XCTAssertFalse(app.buttons["dashboard-device-selector"].exists)
         XCTAssertTrue(app.staticTexts["BG1ABC"].exists)
-        XCTAssertTrue(app.staticTexts["km"].exists)
         let waveform = app.descendants(matching: .any)["dashboard-audio-waveform"]
         XCTAssertTrue(waveform.exists)
         let audioToggle = app.buttons["dashboard-audio-toggle"]

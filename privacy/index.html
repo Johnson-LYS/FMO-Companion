@@ -129,14 +129,14 @@
   <header>
     <div class="mark" aria-hidden="true">FM</div>
     <h1>FMO 助手隐私政策</h1>
-    <p class="meta">版本 1.1 · 生效日期：2026 年 8 月 11 日</p>
+    <p class="meta">版本 1.2 · 生效日期：2026 年 8 月 23 日</p>
     <p class="summary">FMO 助手是一款连接用户自有 FMO 设备和 APRS 网络的 iOS 工具。本政策说明 App 处理哪些数据、为什么需要这些数据，以及数据保存在何处。</p>
   </header>
 
   <section>
     <h2>我们的原则</h2>
     <p>FMO 助手不提供广告，不使用行为分析或跨 App 跟踪，不出售个人数据，也没有开发者运营的用户账户或消息云存档。</p>
-    <p>App 不访问通讯录、照片或麦克风，不获取 FMO 私钥，不处理 MQTT 语音，也不模拟设备身份。</p>
+    <p>App 不访问通讯录或照片。只有你选择 App 直连终端并持续按住 PTT 时才访问麦克风；App 不获取或复用 FMO 盒子私钥，也不模拟已注册硬件身份。</p>
   </section>
 
   <section>
@@ -144,8 +144,8 @@
     <h3>本地网络与设备信息</h3>
     <p>App 使用本地网络权限发现并连接你选择的 FMO。设备地址、最后选择的设备及必要设置保存在本机，用于下次恢复连接。</p>
 
-    <h3>设备接收音频</h3>
-    <p>当横屏仪表盘位于前台时，App 会从你选择的 FMO 接收音频，在本机生成波形；声音默认关闭，只有你主动开启后才通过设备扬声器播放。离开仪表盘、App 转入后台或切换设备时连接会停止。音频不录制、不保存、不上传到开发者服务器，也不用于识别讲话者。</p>
+    <h3>语音与麦克风</h3>
+    <p>选择 FMO 盒子时，App 可从所选设备接收音频并在本机播放；只有你明确开启声音时才会在锁屏或切换其他 App 后继续可听播放。选择 App 直连终端时，App 在前台通过你配置的 MQTT 服务器接收语音，并且仅在你持续按住 PTT 时采集麦克风和发送 Opus 语音。松手、切换终端、连接中断或 App 进入后台会立即停止采集和发送。麦克风 PCM、接收音频、Opus 和 FMO/RAW 数据只在有界内存中实时处理，不录制、不保存、不上传到开发者服务器，也不用于识别讲话者。</p>
 
     <h3>位置</h3>
     <p>使用期间位置用于显示地图范围以及由你主动同步到所选 FMO。只有在你明确启用低功耗或车载模式后，App 才会申请后台位置权限，并按照系统交付的位置事件同步坐标。精确位置不会发送到开发者服务器。</p>
@@ -200,14 +200,14 @@
   <header>
     <div class="mark" aria-hidden="true">FM</div>
     <h1>FMO Companion Privacy Policy</h1>
-    <p class="meta">Version 1.1 · Effective August 11, 2026</p>
+    <p class="meta">Version 1.2 · Effective August 23, 2026</p>
     <p class="summary">FMO Companion is an iOS utility for connecting to your own FMO devices and the APRS network. This policy explains what data the app processes, why it is needed, and where it is stored.</p>
   </header>
 
   <section>
     <h2>Our principles</h2>
     <p>FMO Companion does not show ads, use behavioral analytics or cross-app tracking, sell personal data, or provide developer-operated user accounts or cloud message archives.</p>
-    <p>The app does not access contacts, photos, or the microphone. It does not obtain FMO private keys, process MQTT voice traffic, or impersonate an FMO device.</p>
+    <p>The app does not access contacts or photos. It accesses the microphone only while you select the App Direct terminal and keep holding PTT. It never obtains or reuses an FMO box private key and does not impersonate registered hardware.</p>
   </section>
 
   <section>
@@ -215,8 +215,8 @@
     <h3>Local network and device information</h3>
     <p>The app uses Local Network access to discover and connect to the FMO you select. Device addresses, the last selected device, and necessary settings are stored on your device so the connection can be restored later.</p>
 
-    <h3>Audio received from the device</h3>
-    <p>While the landscape dashboard is in the foreground, the app can receive audio from your selected FMO and generate a waveform on your device. Sound is off by default and plays through the device speaker only after you turn it on. The connection stops when you leave the dashboard, move the app to the background, or switch devices. Audio is not recorded, stored, uploaded to a developer server, or used to identify speakers.</p>
+    <h3>Voice and microphone</h3>
+    <p>When an FMO box is selected, the app can receive and play audio from that device. Audible playback continues on the Lock Screen or in another app only after you explicitly enable sound. When the App Direct terminal is selected, the app receives voice in the foreground through your configured MQTT server and captures and sends Opus voice only while you keep holding PTT. Releasing PTT, switching terminals, losing the connection, or moving the app to the background immediately stops capture and transmission. Microphone PCM, received audio, Opus, and FMO/RAW data are processed only in bounded memory and are not recorded, stored, uploaded to a developer server, or used to identify speakers.</p>
 
     <h3>Location</h3>
     <p>While using the app, location is used to set the map range and can be synced to your selected FMO when you choose to do so. The app requests background location only after you explicitly enable Low Power or Driving mode, and then syncs coordinates using location events delivered by iOS. Precise location is not sent to a developer server.</p>

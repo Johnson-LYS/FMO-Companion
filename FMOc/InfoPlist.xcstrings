@@ -102,6 +102,23 @@
           }
         }
       }
+    },
+    "NSMicrophoneUsageDescription" : {
+      "comment" : "Privacy - Microphone Usage Description",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capture your voice only while you hold PTT and send it live to the selected FMO network server."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在你持续按住 PTT 时采集语音，并实时发送到当前选择的 FMO 网络服务器。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

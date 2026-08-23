@@ -19,12 +19,13 @@ FMO Companion is a native iOS companion app for FMO (NFM Over Internet) hardware
 - The strictly allowlisted, user-authorized local read-only status API described by ADR-0005.
 - The isolated, strictly allowlisted local server catalog and UID switching contract described by ADR-0010.
 - The isolated, user-controlled local receive-audio contract described by ADR-0009, including audible background playback while the user leaves sound enabled.
+- The public FMO voice wire format and SAS authentication contract described by ADR-0011, using an App-owned certificate identity and software vendor ID.
 - Public FMO V4 APRS frames and standard APRS-IS behavior.
 - The documented APRS remote-control format.
 - The user-authorized, strictly read-only local QSO list/detail contract fixed by ADR-0007, plus user-exported QSO archives when explicitly chosen.
 - A separately authenticated HTTPS API for the user's own FMO server.
 
-The app must not perform runtime packet sniffing or rely on firmware reverse engineering, private-key extraction, audio formats beyond ADR-0009's fixed user-confirmed receive-only PCM contract, or impersonating an FMO device. The ADR-0005 status client and ADR-0007 QSO client are limited to sanitized, typed, read-only behavior observed in the official UI; they must never expose generic management commands, secrets, write operations, backup/restore triggers, or `/audio`. ADR-0010 server switching must remain a separate client limited to device server lists, current-server readback, and switching to a previously listed UID; it must never expose generic commands or other device writes. ADR-0009 audio must remain a separate receive-only client; background execution is allowed only for audible playback explicitly enabled by the user, never as silent keepalive, and PCM must never be recorded, persisted, uploaded, transmitted, or logged.
+The app must not perform runtime packet sniffing, rely on firmware reverse engineering, extract or reuse an FMO box private key, or impersonate a registered hardware vendor. ADR-0011 Direct Voice is the only MQTT voice exception: it must use an App-owned Ed25519 key, an independently issued User Certificate, the public FMO/RAW format, and a software-range vendor ID. The ADR-0005 status client and ADR-0007 QSO client are limited to sanitized, typed, read-only behavior observed in the official UI; they must never expose generic management commands, secrets, write operations, backup/restore triggers, or `/audio`. ADR-0010 server switching must remain a separate client limited to device server lists, current-server readback, and switching to a previously listed UID; it must never expose generic commands or other device writes. ADR-0009 local audio remains a separate receive-only client; background execution is allowed only for audible playback explicitly enabled by the user, never as silent keepalive, and PCM must never be recorded, persisted, uploaded, transmitted, or logged. Direct Voice microphone and decoded audio are likewise ephemeral and bounded.
 
 ## Documentation Map
 
@@ -67,7 +68,7 @@ At the beginning of a development session:
 - Treat all network and location operations as asynchronous and cancellation-aware.
 - Keep protocol parsing and cryptographic verification independent from UI code.
 - Use dependency injection through protocols for network, location, clock, storage, and APRS transports.
-- Never log APRS PASSCODEs, remote-control secrets, bearer tokens, precise location, or synchronized/exported QSO contents in production logs.
+- Never log APRS PASSCODEs, remote-control secrets, bearer tokens, FMO private keys/proofs, raw voice payloads, precise location, or synchronized/exported QSO contents in production logs.
 - Store secrets only in Keychain. Do not put secrets in source, UserDefaults, test fixtures, screenshots, or documentation.
 - Do not weaken certificate, signature, replay-window, or CRL validation to make tests pass.
 - Use localized user-facing strings; do not hard-code visible copy deep in service layers.
@@ -86,6 +87,7 @@ FMOc/
 │   ├── APRS/
 │   ├── RemoteControl/
 │   ├── QSO/
+│   ├── Voice/
 │   ├── Server/
 │   └── Settings/
 ├── Core/

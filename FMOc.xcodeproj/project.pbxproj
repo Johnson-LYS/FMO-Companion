@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A1D100000000000000000001 /* MQTTNIO in Frameworks */ = {isa = PBXBuildFile; productRef = A1D100000000000000000003 /* MQTTNIO */; };
+		A1D100000000000000000004 /* Opus.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D100000000000000000005 /* Opus.xcframework */; };
 		C0DA00100000000000000010 /* FMOc/Features/Dashboard/FmoDashboardActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DA000F000000000000000F /* FMOc/Features/Dashboard/FmoDashboardActivityAttributes.swift */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +30,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A1D100000000000000000005 /* Opus.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = FMOc/Vendor/Opus.xcframework; sourceTree = SOURCE_ROOT; };
 		B03AE18C302025C500F33912 /* FMOc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FMOc.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B03AE199302025C700F33912 /* FMOcTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FMOcTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B03AE1A3302025C700F33912 /* FMOcUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FMOcUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -86,6 +89,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1D100000000000000000001 /* MQTTNIO in Frameworks */,
+				A1D100000000000000000004 /* Opus.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -116,6 +121,7 @@
 		B03AE183302025C500F33912 = {
 			isa = PBXGroup;
 			children = (
+				A1D100000000000000000005 /* Opus.xcframework */,
 				B03AE18E302025C500F33912 /* FMOc */,
 				C0DA00030000000000000003 /* FMOcLiveActivity */,
 				C0DA00110000000000000011 /* Shared Activity */,
@@ -164,6 +170,7 @@
 			);
 			name = FMOc;
 			packageProductDependencies = (
+				A1D100000000000000000003 /* MQTTNIO */,
 			);
 			productName = FMOc;
 			productReference = B03AE18C302025C500F33912 /* FMOc.app */;
@@ -274,6 +281,9 @@
 			mainGroup = B03AE183302025C500F33912;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
+			packageReferences = (
+				A1D100000000000000000002 /* XCRemoteSwiftPackageReference "mqtt-nio" */,
+			);
 			productRefGroup = B03AE18D302025C500F33912 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -759,6 +769,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A1D100000000000000000002 /* XCRemoteSwiftPackageReference "mqtt-nio" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/swift-server-community/mqtt-nio.git";
+			requirement = {
+				kind = exactVersion;
+				version = 2.13.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1D100000000000000000003 /* MQTTNIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1D100000000000000000002 /* XCRemoteSwiftPackageReference "mqtt-nio" */;
+			productName = MQTTNIO;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B03AE184302025C500F33912 /* Project object */;
 }

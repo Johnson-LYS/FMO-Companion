@@ -1,23 +1,29 @@
 ---
-last-reviewed: 2026-08-20
+last-reviewed: 2026-08-23
 ---
 
 # 项目简报
 
 ## 概览
 
-FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它把 iPhone 作为 FMO 盒子的局域网伴侣、GPS 来源、APRS 信息终端、远程控制器、QSO 日志工具和自建服务器运维入口。
+FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它把 iPhone 作为 FMO 盒子的局域网伴侣、GPS 来源、APRS 信息终端、远程控制器、QSO 日志工具、自建服务器运维入口，并按 ADR-0011 逐步提供 App 独立身份的 FMO 语音终端。
 
-项目坚持公开与用户授权接口边界：使用官方 GEO WebSocket、FMO V4 APRS、官方 APRS 远控示例、ADR-0007 固定的本地只读 QSO 列表/详情、ADR-0009 固定的前台本地接收音频、ADR-0010 最小本地服务器切换及用户自建 HTTPS API，不逆向 MQTT 语音或设备私钥。
+项目坚持公开与用户授权接口边界：使用官方 GEO WebSocket、FMO V4 APRS、官方 APRS 远控示例、ADR-0007 固定的本地只读 QSO 列表/详情、ADR-0009 固定的本地接收音频、ADR-0010 最小本地服务器切换、用户自建 HTTPS API，以及 ADR-0011 批准的公开 FMO/RAW + SAS 语音协议。Direct Voice 只使用 App 自有密钥和证书，仍不逆向固件、不接触盒子私钥。
 
 ## 当前状态
 
-- **阶段：** 0.1–0.6 已完成；0.8 自动同步 QSO 已进入原生实现与验收阶段
+- **阶段：** 0.1–0.6 已完成；0.8 自动同步 QSO 验收中；Direct Voice 实验分支已交付可编译、可离线测试的原生首版，等待真实 iPhone + 自建 SAS/EMQX 受控验收
 - **已完成：** 0.1 局域网真机闭环；0.2 可靠定位真机闭环；0.3 设备仪表盘；0.4 只读 APRS-IS 与可信 FMO 网络；0.6 前台 APRS 消息、ACK 与 FMO 公网远控
 - **发布前跟踪：** 官方信任锚独立许可证、完整官方 APRS CERT/SIG 字节向量与 Intermediate CRL 轮换；这些事项不回退已完成的 0.4 里程碑，但正式发布前必须关闭或明确处理
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
 
 ## 最近变更
+
+| 2026-08-23 | Direct Voice 原生首版：统一终端选择、首页/横屏共享侧边 PTT、App Keychain 身份、SAS proof、mqtt-nio、FMO/RAW、libopus、AVFoundation 收发链路、双语隐私与自动化测试 | `FMOc/Features/Voice/`、`docs/architecture/modules/direct-voice.md` |
+
+| 2026-08-23 | 接受 App 独立身份的 FMO MQTT 语音客户端边界，记录自建服务器双向脚本实测、SAS proof、FMO/RAW、Opus、PTT 仲裁、iOS 音频与未来官方签发兼容实施计划 | `docs/adr/0011-direct-fmo-mqtt-voice-client.md`、`docs/plans/0010-direct-fmo-voice-client.md` |
+
+| 2026-08-20 | 新增独立的 FMO V4 `VOCAL` 全网活跃排行榜说明，固定 APRS-IS 只读订阅、身份验签、统计口径、短窗口去重及隐私边界 | `docs/references/fmo-vocal-global-activity-ranking.md` |
 
 | 2026-08-20 | 横屏全屏仪表盘主视觉默认改为地图，自身地图标注收敛为“我 / Me”，保留方位盘图标切换 | `FMOc/Features/Dashboard/DashboardFullscreenView.swift`、`prototype/dashboard-fullscreen.html`、`docs/design/ui-design-system.md` |
 

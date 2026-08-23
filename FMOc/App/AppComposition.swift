@@ -11,6 +11,7 @@ enum AppComposition {
         let remoteControl: FmoRemoteControlModel
         let qso: QSOModel
         let audioClient: any FmoLocalAudioStreaming
+        let directVoice: DirectVoiceSessionModel
         let fmoNetworkLocationProvider: any PhoneLocationProviding
         let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
         let dashboardAreaResolver: any DashboardAreaResolving
@@ -211,6 +212,42 @@ enum AppComposition {
         let aprsMessages = APRSMessageModel(client: messagingClient)
         let remoteControl = FmoRemoteControlModel(client: messagingClient)
         let qso = QSOModel(reader: qsoReader)
+        let directDefaults: UserDefaults
+#if DEBUG
+        if processInfo.environment["FMO_UI_TEST_SCENARIO"] != nil,
+           let isolatedDefaults = UserDefaults(suiteName: "FMOc.UITests.DirectVoice") {
+            isolatedDefaults.removePersistentDomain(forName: "FMOc.UITests.DirectVoice")
+            directDefaults = isolatedDefaults
+        } else {
+            directDefaults = .standard
+        }
+#else
+        directDefaults = .standard
+#endif
+        let directIdentityProvider = KeychainDirectVoiceIdentityProvider(defaults: directDefaults)
+        let directProfileStore = UserDefaultsFMOServerProfileStore(defaults: directDefaults)
+        let directCodec: any FMOAudioCodec
+        do {
+            directCodec = try LibOpusCodec()
+        } catch {
+            preconditionFailure("Unable to initialize bundled libopus: \(error)")
+        }
+        let directTransport: any FMOMQTTTransport =
+            processInfo.environment["FMO_UI_TEST_SCENARIO"] == nil
+            ? MQTTNIOFMOMQTTTransport()
+            : DisabledFMOMQTTTransport()
+        let directSession = DirectVoiceSession(
+            identityProvider: directIdentityProvider,
+            profileStore: directProfileStore,
+            transport: directTransport,
+            codec: directCodec
+        )
+        let directVoice = DirectVoiceSessionModel(
+            session: directSession,
+            identityProvider: directIdentityProvider,
+            profileStore: directProfileStore,
+            defaults: directDefaults
+        )
         aprsMessages.controlMessageHandler = { [weak remoteControl] envelope in
             remoteControl?.handleControlMessage(envelope) ?? false
         }
@@ -224,6 +261,7 @@ enum AppComposition {
             remoteControl: remoteControl,
             qso: qso,
             audioClient: audioClient,
+            directVoice: directVoice,
             fmoNetworkLocationProvider: fmoNetworkLocationProvider,
             dashboardSpeakerLocationStore: dashboardSpeakerLocationStore,
             dashboardAreaResolver: dashboardAreaResolver,

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-17
+last-reviewed: 2026-08-23
 ---
 
 # 技术规格
@@ -20,6 +20,7 @@ last-reviewed: 2026-08-17
 - `Device`：发现、保存设备、连接诊断。
 - `Dashboard`：设备状态聚合、字段可信度与设备页投影；ActivityKit 内容状态仅保留在后续 checkpoint 源码中。
 - `Audio`：ADR-0009 固定的本地接收音频连接、PCM 解码、波形投影与用户触发播放。
+- `Voice`：ADR-0011 App 独立身份、SAS proof、MQTT、FMO/RAW、Opus、半双工仲裁、前台收听与按住 PTT。
 - `Location`：Core Location、节流策略、坐标同步。
 - `APRS`：传输、解析、证书与签名验证、地图模型。
 - `RemoteControl`：命令计数器、签名、发送与 ACK。
@@ -80,6 +81,19 @@ UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 
 - 工程启用 `audio` 后台模式。声音开启时立即准备 AVAudioEngine 连续接收播放链，不等待第一帧；无人讲话的自然空闲期保留播放会话，声音关闭后立即停用引擎与音频会话，且不创建独立静音媒体保活。设备 GEO、状态和事件 WebSocket 不因进入后台主动关闭，但静音时不承诺系统继续调度、收包或固定刷新。
 - 不请求麦克风权限，不录制、不持久化、不上传、不转发 PCM，不记录原始帧、精确波形或音频派生内容，也不从音频推断讲话者。
 
+### App 直连 FMO 语音
+
+- ADR-0011 的 Direct Voice 与 ADR-0009 盒子本地 `/audio` 是独立模块。前者使用 App 自有 Ed25519 身份直连 MQTT，后者仍是盒子局域网只接收 PCM；两者不得共享网络会话、私钥、parser 或后台承诺。
+- 身份统一通过 `ClientIdentityProvider` 提供证书与 `sign(data)`；自建 Provider 和未来官方 Provider 必须可替换。私钥只存 Keychain，MQTT/语音层不得取得裸 seed，也不得使用盒子身份。
+- 每次 MQTT 3.1.1 CONNECT 重新生成 SAS password：完整证书包、目标服务器字段、Unix 秒 timestamp 与 12 元确定性 CBOR 的 Ed25519 proof；SAS ±120 秒时间窗、证书链、CRL、角色和 ACL 不得放宽。
+- MQTT 只使用 `FMO/RAW`、QoS 0、非 retained；消息 payload 上限 1400 字节。断线、后台或抢断时清空实时发送队列，恢复后不补发旧语音。
+- FMO/RAW 的所有多字节字段按小端序严格解析；验证 64 字节头、逐层长度、连续 frame index、仅覆盖帧区的 CRC32 与无尾随字节后才能交给 codec。
+- 首版编码 Opus：8 kHz、单声道、40 ms/320 样本、VOIP、自动码率、complexity 4、VOICE、VBR + constrained VBR。聚合同时受 1400 字节与 250 ms 上限约束。
+- 接收只播放官方路由仲裁接受的单一流；发射只在 App active、用户持续按住 PTT、身份/连接/麦克风均有效时进行。1500 ms 占用窗口、2 秒早流抢占、相同起点小 UID 和默认 60 秒上行上限必须实现。
+- iPhone 硬件音频通过 `AVAudioConverter` 在设备格式与 8 kHz Int16 间转换；实时 PCM/Opus/RAW 只在有界内存中存在，不录音、不持久化、不进入日志、分析或崩溃附件。
+- 首版只承诺前台收听/PTT；进入 inactive/background、音频中断、MQTT 断线或路由被抢时立即停止发送。后台系统 PTT 需要 PushToTalk framework + APNs 的独立设计，不能靠静音音频保活。
+- 完整字段、数据模型、文件布局、状态机、依赖、测试与完成定义见 `docs/plans/0010-direct-fmo-voice-client.md`。
+
 ## 收藏偏好
 
 - App 只用 SwiftData 持久化收藏呼号；公共 APRS 服务器不再维护 App 收藏。设备收藏服务器由 ADR-0010 从当前 FMO 读取，不改变证书信任、签名验证、服务器认证或事件可信度。
@@ -100,6 +114,7 @@ UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 
 - WebSocket 应支持取消、重连退避与 App 生命周期变化。
 - HTTP 明文仅允许局域网官方后台/GEO 的必要范围，不设置全局任意网络放行。
 - 自建服务器 API 必须使用 HTTPS 443 和短时认证令牌。
+- Direct Voice MQTT transport 支持服务器配置的 TCP/TLS 端口；生产优先 TLS。明文公网 1883 必须提示元数据与语音可被链路观察，且不能关闭 TLS 主机名或信任验证来规避配置错误。
 
 ### APRS-IS 只读接入
 
@@ -161,10 +176,10 @@ UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 
 
 ## 安全与隐私
 
-- 按目标设备隔离的远控 SECRET 与服务器令牌进入不同 Keychain 命名空间并可分别清除。APRS-IS PASSCODE 由基础呼号按需计算，不持久化。
+- 按目标设备隔离的远控 SECRET、服务器令牌与 Direct Voice Ed25519 私钥进入不同 Keychain 命名空间并可分别清除。APRS-IS PASSCODE 由基础呼号按需计算，不持久化。
 - P-256 和 SHA-256 优先使用 CryptoKit。
 - Ed25519、CBOR 仅在 Apple API 不满足确定性编码要求时引入审计过的最小依赖。
-- 根证书和中间证书是公开信任材料；当前实现保留可替换的内置信任锚，但正式分发前必须确认其独立许可证授权。私钥不得进入仓库或 App。
+- 根证书和中间证书是公开信任材料；当前实现保留可替换的内置信任锚，但正式分发前必须确认其独立许可证授权。Direct Voice App 私钥可以存在于本机 Keychain，但任何私钥都不得进入仓库、日志、fixture、分析或普通 App 存储；盒子私钥永远不得进入 App。
 - 验证顺序：解析 → 呼号绑定 → 证书链 → 有效期 → CRL → 消息签名 → 重放窗口 → 业务处理。
 - QSO 缓存不得进入诊断、分析或云同步；用户主动生成的 ADIF 仅写入临时导出位置并交给系统分享。
 - 诊断日志默认脱敏，用户主动导出前再次预览。
@@ -194,6 +209,7 @@ UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 
 - 固定官方报文向量：APRS CBOR/签名，以及脱敏 QSO 分页、详情、畸形字段、取消、跨设备迟到响应与删除对账；测试数据不得包含真实秘密或真实 QSO。
 - APRS 消息：固定合法/畸形消息、ACK 精确匹配、重复消息、有限重试、前后台取消、重启恢复与会话删除向量。
 - 远控：固定官方 Time Slot/Counter/HMAC/命令/ACK 正反向量、Counter 崩溃恢复、认证取消、ACK 超时和禁止自动重试测试；真机按 `NORMAL → STANDBY → REBOOT` 分级验收。
+- Direct Voice：脱敏 User Certificate/SAS proof/FMO RAW/Opus 跨实现 golden vectors、畸形长度/CRC/回绕/仲裁、重连新 proof、发送队列清理与音频转换；真机按“只接收 → Broker 回环短发射 → 受控盒子接收”分级验收。
 
 ## 依赖策略
 
@@ -201,3 +217,4 @@ UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 
 2. 新依赖必须说明用途、许可证、维护状态、可替代方案和移除成本。
 3. 添加或升级依赖属于架构影响，必须更新本文件和必要 ADR。
 4. 不引入仅为简化少量代码的大型框架。
+5. Direct Voice 的 MQTT 实现优先评审 mqtt-nio 稳定 2.x；Opus 只从官方 xiph/opus 固定源码构建 XCFramework。版本、校验和、许可证、构建脚本和移除成本必须随实现落库。

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-14
+last-reviewed: 2026-08-23
 ---
 
 # FMO 已公开能力与来源
@@ -20,9 +20,9 @@ last-reviewed: 2026-08-14
 | QSO 数据 | 官方 Web UI 以 `/ws` `qso/getList` 分页读取摘要、`qso/getDetail` 读取完整详情；另有 SQLite 备份与官方 ADIF 脚本 | ADR-0007 用户授权只读自动同步；SQLite 归档不再是日常主流程 |
 | QSO 验签 | 官方工具公开完整 SQLite 快照的 SHA-256 + ECDSA P-256 验证 | 只适用于配对数据库归档；不得把逐条 WebSocket 同步记录显示为“已验证” |
 | 自建服务器状态 | 用户控制 EMQX/SAS/主机 | 通过自建 HTTPS API 实现 |
-| MQTT 语音客户端 | 完整语音帧、编码器和设备客户端 SDK 未公开 | 不实现 |
+| MQTT 语音客户端 | 官方已公开 FMO/RAW 64B 消息头、传输/编码帧、Opus/RADPCM、PTT 仲裁与软件 vendor 区；SAS 已公开完整证书 proof 和 `FMO/RAW` ACL | ADR-0011 批准 App 独立身份的收听/PTT；自建服务器双向脚本闭环已通过，原生实现见计划 0010 |
 | 本地接收音频 | 2026-08-11 用户授权其本人设备抓包并确认 `/audio` 为 8 kHz、16-bit little-endian、单声道 PCM；二进制帧固定 4480 字节，文本 `p` 为保活 | `User-authorized receive-only — ADR-0009`；只限前台全屏波形与默认关闭的本地播放 |
-| 设备私钥 | 身份安全依赖设备持有私钥 | 不提取、不复制、不模拟 |
+| App/设备私钥 | 官方证书工具明确 User 私钥默认由终端持有，CA 只接收公钥 | App 本机生成独立密钥；盒子私钥仍不提取、不复制、不复用 |
 
 ## 本地管理 WebSocket 观察记录
 

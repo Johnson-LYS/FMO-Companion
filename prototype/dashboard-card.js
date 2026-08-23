@@ -7,6 +7,32 @@ const offlineState = document.querySelector("#offline-state");
 const eventCopy = document.querySelector("#event-copy");
 const voiceMeter = document.querySelector("#voice-meter");
 const buttons = [...document.querySelectorAll("button[data-state]")];
+const sidePtt = document.querySelector("#sidePtt");
+const pttHandle = sidePtt?.querySelector("[data-action='toggle-ptt']");
+const pttButton = sidePtt?.querySelector("[data-action='hold-ptt']");
+
+pttHandle?.addEventListener("click", () => {
+  const expanded = sidePtt.dataset.expanded !== "true";
+  sidePtt.dataset.expanded = String(expanded);
+  pttHandle.setAttribute("aria-expanded", String(expanded));
+  pttHandle.setAttribute("aria-label", expanded ? "收起 PTT" : "展开 PTT");
+});
+
+function setTransmitting(active) {
+  pttButton?.classList.toggle("is-transmitting", active);
+  if (!pttButton) return;
+  pttButton.querySelector("strong").textContent = active ? "正在发射" : "按住发射";
+  pttButton.setAttribute("aria-label", active ? "正在发射，松手停止" : "按住发射");
+}
+
+pttButton?.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
+  pttButton.setPointerCapture(event.pointerId);
+  setTransmitting(true);
+});
+["pointerup", "pointercancel", "lostpointercapture"].forEach((name) => {
+  pttButton?.addEventListener(name, () => setTransmitting(false));
+});
 
 const eventSamples = [
   { title: "BH4XYZ-7", occurredAt: Date.now() - 12_000, icon: "#icon-clock", label: "最近讲话活动：BH4XYZ-7，位置 OM92xx" },

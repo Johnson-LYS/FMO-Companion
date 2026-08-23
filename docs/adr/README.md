@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-14
+last-reviewed: 2026-08-23
 ---
 
 # 架构决策记录
@@ -16,6 +16,7 @@ last-reviewed: 2026-08-14
 | 0008 | [采用 Beta 集成与标签发布分支模型](0008-beta-integration-release-flow.md) | Accepted | 2026-08-11 |
 | 0009 | [采用用户授权的本地只接收 PCM 音频](0009-user-authorized-local-receive-audio.md) | Accepted | 2026-08-11 |
 | 0010 | [采用用户授权的本地服务器切换](0010-user-authorized-local-server-switching.md) | Accepted | 2026-08-14 |
+| 0011 | [采用 App 独立身份的 FMO MQTT 语音客户端](0011-direct-fmo-mqtt-voice-client.md) | Accepted | 2026-08-23 |
 
 ## 规则
 

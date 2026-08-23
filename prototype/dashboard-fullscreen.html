@@ -106,6 +106,14 @@
     </section>
   </main>
 
+  <div class="side-ptt" id="sidePtt" data-expanded="false">
+    <button class="ptt-handle" type="button" data-action="toggle-ptt" aria-expanded="false" aria-controls="ptt-panel" aria-label="展开 PTT"><span>●</span><strong>PTT</strong></button>
+    <section class="ptt-panel" id="ptt-panel" aria-label="App 直连发射">
+      <small>此 iPhone · BI8SYN</small>
+      <button class="ptt-button" type="button" data-action="hold-ptt" aria-label="按住发射"><span>●</span><strong>按住发射</strong><em>松手立即停止</em></button>
+    </section>
+  </div>
+
   <div class="server-picker-backdrop" id="fullscreenServerPicker" hidden>
     <section class="server-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="fullscreenServerPickerTitle">
       <header><h2 id="fullscreenServerPickerTitle">切换服务器</h2><button type="button" data-action="close-server-picker">完成</button></header>

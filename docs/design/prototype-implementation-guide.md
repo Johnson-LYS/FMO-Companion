@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-15
+last-reviewed: 2026-08-23
 status: approved
 ---
 
@@ -100,6 +100,9 @@ trusted future sources ─┘
 - `prototype/dashboard-fullscreen.html` 是横屏仪表盘内容评审入口。正式实现不再使用独立 `fullScreenCover`：由 App 根层保存一次入口快照和同一 `Namespace`，在同一个点击动作中同时把首页卡片背景、呼号、网格、过滤距离、服务器与讲话者匹配扩展到全屏，通过 `UIWindowScene.requestGeometryUpdate` 请求横屏，并让左右面板从旋转第一帧开始自底部滑入、在旋转结束时完成；设备 Tab 已连接时，根层 Viewport 由竖变横也触发同一进入流程，全屏稳定后由横变竖触发退出。不要读取设备姿态来绕过系统旋转锁，也不要在其他 Tab 或首次横屏布局时自动打开。方位/地图解析仍在视觉转场稳定后启动；音频模型由根层按当前设备持有并在首页/横屏间连续复用。退出时左右面板滑出、共享元素缩回、首页/导航恢复与竖屏方向更新并行，全屏层和深色底层必须保留到旋转最后一帧再移除。方向更新被拒绝时停留在可操作的竖屏自适应布局。进入阶段首页源元素必须从匹配树中移除，只保留不参与 Hero 的隐藏布局占位，同时隐藏导航栏与 Tab Bar，避免重复源和穿透；只允许全屏背景越过安全区。横屏顶部呼号使用主题色；服务器去掉可见标签，以主题色实底、深色文字、更大字号和右侧上下切换符号直接呈现为按钮，由根层复用 `DeviceServerPickerView`，不得在 Dashboard 内复制目录状态或切换逻辑。
 - 横屏服务器选择器的显示状态由 `ContentView` 根组合持有，并在 Hero 上方以居中模态层复用 `DeviceServerPickerView`；这样实时仪表盘刷新不会清空显示状态。不得在 Dashboard 内复制服务器目录、收藏或切换状态，也不要把系统 `.sheet` 挂到非活动的底层 Tab。
 - 当前设备连接成功时，根层建立唯一 `/audio` 会话；首页与横屏声音按钮共享同一 `FmoAudioMonitorModel`。首次连接或切换设备默认关闭声音；进入/退出横屏及前后台切换不得重连、停止音频或改变按钮状态。会话内的 WebSocket 首次失败或瞬时断流必须自动重建，重连期间保留用户声音开关；声音开启时允许锁屏/切换 App 后继续可听播放，声音关闭后不得以静音样本保活。设备断线、切换设备或根页面销毁时才取消整个会话。横屏左侧波形在声音关闭时也持续更新。
+- Direct Voice 实验模式把设备选择提升为终端选择；“此 iPhone（App 直连）”与实体 FMO 使用互斥的能力投影，不能以假数据填充盒子专属字段。
+- `SidePTTControl` 由根组合层持有展开状态并绑定同一个 `DirectVoiceSessionModel`。首页与横屏只负责布局投影，不各自创建手势 token、麦克风或 MQTT 会话。
+- 收起手柄使用 `Button` 切换展开；展开按钮使用 `DragGesture(minimumDistance: 0)` 的按下/释放语义，`onEnded`、场景离开 active 和终端切换都必须调用幂等 `endTransmit()`。系统手势取消通过场景与会话生命周期兜底，不能依赖 `deinit`。
 - 横屏当前讲话者仍只由本地 `/events` 决定。位置关联顺序为：同基础呼号且通过内部准入的近期 FMO V4/APRS 候选 → 使用事件六位网格、当前服务器 UID 与观测时间缩小候选 → 唯一候选使用精细坐标并显示年龄 → 候选冲突或不存在则使用网格中心。讲话事件缺少 SSID 时不得任意选择同呼号台站；APRS-IS 呼号过滤是后续报文订阅，不是可靠的即时历史查询。
 - 六位网格中心只驱动“大致区域、约距离与绝对方位”，地图以区域框或半透明范围表达；不驱动精确定位点或手机朝向相对箭头。精细坐标可驱动两点连线和距离，但仍需按观测时间降级移动台的陈旧位置。
 - 方位和地图共享同一个目标状态，只渲染一个主视觉。地图默认框选双方位置；用户手势使相机进入 `positionedByUser` 后暂停追踪，恢复按钮重新框选。无地图瓦片或无航向时仍保留距离和绝对方位；不实现后台追踪、路线规划或自动写入 GEO。
@@ -202,6 +205,7 @@ trusted future sources ─┘
 | `.header-device-selector` | 设备页导航栏当前设备按钮，打开设备选择 `.sheet` |
 | `.dashboard-fullscreen-button` | 连接态卡片全屏入口，启动根层共享元素 Hero 转场并分阶段请求横屏 |
 | `dashboard-fullscreen.html` | 横屏仪表盘；SwiftUI 组合本地讲话事件、APRS 位置关联、MapKit 与 Core Location |
+| `.side-ptt` | 根层共享的 `SidePTTControl`；收起手柄点按展开，展开按钮持续按住发射，切换实体 FMO 后隐藏 |
 | `.dashboard-event-kind.is-voice` | SwiftUI 使用 `speaker.wave.2.fill` / `radio.fill`；图标附辅助功能标签，不复制 CSS 造型 |
 | `.bottom-sheet` | 按语义选择 `.sheet`、系统 `Alert` 或系统权限弹窗；模式切换固定使用居中 `Alert` |
 | `.feature-row` | `NavigationLink` 或明确按钮 |
@@ -225,7 +229,7 @@ trusted future sources ─┘
 
 ## 安全与隐私不可变约束
 
-- 不实现 MQTT 语音、录音、转发、后台播放、抓包、设备模拟、私钥提取或未公开设置映射；本地固定 PCM 例外严格受 ADR-0009 限制。
+- 当前 HTML 原型不模拟 MQTT 语音；本地固定 PCM 仍严格受 ADR-0009 限制。后续 Direct Voice 原生流程必须遵循 ADR-0011 与计划 0010，使用 App 独立身份且不录音、不抓包、不提取盒子私钥、不映射未公开设置。
 - 不在持久化、日志、测试夹具、文档、截图或源码中保存计算出的 PASSCODE、真实 SECRET、令牌或精确位置。
 - 不削弱证书链、签名、CRL、重放窗口或 ADR-0007 QSO 只读边界以通过测试。
 - 诊断默认脱敏，导出前再次预览。

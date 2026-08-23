@@ -7,38 +7,45 @@ struct DeviceHomeView: View {
     @Bindable var officialWebModel: OfficialWebModel
     @Bindable var remoteControlModel: FmoRemoteControlModel
     @Bindable var audioMonitor: FmoAudioMonitorModel
+    @Bindable var directVoiceModel: DirectVoiceSessionModel
     let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
     let dashboardAreaResolver: any DashboardAreaResolving
     let dashboardHeroNamespace: Namespace.ID
     let isDashboardHeroActive: Bool
     let hidesDashboardChrome: Bool
     let openDashboardFullscreen: () -> Void
+    let openDirectVoiceFullscreen: () -> Void
     @State private var actionTask: Task<Void, Never>?
     @State private var showsDevicePicker = false
     @State private var showsServerPicker = false
     @State private var showsDiagnostics = false
+    @State private var showsDirectIdentity = false
+    @State private var showsDirectServer = false
     @Environment(\.openURL) private var openURL
 
     var body: some View {
         List {
-            statusCard
+            terminalStatusCard
                 .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
 
-            if model.isConnected {
+            if model.isConnected && !directVoiceModel.isDirectTerminalSelected {
                 coordinateSection
                     .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
             }
 
-            diagnosticsButton
-                .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-
-            deviceFeaturesSection
+            if !directVoiceModel.isDirectTerminalSelected {
+                diagnosticsButton
+                    .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                deviceFeaturesSection
+            } else {
+                directVoiceFeaturesSection
+            }
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
@@ -49,26 +56,24 @@ struct DeviceHomeView: View {
             for: .navigationBar
         )
         .toolbar {
-            if model.isConnected {
+            if model.isConnected || directVoiceModel.isDirectTerminalSelected {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showsDevicePicker = true
                     } label: {
                         HStack(spacing: 6) {
                             Circle()
-                                .fill(.green)
+                                .fill(terminalIsReady ? .green : .orange)
                                 .frame(width: 7, height: 7)
-                            Text(model.selectedEndpoint?.displayName ?? "FMO")
+                            Text(currentTerminalName)
                                 .font(.caption.weight(.semibold))
                                 .lineLimit(1)
                             Image(systemName: "chevron.down")
                                 .font(.caption2.bold())
                         }
                     }
-                    .accessibilityLabel("选择 FMO 设备")
-                    .accessibilityValue(
-                        "当前设备 \(model.selectedEndpoint?.displayName ?? "FMO")，已连接"
-                    )
+                    .accessibilityLabel("选择终端")
+                    .accessibilityValue(currentTerminalAccessibilityValue)
                     .accessibilityIdentifier("dashboard-device-selector")
                 }
             }
@@ -94,12 +99,65 @@ struct DeviceHomeView: View {
             )
                 .presentationDetents([.medium, .large])
         }
+        .sheet(isPresented: $showsDirectIdentity) {
+            DirectVoiceIdentityView(model: directVoiceModel)
+                .presentationDetents([.large])
+        }
+        .sheet(isPresented: $showsDirectServer) {
+            DirectVoiceServerView(model: directVoiceModel)
+                .presentationDetents([.large])
+        }
         .sheet(item: $officialWebModel.destination) { destination in
             SafariView(url: destination.url)
                 .ignoresSafeArea()
         }
         .alert(item: $model.issue, content: issueAlert)
         .sensoryFeedback(.success, trigger: model.phase == .success)
+        .overlay(alignment: .trailing) {
+            if directVoiceModel.isDirectTerminalSelected, !hidesDashboardChrome {
+                SidePTTControl(model: directVoiceModel)
+                    .padding(.top, 92)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var terminalStatusCard: some View {
+        if directVoiceModel.isDirectTerminalSelected {
+            DirectVoiceHomeCard(
+                model: directVoiceModel,
+                openIdentity: { showsDirectIdentity = true },
+                openServer: { showsDirectServer = true },
+                openFullscreen: openDirectVoiceFullscreen
+            )
+        } else {
+            statusCard
+        }
+    }
+
+    private var directVoiceFeaturesSection: some View {
+        Section("App 直连") {
+            Button { showsDirectIdentity = true } label: {
+                featureRowDynamic(
+                    title: "身份信息",
+                    subtitle: directVoiceModel.identity?.callsign ?? String(localized: "生成申请并导入证书"),
+                    symbol: "person.text.rectangle"
+                )
+            }
+            .buttonStyle(.plain)
+            Button { showsDirectServer = true } label: {
+                featureRowDynamic(
+                    title: "语音服务器",
+                    subtitle: directVoiceModel.serverProfile?.displayName ?? String(localized: "尚未配置"),
+                    symbol: "server.rack"
+                )
+            }
+            .buttonStyle(.plain)
+            Button { Task { await directVoiceModel.reconnect() } } label: {
+                featureRow(title: "重新连接", subtitle: "重新生成 SAS proof 并连接", symbol: "arrow.clockwise")
+            }
+            .buttonStyle(.plain)
+        }
     }
 
     private var deviceFeaturesSection: some View {
@@ -188,6 +246,31 @@ struct DeviceHomeView: View {
         }
         .foregroundStyle(.primary)
         .fullWidthRowHitArea()
+    }
+
+    private func featureRowDynamic(
+        title: LocalizedStringResource,
+        subtitle: String,
+        symbol: String
+    ) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: symbol)
+                .font(.title3)
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 38, height: 38)
+                .background(Color.accentColor.opacity(0.12), in: .rect(cornerRadius: 11))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.headline)
+                Text(verbatim: subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.caption.bold())
+                .foregroundStyle(.tertiary)
+        }
+        .contentShape(.rect)
     }
 
     private var locationAutomationSubtitle: LocalizedStringResource {
@@ -294,7 +377,33 @@ struct DeviceHomeView: View {
     private var devicePickerSheet: some View {
         NavigationStack {
             List {
-                Section {
+                Section("App 终端") {
+                    Button {
+                        showsDevicePicker = false
+                        run { await directVoiceModel.selectDirectTerminal() }
+                    } label: {
+                        HStack(spacing: 14) {
+                            Image(systemName: "iphone.gen3.radiowaves.left.and.right")
+                                .font(.title3)
+                                .foregroundStyle(Color.accentColor)
+                                .frame(width: 42, height: 42)
+                                .background(Color.accentColor.opacity(0.12), in: .rect(cornerRadius: 12))
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("此 iPhone（App 直连）").font(.headline)
+                                Text(directVoiceModel.identity?.callsign ?? String(localized: "需要配置 App 身份")).font(.subheadline).foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            if directVoiceModel.isDirectTerminalSelected {
+                                Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                            }
+                        }
+                        .fullWidthRowHitArea()
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("direct-voice-terminal-row")
+                }
+
+                Section("FMO 设备") {
                     if model.endpoints.isEmpty {
                         ContentUnavailableView(
                             "尚未发现设备",
@@ -335,7 +444,7 @@ struct DeviceHomeView: View {
                     .accessibilityIdentifier("manual-address-entry")
                 }
             }
-            .navigationTitle("选择设备")
+            .navigationTitle("选择终端")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -359,7 +468,10 @@ struct DeviceHomeView: View {
     private func deviceRow(_ endpoint: FmoDeviceEndpoint) -> some View {
         Button {
             showsDevicePicker = false
-            run { await model.connect(to: endpoint) }
+            run {
+                await directVoiceModel.selectPhysicalTerminal()
+                await model.connect(to: endpoint)
+            }
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: endpoint.source == .bonjour ? "dot.radiowaves.left.and.right" : "keyboard")
@@ -396,6 +508,34 @@ struct DeviceHomeView: View {
                 : "可用"
         )
         .accessibilityIdentifier("device-row-\(endpoint.id)")
+    }
+
+    private var currentTerminalName: String {
+        directVoiceModel.isDirectTerminalSelected
+            ? String(localized: "此 iPhone")
+            : (model.selectedEndpoint?.displayName ?? "FMO")
+    }
+
+    private var currentTerminalAccessibilityValue: String {
+        if directVoiceModel.isDirectTerminalSelected {
+            return terminalIsReady
+                ? String(localized: "当前终端 \(currentTerminalName)，已连接")
+                : String(localized: "当前终端 \(currentTerminalName)，未连接")
+        }
+        return model.isConnected
+            ? String(localized: "当前设备 \(currentTerminalName)，已连接")
+            : String(localized: "当前设备 \(currentTerminalName)，未连接")
+    }
+
+    private var terminalIsReady: Bool {
+        if directVoiceModel.isDirectTerminalSelected {
+            switch directVoiceModel.snapshot.phase {
+            case .listening, .receiving, .transmitting: true
+            default: false
+            }
+        } else {
+            model.isConnected
+        }
     }
 
     private var isDeviceSelectionDisabled: Bool {

@@ -13,10 +13,12 @@ struct ContentView: View {
     @State private var remoteControlModel: FmoRemoteControlModel
     @State private var qsoModel: QSOModel
     @State private var audioMonitor: FmoAudioMonitorModel
+    @State private var directVoiceModel: DirectVoiceSessionModel
     @State private var dashboardHeroContext: DashboardHeroContext?
     @State private var dashboardHeroStage = DashboardHeroStage.presenting
     @State private var dashboardHeroTask: Task<Void, Never>?
     @State private var showsFullscreenServerPicker = false
+    @State private var showsDirectVoiceFullscreen = false
     @State private var selectedTab = AppTab.device
     @State private var dashboardViewportOrientation: DashboardViewportOrientation?
     @Namespace private var dashboardHeroNamespace
@@ -38,6 +40,7 @@ struct ContentView: View {
         _remoteControlModel = State(initialValue: models.remoteControl)
         _qsoModel = State(initialValue: models.qso)
         _audioMonitor = State(initialValue: FmoAudioMonitorModel(client: models.audioClient))
+        _directVoiceModel = State(initialValue: models.directVoice)
         fmoNetworkLocationProvider = models.fmoNetworkLocationProvider
         dashboardSpeakerLocationStore = models.dashboardSpeakerLocationStore
         dashboardAreaResolver = models.dashboardAreaResolver
@@ -51,8 +54,14 @@ struct ContentView: View {
                     hidesDashboardChrome ? .hidden : .automatic,
                     for: .tabBar
                 )
-                .allowsHitTesting(dashboardHeroContext == nil)
-                .accessibilityHidden(dashboardHeroContext != nil)
+                .allowsHitTesting(dashboardHeroContext == nil && !showsDirectVoiceFullscreen)
+                .accessibilityHidden(dashboardHeroContext != nil || showsDirectVoiceFullscreen)
+
+            if showsDirectVoiceFullscreen {
+                DirectVoiceFullscreenView(model: directVoiceModel, close: closeDirectVoiceFullscreen)
+                    .zIndex(10)
+                    .transition(.identity)
+            }
 
             if dashboardHeroStage != .presenting {
                 Color(red: 0.065, green: 0.07, blue: 0.085)
@@ -114,6 +123,7 @@ struct ContentView: View {
             await remoteControlModel.setSource(fmoNetworkModel.identity)
             remoteControlModel.setNetworkReady(aprsMessageModel.phase == .ready)
             await adoptCurrentFMOCallsignIfAvailable()
+            await directVoiceModel.restore()
         }
         .task(id: audioSessionID) {
             await configureAudioSession()
@@ -132,6 +142,7 @@ struct ContentView: View {
             dashboardHeroTask?.cancel()
             dashboardIdleTimerController.restore()
             Task { await audioMonitor.stop(resetWaveform: true, resetSound: true) }
+            Task { await directVoiceModel.disconnect() }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             locationAutomationModel.refreshAuthorization()
@@ -152,6 +163,7 @@ struct ContentView: View {
                 await fmoNetworkModel.setActive(false)
                 await aprsMessageModel.setActive(false)
                 await qsoModel.setActive(false)
+                directVoiceModel.sceneBecameInactive()
             }
         }
         .onChange(of: deviceModel.dashboardSnapshot.callsign.currentValue) { _, _ in
@@ -191,13 +203,13 @@ struct ContentView: View {
 
     private var audioSessionID: String {
         let endpointID = deviceModel.selectedEndpoint?.id ?? "none"
-        return "\(endpointID)-\(deviceModel.isConnected)"
+        return "\(endpointID)-\(deviceModel.isConnected)-\(directVoiceModel.isDirectTerminalSelected)"
     }
 
     private func configureAudioSession() async {
         await FmoAudioSessionCoordinator(monitor: audioMonitor).run(
-            endpoint: deviceModel.selectedEndpoint,
-            isConnected: deviceModel.isConnected
+            endpoint: directVoiceModel.isDirectTerminalSelected ? nil : deviceModel.selectedEndpoint,
+            isConnected: deviceModel.isConnected && !directVoiceModel.isDirectTerminalSelected
         )
     }
 
@@ -211,12 +223,14 @@ struct ContentView: View {
                         officialWebModel: officialWebModel,
                         remoteControlModel: remoteControlModel,
                         audioMonitor: audioMonitor,
+                        directVoiceModel: directVoiceModel,
                         dashboardSpeakerLocationStore: dashboardSpeakerLocationStore,
                         dashboardAreaResolver: dashboardAreaResolver,
                         dashboardHeroNamespace: dashboardHeroNamespace,
                         isDashboardHeroActive: keepsDashboardSourceHidden,
                         hidesDashboardChrome: hidesDashboardChrome,
-                        openDashboardFullscreen: openDashboardHero
+                        openDashboardFullscreen: openDashboardHero,
+                        openDirectVoiceFullscreen: openDirectVoiceFullscreen
                     )
                 }
             }
@@ -303,6 +317,21 @@ struct ContentView: View {
         }
     }
 
+    private func openDirectVoiceFullscreen() {
+        guard !showsDirectVoiceFullscreen, dashboardHeroContext == nil else { return }
+        showsDirectVoiceFullscreen = true
+        Task { @MainActor in
+            await Task.yield()
+            guard showsDirectVoiceFullscreen else { return }
+            DashboardOrientation.request(.landscape)
+        }
+    }
+
+    private func closeDirectVoiceFullscreen() {
+        showsDirectVoiceFullscreen = false
+        DashboardOrientation.request(.portrait)
+    }
+
     private func closeDashboardHero() {
         guard dashboardHeroContext != nil,
               dashboardHeroStage != .rotatingToPortrait else { return }
@@ -356,7 +385,7 @@ struct ContentView: View {
     }
 
     private var hidesDashboardChrome: Bool {
-        keepsDashboardSourceHidden
+        keepsDashboardSourceHidden || showsDirectVoiceFullscreen
     }
 
     private var keepsDashboardSourceHidden: Bool {
@@ -365,7 +394,7 @@ struct ContentView: View {
 
     private var dashboardIdleTimerState: DashboardIdleTimerState {
         DashboardIdleTimerState(
-            isFullscreenPresented: dashboardHeroContext != nil,
+            isFullscreenPresented: dashboardHeroContext != nil || showsDirectVoiceFullscreen,
             isSceneActive: scenePhase == .active
         )
     }

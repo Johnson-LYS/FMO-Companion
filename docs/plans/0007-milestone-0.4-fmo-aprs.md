@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-14
+last-reviewed: 2026-08-23
 status: complete
 ---
 
@@ -103,7 +103,7 @@ status: complete
 
 - APRS PASSCODE、发送、ACK、位置上报、公网远控或局域网管理写操作。
 - 后台常驻 APRS-IS、APNs、本地事件到达保证、实时活动或 Dynamic Island。
-- 未公开 MQTT 语音、设备私钥、设备身份模拟、网页 DOM 注入或运行时抓包。
+- 本里程碑当时未公开的 MQTT 语音、设备私钥、设备身份模拟、网页 DOM 注入或运行时抓包；后续 ADR-0011 仅批准 App 独立身份使用官方公开语音协议，不改变其余排除项。
 - QSO 导入、自建服务器管理和任何以未验证 APRS 数据驱动的危险操作。
 
 ## 开发前门槛

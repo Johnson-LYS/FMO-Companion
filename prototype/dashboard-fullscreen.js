@@ -46,6 +46,9 @@
   const serverPicker = document.querySelector("#fullscreenServerPicker");
   const fullscreenServerName = document.querySelector("#fullscreenServerName");
   const serverSearch = serverPicker.querySelector("input[type='search']");
+  const sidePtt = document.querySelector("#sidePtt");
+  const pttHandle = sidePtt.querySelector("[data-action='toggle-ptt']");
+  const pttButton = sidePtt.querySelector("[data-action='hold-ptt']");
 
   let speakerIndex = 0;
   let trackingEnabled = true;
@@ -54,6 +57,26 @@
   let audioEnabled = window.localStorage.getItem("fmo-prototype-audio-enabled") === "true";
   let audioPhase = 0;
   let lastAudioFrame = 0;
+
+  pttHandle.addEventListener("click", () => {
+    const expanded = sidePtt.dataset.expanded !== "true";
+    sidePtt.dataset.expanded = String(expanded);
+    pttHandle.setAttribute("aria-expanded", String(expanded));
+    pttHandle.setAttribute("aria-label", expanded ? "收起 PTT" : "展开 PTT");
+  });
+  const setTransmitting = (active) => {
+    pttButton.classList.toggle("is-transmitting", active);
+    pttButton.querySelector("strong").textContent = active ? "正在发射" : "按住发射";
+    pttButton.setAttribute("aria-label", active ? "正在发射，松手停止" : "按住发射");
+  };
+  pttButton.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    pttButton.setPointerCapture(event.pointerId);
+    setTransmitting(true);
+  });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach((name) => {
+    pttButton.addEventListener(name, () => setTransmitting(false));
+  });
 
   function updateAudioWaveform(phaseStep = 0) {
     audioPhase += phaseStep;

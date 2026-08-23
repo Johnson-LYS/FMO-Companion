@@ -1,12 +1,12 @@
 ---
-last-reviewed: 2026-08-17
+last-reviewed: 2026-08-23
 ---
 
 # 架构总览
 
 ## 系统目的
 
-FMO Companion 在不接触 FMO 私钥和 MQTT 语音协议的前提下，将 iPhone 的定位、局域网、音频播放、通知、地图、安全存储与文件能力提供给 FMO 用户；本地固定 PCM 接收严格受 ADR-0009 限制。
+FMO Companion 将 iPhone 的定位、局域网、音频、通知、地图、安全存储与文件能力提供给 FMO 用户。盒子本地固定 PCM 接收受 ADR-0009 限制；ADR-0011 另行允许 App 使用自己的 Ed25519 私钥和证书，按官方公开 SAS、FMO/RAW 与 Opus 协议直连用户授权的 MQTT 服务器。盒子私钥仍不进入 App。
 
 ## 高层架构
 
@@ -16,6 +16,7 @@ flowchart LR
         UI["SwiftUI Features"]
         DEVICE["Device + Location"]
         AUDIO["Audio"]
+        VOICE["Direct Voice"]
         APRS["APRS + Trust"]
         QSO["QSO"]
         SETTINGS["Settings"]
@@ -23,12 +24,14 @@ flowchart LR
         CORE["Core Services"]
         UI --> DEVICE
         UI --> AUDIO
+        UI --> VOICE
         UI --> APRS
         UI --> QSO
         UI --> SETTINGS
         UI --> SERVER
         DEVICE --> CORE
         AUDIO --> CORE
+        VOICE --> CORE
         APRS --> CORE
         QSO --> CORE
         SERVER --> CORE
@@ -36,10 +39,12 @@ flowchart LR
 
     DEVICE -->|"Bonjour / ws://host/ws"| BOX["FMO 盒子"]
     AUDIO -->|"ADR-0009 ws://host/audio"| BOX
+    VOICE -->|"ADR-0011 MQTT FMO/RAW"| EMQX["EMQX"]
+    EMQX -->|"HTTP 鉴权回调：证书包 + Ed25519 proof"| SAS["FMO SAS"]
     APRS -->|"TCP APRS-IS"| APRSIS["APRS-IS"]
     SERVER -->|"HTTPS"| API["自建 App API"]
-    API --> EMQX["EMQX"]
-    API --> SAS["FMO SAS"]
+    API --> EMQX
+    API --> SAS
     QSO -->|"ADR-0007 只读同步"| BOX
     QSO -->|"用户导出"| FILES["ADIF"]
 ```
@@ -53,7 +58,8 @@ flowchart LR
 | 并发 | Swift Concurrency | 可取消异步任务和 Actor 隔离 |
 | 局域网 | Network.framework | Bonjour、端点与可达性 |
 | WebSocket | URLSession | GEO、只读状态、QSO 与 ADR-0009 音频协议 |
-| 音频 | AVFoundation | 用户显式开启后的本地 PCM 播放 |
+| 音频 | AVFoundation、libopus | 本地 PCM 播放；Direct Voice 采集、转换和 Opus 编解码 |
+| MQTT | 独立 `FMOMQTTTransport`；mqtt-nio 2.13.0 | Direct Voice 的 MQTT 3.1.1 收发与 TLS |
 | 定位 | Core Location | 手动与后台位置更新 |
 | 系统网页 | SafariServices | FMO 官方管理与 QSO 页面 |
 | 后续系统投影 checkpoint | ActivityKit、WidgetKit | 支持源码保留；扩展不被主 App 依赖或嵌入，0.3 不运行 |
@@ -80,6 +86,10 @@ flowchart LR
 ### Audio
 
 使用与状态、事件和 QSO 分离的 `FmoLocalAudioClient` 接收 ADR-0009 固定 PCM，把有界瞬时波形交给首页与横屏共享的仪表盘会话，并在用户显式开启时通过 AVFoundation 播放后续帧。设备连接不因前后台切换主动关闭；声音开启时使用 Audio 后台模式继续锁屏/切换 App 后的可听播放，静音时不使用静音样本保活。它不录制、不持久化、不上传、不转发，也不参与讲话者判定。详细边界见 `docs/architecture/modules/audio.md`。
+
+### DirectVoice
+
+以 `DirectVoiceIdentityProviding` 隔离 App 自建身份与未来官方身份，以 `SASAuthPayloadBuilder` 构造每次 CONNECT 的确定性 CBOR proof，再通过独立 `FMOMQTTTransport` 订阅/发布 `FMO/RAW`。首版接收经严格二进制 parser、CRC、单路仲裁和 Opus 后直接进入有界播放队列；发送由持续按住 PTT 驱动，经麦克风格式转换、Opus、≤200 ms/1400 字节聚合和 CRC 发布。会话与路由由 Actor 隔离，后台、断线、抢断和 60 秒上限停止发射；抖动缓冲、自动重连和真机服务器闭环仍是后续验收项。详细边界见 `docs/architecture/modules/direct-voice.md`，完整门槛见 `docs/plans/0010-direct-fmo-voice-client.md`。
 
 ### APRS
 
@@ -146,11 +156,23 @@ selected FMO endpoint
 → ADIF export
 ```
 
+### Direct Voice
+
+```text
+App identity in Keychain
+→ SAS deterministic CBOR proof
+→ MQTT 3.1.1 CONNECT / FMO/RAW subscribe
+→ strict RAW parser + route arbiter + Opus decode → speaker
+→ hold PTT + microphone + Opus encode + RAW/CRC → QoS 0 publish
+```
+
 ## 外部依赖与信任边界
 
 - FMO 盒子局域网服务：用户拥有但所有响应仍作为不可信输入解析。
 - APRS-IS：公开网络，必须验证 FMO V4 身份并防重放。
 - FMO 根/中间证书与 CRL：公开信任材料，可缓存但必须保留更新时间。
+- Direct Voice 自建 Root：只在服务器管理员显式接受的信任域内有效；App 自有私钥留在本机 Keychain，盒子私钥不进入 App。
+- EMQX/SAS：所有连接均为不可信输入，必须验证服务器 Profile、证书 proof、TLS（启用时）、payload 长度和路由规则。
 - 自建 API：用户控制，使用 HTTPS 与短时令牌。
 - iOS 系统服务：定位、Keychain、LocalAuthentication、通知。
 
