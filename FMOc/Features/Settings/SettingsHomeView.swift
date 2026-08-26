@@ -3,6 +3,7 @@ import UIKit
 
 struct SettingsHomeView: View {
     @AppStorage(AppAppearance.storageKey) private var appearanceRawValue = AppAppearance.system.rawValue
+    @AppStorage(HapticPreferences.speakerEventsEnabledKey) private var speakerHapticsEnabled = true
     @Environment(\.openURL) private var openURL
 
     private let metadata = AppMetadata()
@@ -17,6 +18,16 @@ struct SettingsHomeView: View {
                 }
                 .pickerStyle(.segmented)
                 .accessibilityIdentifier("appearance-picker")
+            }
+
+            Section {
+                Toggle("讲话触觉", isOn: $speakerHapticsEnabled)
+                    .accessibilityIdentifier("speaker-haptics-toggle")
+                    .sensoryFeedback(.selection, trigger: speakerHapticsEnabled)
+            } header: {
+                Text("触觉")
+            } footer: {
+                Text("在设备页或横屏仪表盘中，用不同触感提示讲话开始与结束。")
             }
 
             Section("隐私") {

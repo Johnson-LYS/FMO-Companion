@@ -4,6 +4,7 @@ struct FmoRemoteControlView: View {
     @Bindable var model: FmoRemoteControlModel
     @State private var showsSettings = false
     @State private var confirmsReboot = false
+    @State private var hapticPulse: AppHapticPulse?
 
     var body: some View {
         List {
@@ -71,6 +72,17 @@ struct FmoRemoteControlView: View {
         } message: {
             Text(model.issue ?? String(localized: "请稍后再试"))
         }
+        .onChange(of: model.phase) { _, phase in
+            switch phase {
+            case .confirmed:
+                hapticPulse = AppHapticPulse(.success)
+            case .unconfirmed:
+                hapticPulse = AppHapticPulse(.warning)
+            case .idle, .sending:
+                break
+            }
+        }
+        .appSensoryFeedback(trigger: hapticPulse)
     }
 
     private func commandButton(

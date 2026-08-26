@@ -116,6 +116,7 @@ private struct APRSConversationView: View {
     @Bindable var model: APRSMessageModel
     @Query private var records: [APRSMessageRecord]
     @SceneStorage private var draft: String
+    @State private var hapticPulse: AppHapticPulse?
 
     init(peer: TNC2Address, model: APRSMessageModel) {
         self.peer = peer
@@ -171,6 +172,14 @@ private struct APRSConversationView: View {
         }
         .navigationTitle(peer.formatted)
         .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: deliveryHapticState) { oldValue, newValue in
+            if newValue.acknowledgedCount > oldValue.acknowledgedCount {
+                hapticPulse = AppHapticPulse(.success)
+            } else if newValue.unconfirmedCount > oldValue.unconfirmedCount {
+                hapticPulse = AppHapticPulse(.warning)
+            }
+        }
+        .appSensoryFeedback(trigger: hapticPulse)
     }
 
     private func messageBubble(_ record: APRSMessageRecord) -> some View {
@@ -214,6 +223,22 @@ private struct APRSConversationView: View {
         case .received: ""
         }
     }
+
+    private var deliveryHapticState: APRSDeliveryHapticState {
+        APRSDeliveryHapticState(
+            acknowledgedCount: records.count {
+                $0.direction == .outgoing && $0.status == .acknowledged
+            },
+            unconfirmedCount: records.count {
+                $0.direction == .outgoing && $0.status == .unconfirmed
+            }
+        )
+    }
+}
+
+private struct APRSDeliveryHapticState: Equatable {
+    let acknowledgedCount: Int
+    let unconfirmedCount: Int
 }
 
 private struct APRSNewMessageSheet: View {

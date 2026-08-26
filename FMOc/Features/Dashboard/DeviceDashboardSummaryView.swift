@@ -12,6 +12,7 @@ struct DeviceDashboardSummaryView: View {
     private let areaResolver: any DashboardAreaResolving
     private let speakerLocationStore: any DashboardSpeakerLocationStoring
     @State private var speakerAreaNames: [String: String] = [:]
+    @State private var hapticPulse: AppHapticPulse?
 
     init(
         snapshot: DashboardSnapshot,
@@ -42,6 +43,7 @@ struct DeviceDashboardSummaryView: View {
         .task(id: activityLocationID) {
             await resolveActivityArea()
         }
+        .appSensoryFeedback(trigger: hapticPulse)
     }
 
     private var callsign: some View {
@@ -87,6 +89,7 @@ struct DeviceDashboardSummaryView: View {
     private var audioToggle: some View {
         Button {
             audioMonitor.setSoundEnabled(!audioMonitor.isSoundEnabled)
+            hapticPulse = AppHapticPulse(.selection)
         } label: {
             Image(systemName: audioMonitor.isSoundEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
                 .font(.system(size: 14, weight: .semibold))

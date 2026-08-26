@@ -13,10 +13,12 @@ struct DeviceHomeView: View {
     let isDashboardHeroActive: Bool
     let hidesDashboardChrome: Bool
     let openDashboardFullscreen: () -> Void
+    let onVisibilityChanged: (Bool) -> Void
     @State private var actionTask: Task<Void, Never>?
     @State private var showsDevicePicker = false
     @State private var showsServerPicker = false
     @State private var showsDiagnostics = false
+    @State private var hapticPulse: AppHapticPulse?
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -73,7 +75,9 @@ struct DeviceHomeView: View {
                 }
             }
         }
+        .onAppear { onVisibilityChanged(true) }
         .onDisappear {
+            onVisibilityChanged(false)
             actionTask?.cancel()
             model.stopDiscovery()
         }
@@ -100,6 +104,7 @@ struct DeviceHomeView: View {
         }
         .alert(item: $model.issue, content: issueAlert)
         .sensoryFeedback(.success, trigger: model.phase == .success)
+        .appSensoryFeedback(trigger: hapticPulse)
     }
 
     private var deviceFeaturesSection: some View {
@@ -307,7 +312,7 @@ struct DeviceHomeView: View {
                             deviceRow(endpoint)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button("删除", systemImage: "trash", role: .destructive) {
-                                        run { await model.remove(endpoint) }
+                                        removeWithHaptics(endpoint)
                                     }
                                     .labelStyle(.iconOnly)
                                     .accessibilityLabel("删除")
@@ -315,11 +320,11 @@ struct DeviceHomeView: View {
                                 }
                                 .contextMenu {
                                     Button("删除设备", systemImage: "trash", role: .destructive) {
-                                        run { await model.remove(endpoint) }
+                                        removeWithHaptics(endpoint)
                                     }
                                 }
                                 .accessibilityAction(named: Text("删除设备")) {
-                                    run { await model.remove(endpoint) }
+                                    removeWithHaptics(endpoint)
                                 }
                         }
                     }
@@ -359,7 +364,7 @@ struct DeviceHomeView: View {
     private func deviceRow(_ endpoint: FmoDeviceEndpoint) -> some View {
         Button {
             showsDevicePicker = false
-            run { await model.connect(to: endpoint) }
+            connectWithHaptics(to: endpoint)
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: endpoint.source == .bonjour ? "dot.radiowaves.left.and.right" : "keyboard")
@@ -481,7 +486,10 @@ struct DeviceHomeView: View {
             Section {
                 Button("连接") {
                     showsDevicePicker = false
-                    run { await model.connectManually() }
+                    run {
+                        await model.connectManually()
+                        hapticPulse = AppHapticPulse(model.isConnected ? .success : .error)
+                    }
                 }
                 .buttonStyle(BrandPrimaryButtonStyle())
             } footer: {
@@ -495,6 +503,22 @@ struct DeviceHomeView: View {
     private func run(_ operation: @escaping @MainActor @Sendable () async -> Void) {
         actionTask?.cancel()
         actionTask = Task { await operation() }
+    }
+
+    private func connectWithHaptics(to endpoint: FmoDeviceEndpoint) {
+        let wasAlreadyConnected = model.selectedEndpoint?.id == endpoint.id && model.isConnected
+        run {
+            await model.connect(to: endpoint)
+            guard !wasAlreadyConnected else { return }
+            hapticPulse = AppHapticPulse(model.isConnected ? .success : .error)
+        }
+    }
+
+    private func removeWithHaptics(_ endpoint: FmoDeviceEndpoint) {
+        run {
+            await model.remove(endpoint)
+            hapticPulse = AppHapticPulse(.mediumImpact)
+        }
     }
 
     private func issueAlert(_ issue: DeviceHomeModel.Issue) -> Alert {

@@ -30,6 +30,7 @@ struct DashboardFullscreenView: View {
     @State private var areaName: String?
     @State private var historyAreaNames: [String: String] = [:]
     @State private var retainedAreaNames: [String: String] = [:]
+    @State private var hapticPulse: AppHapticPulse?
 
     init(
         dashboard: DashboardSnapshot,
@@ -120,6 +121,7 @@ struct DashboardFullscreenView: View {
         }
         .persistentSystemOverlays(.hidden)
         .statusBarHidden()
+        .appSensoryFeedback(trigger: hapticPulse)
     }
 
     private var landscapeContent: some View {
@@ -472,6 +474,7 @@ struct DashboardFullscreenView: View {
 
             Button {
                 audioMonitor.setSoundEnabled(!audioMonitor.isSoundEnabled)
+                hapticPulse = AppHapticPulse(.selection)
             } label: {
                 Image(systemName: audioMonitor.isSoundEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
                     .font(.system(size: 16, weight: .semibold))
@@ -506,9 +509,11 @@ struct DashboardFullscreenView: View {
             ForEach(VisualMode.allCases, id: \.self) { mode in
                 let selected = visualMode == mode
                 Button {
+                    guard visualMode != mode else { return }
                     withAnimation(.easeInOut(duration: 0.2)) {
                         visualMode = mode
                     }
+                    hapticPulse = AppHapticPulse(.selection)
                 } label: {
                     Image(systemName: mode.symbol)
                         .font(.system(size: 15, weight: .semibold))
@@ -796,6 +801,7 @@ private struct DashboardTrackingMap: View {
     let target: DashboardFullscreenTarget?
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var tracksTarget = true
+    @State private var hapticPulse: AppHapticPulse?
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -869,6 +875,7 @@ private struct DashboardTrackingMap: View {
             HStack {
                 Button {
                     tracksTarget.toggle()
+                    hapticPulse = AppHapticPulse(.selection)
                 } label: {
                     Label("追踪", systemImage: tracksTarget ? "scope" : "scope")
                         .font(.caption.weight(.semibold))
@@ -894,6 +901,7 @@ private struct DashboardTrackingMap: View {
                 Button {
                     tracksTarget = true
                     fitBoth(animated: true)
+                    hapticPulse = AppHapticPulse(.selection)
                 } label: {
                     Image(systemName: "scope")
                         .font(.system(size: 16, weight: .bold))
@@ -920,6 +928,7 @@ private struct DashboardTrackingMap: View {
             guard enabled else { return }
             fitBoth(animated: true)
         }
+        .appSensoryFeedback(trigger: hapticPulse)
     }
 
     private func fitBoth(animated: Bool) {

@@ -6,6 +6,7 @@ struct DeviceServerPickerView: View {
     var onDismiss: (() -> Void)?
     @State private var searchText = ""
     @State private var selectionTask: Task<Void, Never>?
+    @State private var hapticPulse: AppHapticPulse?
 
     init(model: DeviceHomeModel, onDismiss: (() -> Void)? = nil) {
         self.model = model
@@ -85,6 +86,7 @@ struct DeviceServerPickerView: View {
             await model.loadServerCatalog()
         }
         .onDisappear { selectionTask?.cancel() }
+        .appSensoryFeedback(trigger: hapticPulse)
         .accessibilityIdentifier("device-server-picker")
     }
 
@@ -98,7 +100,10 @@ struct DeviceServerPickerView: View {
             selectionTask?.cancel()
             selectionTask = Task {
                 if await model.switchServer(to: server) {
+                    hapticPulse = AppHapticPulse(.success)
                     closePicker()
+                } else if model.serverSelectionError != nil {
+                    hapticPulse = AppHapticPulse(.error)
                 }
             }
         } label: {

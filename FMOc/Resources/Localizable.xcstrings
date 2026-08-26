@@ -2436,6 +2436,22 @@
         }
       }
     },
+    "在设备页或横屏仪表盘中，用不同触感提示讲话开始与结束。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use distinct haptics for the start and end of speaking on the device dashboard."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在设备页或横屏仪表盘中，用不同触感提示讲话开始与结束。"
+          }
+        }
+      }
+    },
     "地图" : {
       "localizations" : {
         "en" : {
@@ -3588,6 +3604,23 @@
         }
       }
     },
+    "我" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Me"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我"
+          }
+        }
+      }
+    },
     "我们如何使用数据" : {
       "localizations" : {
         "en" : {
@@ -4053,22 +4086,6 @@
         }
       }
     },
-    "暂无收藏服务器" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Favorite Servers"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "暂无收藏服务器"
-          }
-        }
-      }
-    },
     "收藏服务器 · %lld" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4434,6 +4451,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "暂无匹配动态"
+          }
+        }
+      }
+    },
+    "暂无收藏服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Favorite Servers"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无收藏服务器"
           }
         }
       }
@@ -4838,22 +4871,6 @@
         }
       }
     },
-    "我" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Me"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "我"
-          }
-        }
-      }
-    },
     "本机" : {
       "localizations" : {
         "en" : {
@@ -5010,6 +5027,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "横屏仪表盘位于前台时，App 会从你选择的 FMO 接收音频并在本机生成波形；声音默认关闭。音频不录制、不保存、不上传，也不用于识别讲话者。"
+          }
+        }
+      }
+    },
+    "正在加载更多服务器…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading more servers…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在加载更多服务器…"
           }
         }
       }
@@ -5302,22 +5335,6 @@
         }
       }
     },
-    "正在读取服务器…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading servers…"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "正在读取服务器…"
-          }
-        }
-      }
-    },
     "正在读取收藏服务器…" : {
       "localizations" : {
         "en" : {
@@ -5334,18 +5351,18 @@
         }
       }
     },
-    "正在加载更多服务器…" : {
+    "正在读取服务器…" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Loading more servers…"
+            "value" : "Loading servers…"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "正在加载更多服务器…"
+            "value" : "正在读取服务器…"
           }
         }
       }
@@ -6646,6 +6663,22 @@
         }
       }
     },
+    "触觉" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptics"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "触觉"
+          }
+        }
+      }
+    },
     "讲话者" : {
       "localizations" : {
         "en" : {
@@ -6674,6 +6707,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "讲话者方位暂不可用"
+          }
+        }
+      }
+    },
+    "讲话触觉" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speaking Haptics"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讲话触觉"
           }
         }
       }
