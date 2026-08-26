@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-15
+last-reviewed: 2026-08-26
 status: approved
 ---
 
@@ -31,7 +31,7 @@ status: approved
 | SPEC-009 APRS 短消息 | FMO 网络 → 消息 → 新消息 / 会话；APRS 身份 Sheet | 主流程 | 前台状态、最近会话、收藏/手动收件人、本地历史、发送、等待 ACK、已确认/未确认、左滑删除；身份只编辑呼号/SSID | 隔离写会话、基础呼号 PASSCODE 按需计算、SwiftData、去重、ACK 精确关联、有限重试与生命周期取消 |
 | SPEC-010 远程控制 | 设备 → 更多设备功能 → 远程控制 → 远控设置 | 主流程 | 目标 FMO、按设备配置 SECRET、NORMAL/STANDBY/REBOOT、产品化发送结果、危险确认与生物认证说明 | 官方固定向量、目标 SECRET、Counter 原子持久化、HMAC、LocalAuthentication、禁止自动重试 |
 | SPEC-011 QSO | QSO → 自动同步 / 查询与详情 / ADIF 导出 | 主流程 | 当前设备、最后同步、手动刷新、离线缓存、真实字段列表/详情、网格地图、APP_FMO 字段 | ADR-0007 类型化只读客户端、分页/按需详情、设备隔离缓存、取消/对账、系统分享 |
-| 首版设置与隐私 | 设置 → 外观 / 隐私政策 / 系统权限 / 关于 | 主流程 | 三种真实外观、App 内政策回退、系统设置入口、动态版本、BI8SYN 与联系邮箱 | `AppStorage`、`preferredColorScheme`、Bundle 元数据、集中 HTTPS URL、静态政策页 |
+| 首版设置与隐私 | 设置 → 外观 / 隐私政策 / 系统权限 / 内联关于区块 | 主流程 | 三种真实外观、App 内政策回退、系统设置入口、无图标说明或二级导航的动态版本、作者 BI8SYN 与联系邮箱 | `AppStorage`、`preferredColorScheme`、Bundle 元数据、集中 HTTPS URL、静态政策页 |
 | SPEC-012 服务器运维 | 首版不提供入口 | 延期 | 不以占位行预告 | 独立认证 API 完成后重新评审入口、脱敏、短时令牌与权限分级 |
 | SPEC-013 iOS 集成 | 首版只交付系统外观与既有可访问性语义 | 延期 | 通知、快捷指令、小组件与实时活动不占位 | 后续按 APNs、App Intents、WidgetKit 等独立里程碑交付 |
 
@@ -56,7 +56,7 @@ status: approved
 
 ## 持续边界
 
-产品边界只保留在规格与实现文档，不进入首版“关于”用户页面：
+产品边界只保留在规格与实现文档，不进入首版设置页的“关于”区块：
 
 - 不解码或收发 MQTT 语音；本地固定 PCM 接收仅限 ADR-0009 的前台全屏波形与用户触发播放。
 - 不抓包、逆向固件或模拟 FMO 设备身份。

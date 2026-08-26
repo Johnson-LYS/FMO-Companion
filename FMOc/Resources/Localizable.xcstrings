@@ -1124,6 +1124,22 @@
         }
       }
     },
+    "作者" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Author"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作者"
+          }
+        }
+      }
+    },
     "使用 App 期间" : {
       "localizations" : {
         "en" : {
@@ -1328,22 +1344,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "关于"
-          }
-        }
-      }
-    },
-    "关于 FMO 助手" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "About FMO Companion"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "关于 FMO 助手"
           }
         }
       }
@@ -5703,22 +5703,6 @@
         }
       }
     },
-    "版本与构建" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Version & Build"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "版本与构建"
-          }
-        }
-      }
-    },
     "独立探测 · %@" : {
       "localizations" : {
         "en" : {
@@ -7907,22 +7891,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "连接 FMO 后才能开始锁屏仪表盘"
-          }
-        }
-      }
-    },
-    "连接 FMO、查看网络动态、收发 APRS 消息并管理通联记录。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connect to FMO devices, follow network activity, exchange APRS messages, and manage QSO records."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "连接 FMO、查看网络动态、收发 APRS 消息并管理通联记录。"
           }
         }
       }

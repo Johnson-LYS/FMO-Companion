@@ -400,6 +400,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(255, 136, 0,
 .settings-list button { width: 100%; padding: 14px 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; display: grid; grid-template-columns: 1fr auto; text-align: left; cursor: pointer; }
 .settings-list button:last-child { border-bottom: 0; }
 .settings-list span, .settings-list small { display: block; }.settings-list span { font-size: 11px; }.settings-list small { margin-top: 4px; color: var(--ink-tertiary); font-size: 8px; }.settings-list b { grid-column: 2; grid-row: 1 / 3; align-self: center; }
+.settings-about { margin-top: 12px; }
 
 .tab-bar { padding: 8px 10px 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 84%, transparent); backdrop-filter: blur(20px); }
 .tab-button { min-width: 0; border: 0; border-radius: 13px; background: transparent; color: var(--ink-tertiary); display: grid; place-items: center; gap: 2px; cursor: pointer; }

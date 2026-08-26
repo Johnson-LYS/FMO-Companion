@@ -56,15 +56,16 @@ struct SettingsHomeView: View {
             }
 
             Section("关于") {
-                NavigationLink {
-                    AboutView(metadata: metadata)
-                } label: {
-                    settingsRow("关于 FMO 助手", systemImage: "info.circle")
+                LabeledContent("作者", value: AppLinks.developerCallsign)
+                    .accessibilityIdentifier("about-author")
+
+                Link(destination: AppLinks.contactURL) {
+                    LabeledContent("联系邮箱", value: AppLinks.contactEmail)
                 }
-                .accessibilityIdentifier("about-entry")
+                .accessibilityIdentifier("developer-email")
 
                 LabeledContent("版本", value: metadata.versionDescription)
-                    .accessibilityIdentifier("app-version")
+                    .accessibilityIdentifier("about-version")
             }
         }
         .navigationTitle("设置")
@@ -81,47 +82,6 @@ struct SettingsHomeView: View {
         Label(title, systemImage: systemImage)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
-    }
-}
-
-private struct AboutView: View {
-    let metadata: AppMetadata
-
-    var body: some View {
-        List {
-            Section {
-                VStack(spacing: 12) {
-                    Image(systemName: "antenna.radiowaves.left.and.right.circle.fill")
-                        .font(.system(size: 64))
-                        .foregroundStyle(Color.accentColor)
-                        .accessibilityHidden(true)
-                    Text(metadata.name)
-                        .font(.title2.bold())
-                    Text("连接 FMO、查看网络动态、收发 APRS 消息并管理通联记录。")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-            }
-
-            Section("开发者") {
-                LabeledContent("呼号", value: AppLinks.developerCallsign)
-                    .accessibilityIdentifier("developer-callsign")
-                Link(destination: AppLinks.contactURL) {
-                    LabeledContent("联系邮箱", value: AppLinks.contactEmail)
-                }
-                .accessibilityIdentifier("developer-email")
-            }
-
-            Section("版本") {
-                LabeledContent("版本与构建", value: metadata.versionDescription)
-                    .accessibilityIdentifier("about-version")
-            }
-        }
-        .navigationTitle("关于")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-10
+last-reviewed: 2026-08-26
 ---
 
 # 模块：设置
@@ -35,7 +35,7 @@ struct AppMetadata: Equatable {
 
 - 外观使用稳定字符串枚举持久化，不保存系统当前明暗状态。用户选择立即影响整个根视图，重新启动后恢复。
 - `AppMetadata` 从 Bundle 读取显示名、版本和构建号，避免发布时出现硬编码版本漂移。
-- 关于页显示产品用途、开发者呼号 `BI8SYN` 和 `mailto:BI8SYN@163.com`，不展示开发技术栈。
+- 设置首页的单一“关于”区块只显示作者 `BI8SYN`、`mailto:BI8SYN@163.com` 和动态版本，不显示产品图标或说明，不增加二级页面或独立开发者分组，也不展示开发技术栈。
 - 隐私政策 URL 从 `Info.plist` 的 `FMOPrivacyPolicyURL` 集中读取，只接受带主机的 HTTPS 地址。未配置时，开发构建进入内容一致的 App 内政策页，不打开无效地址。
 - 系统权限入口只调用 `UIApplication.openSettingsURLString`，不推断或伪造所有权限的综合状态。
 - 公网政策正文位于 `privacy/index.html`，不进入 App Bundle，也不依赖 JavaScript、Cookie、分析、第三方字体、远程图片或 CDN。
@@ -49,7 +49,7 @@ appearance Picker
 
 Bundle / Info.plist
 → AppMetadata + optional HTTPS policy URL
-→ SettingsHomeView / AboutView / external policy
+→ SettingsHomeView / external policy
 ```
 
 ## 依赖与边界
@@ -72,5 +72,5 @@ Bundle / Info.plist
 ## 测试
 
 - 单元测试覆盖三种外观映射、未知持久化值回退和动态 Bundle 元数据。
-- XCUITest 覆盖设置入口、隐私政策、系统权限、关于、开发者信息与动态版本，并确认首版页面不再出现通知、管理员和诊断占位或技术栈。
+- XCUITest 覆盖设置入口、隐私政策、系统权限、内联关于区块、作者信息与动态版本，并确认不存在关于二级入口、通知、管理员和诊断占位或技术栈。
 - 通用模拟器构建验证 DEBUG/Release 共用的新文件同步和 Info.plist 结构。
