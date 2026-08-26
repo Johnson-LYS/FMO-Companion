@@ -19,6 +19,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 最近变更
 
+| 2026-08-26 | 设置页移除“关于 FMO 助手”二级页面及产品图标/说明，只在首页单一“关于”区块展示作者、联系邮箱和动态版本，并把原“呼号”标签改为“作者” | `FMOc/Features/Settings/SettingsHomeView.swift`、`docs/architecture/modules/settings.md`、`prototype/index.html` |
+
 | 2026-08-26 | 建立统一 iPhone 触觉语言：关键主动操作按成功/警示/错误反馈；设备页与横屏仪表盘的本地讲话开始/结束使用可区分触感，根层合并短间隔说话人切换，设置页提供独立讲话触觉开关 | `FMOc/App/HapticFeedback.swift`、`FMOc/ContentView.swift`、`docs/plans/0010-haptic-feedback.md` |
 
 | 2026-08-20 | 横屏全屏仪表盘主视觉默认改为地图，自身地图标注收敛为“我 / Me”，保留方位盘图标切换 | `FMOc/Features/Dashboard/DashboardFullscreenView.swift`、`prototype/dashboard-fullscreen.html`、`docs/design/ui-design-system.md` |

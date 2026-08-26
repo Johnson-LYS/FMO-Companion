@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-15
+last-reviewed: 2026-08-26
 ---
 
 # Xcode Cloud 工作流
@@ -45,7 +45,7 @@ Beta 与 Release 工作流的 App 入口统一选择共享 Scheme `FMO 助手`�
 
 ## 构建号同步
 
-关于页从最终 App Bundle 的 `CFBundleShortVersionString` 与 `CFBundleVersion` 动态读取版本。仓库的 `ci_scripts/ci_pre_xcodebuild.sh` 在每个 Xcode Cloud Action 调用 `xcodebuild` 前执行，并使用 Apple 预定义的正整数 `CI_BUILD_NUMBER` 调用 `agvtool new-version -all`。脚本随后读取 App 与 Live Activity 的 Debug、Release Build Settings，只有实际解析出的 `CURRENT_PROJECT_VERSION` 全部与云端构建号一致才允许 Action 继续。因此归档、关于页和 App Store Connect 展示同一个 Build；本地构建不在脚本中改号，继续使用工程的 `CURRENT_PROJECT_VERSION`。
+设置页关于区块从最终 App Bundle 的 `CFBundleShortVersionString` 与 `CFBundleVersion` 动态读取版本。仓库的 `ci_scripts/ci_pre_xcodebuild.sh` 在每个 Xcode Cloud Action 调用 `xcodebuild` 前执行，并使用 Apple 预定义的正整数 `CI_BUILD_NUMBER` 调用 `agvtool new-version -all`。脚本随后读取 App 与 Live Activity 的 Debug、Release Build Settings，只有实际解析出的 `CURRENT_PROJECT_VERSION` 全部与云端构建号一致才允许 Action 继续。因此归档、设置页关于区块和 App Store Connect 展示同一个 Build；本地构建不在脚本中改号，继续使用工程的 `CURRENT_PROJECT_VERSION`。
 
 脚本必须满足以下约束：
 

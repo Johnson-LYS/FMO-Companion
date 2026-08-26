@@ -32,7 +32,11 @@ final class FMOcUITests: XCTestCase {
         XCTAssertTrue(app.switches["speaker-haptics-toggle"].exists)
         XCTAssertTrue(app.buttons["Privacy Policy"].exists)
         XCTAssertTrue(app.buttons["System Permissions"].exists)
-        XCTAssertTrue(app.buttons["About FMO Companion"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["about-author"].exists)
+        let email = app.buttons["developer-email"]
+        if !email.exists { app.swipeUp() }
+        XCTAssertTrue(email.waitForExistence(timeout: 2))
+        XCTAssertTrue(app.descendants(matching: .any)["about-version"].waitForExistence(timeout: 2))
     }
 
     @MainActor
@@ -232,18 +236,15 @@ final class FMOcUITests: XCTestCase {
         )
         XCTAssertTrue(app.buttons["privacy-policy-link"].exists)
         XCTAssertTrue(app.buttons["system-permissions-link"].exists)
-        XCTAssertTrue(app.buttons["about-entry"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["about-author"].exists)
+        let email = app.buttons["developer-email"]
+        if !email.exists { app.swipeUp() }
+        XCTAssertTrue(email.waitForExistence(timeout: 2))
+        XCTAssertTrue(app.descendants(matching: .any)["about-version"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.buttons["about-entry"].exists)
         XCTAssertFalse(app.staticTexts["通知与系统集成"].exists)
         XCTAssertFalse(app.staticTexts["管理员功能"].exists)
         XCTAssertFalse(app.staticTexts["诊断数据"].exists)
-
-        app.buttons["about-entry"].tap()
-        XCTAssertTrue(app.navigationBars["关于"].waitForExistence(timeout: 2))
-        let developer = app.descendants(matching: .any)["developer-callsign"]
-        XCTAssertTrue(developer.exists)
-        XCTAssertTrue(app.buttons["developer-email"].exists)
-        let version = app.descendants(matching: .any)["about-version"]
-        XCTAssertTrue(version.exists)
         XCTAssertFalse(app.staticTexts["SwiftUI"].exists)
         XCTAssertFalse(app.staticTexts["Swift 6"].exists)
         XCTAssertFalse(app.staticTexts["iOS 26"].exists)

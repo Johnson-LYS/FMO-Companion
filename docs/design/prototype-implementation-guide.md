@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-15
+last-reviewed: 2026-08-26
 status: approved
 ---
 
@@ -46,7 +46,7 @@ status: approved
 ### 设置与隐私政策
 
 - `SettingsHomeView` 只保留真实的全局外观选择、隐私政策、系统权限和关于。外观用持久化枚举投影到根视图的 `preferredColorScheme`，未知存储值回退跟随系统。
-- 版本与构建从 Bundle 读取；关于页显示开发者 `BI8SYN` 与 `mailto:BI8SYN@163.com`，不硬编码技术栈或最低系统说明。
+- 版本值从 Bundle 读取；作者 `BI8SYN` 与 `mailto:BI8SYN@163.com` 直接显示在设置首页的单一“关于”区块，不显示产品图标或说明，不增加二级页面或独立开发者分组，也不硬编码技术栈或最低系统说明。
 - 隐私政策 HTTPS 地址只从集中配置读取。未配置地址的开发构建打开 App 内政策；Release 发布门槛要求最终 URL 已配置且与 App Store Connect 一致。
 - `privacy/index.html` 是可独立部署的政策正文，不依赖 JavaScript、Cookie、分析、第三方字体、远程图片或 CDN。网页和 App 内摘要必须保持数据用途与联系方式一致。
 - `UIApplication.openSettingsURLString` 是“系统权限”的唯一行为；不要伪造权限状态、隐私评分、诊断导出或未来功能反馈。
