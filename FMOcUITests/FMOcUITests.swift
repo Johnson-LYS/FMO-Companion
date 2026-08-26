@@ -29,6 +29,7 @@ final class FMOcUITests: XCTestCase {
 
         app.buttons["Settings"].tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.switches["speaker-haptics-toggle"].exists)
         XCTAssertTrue(app.buttons["Privacy Policy"].exists)
         XCTAssertTrue(app.buttons["System Permissions"].exists)
         XCTAssertTrue(app.buttons["About FMO Companion"].exists)
@@ -215,6 +216,20 @@ final class FMOcUITests: XCTestCase {
         app.buttons["设置"].tap()
         XCTAssertTrue(app.navigationBars["设置"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.descendants(matching: .any)["appearance-picker"].exists)
+        let speakerHaptics = app.switches["speaker-haptics-toggle"]
+        XCTAssertTrue(speakerHaptics.exists)
+        let initialSpeakerHapticsValue = speakerHaptics.value as? String
+        let expectedSpeakerHapticsValue = initialSpeakerHapticsValue == "1" ? "0" : "1"
+        speakerHaptics.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        let speakerHapticsChanged = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "value == %@", expectedSpeakerHapticsValue),
+            object: speakerHaptics
+        )
+        XCTAssertEqual(
+            XCTWaiter.wait(for: [speakerHapticsChanged], timeout: 2),
+            .completed,
+            "Unexpected speaker haptics value: \(String(describing: speakerHaptics.value))"
+        )
         XCTAssertTrue(app.buttons["privacy-policy-link"].exists)
         XCTAssertTrue(app.buttons["system-permissions-link"].exists)
         XCTAssertTrue(app.buttons["about-entry"].exists)

@@ -5,6 +5,7 @@ import UIKit
 
 struct ContentView: View {
     @AppStorage(AppAppearance.storageKey) private var appearanceRawValue = AppAppearance.system.rawValue
+    @AppStorage(HapticPreferences.speakerEventsEnabledKey) private var speakerHapticsEnabled = true
     @State private var deviceModel: DeviceHomeModel
     @State private var locationAutomationModel: LocationAutomationModel
     @State private var officialWebModel: OfficialWebModel
@@ -18,7 +19,10 @@ struct ContentView: View {
     @State private var dashboardHeroTask: Task<Void, Never>?
     @State private var showsFullscreenServerPicker = false
     @State private var selectedTab = AppTab.device
+    @State private var isDeviceHomeVisible = false
     @State private var dashboardViewportOrientation: DashboardViewportOrientation?
+    @State private var speakerHapticPulse: AppHapticPulse?
+    @State private var pendingSpeakerEndHapticTask: Task<Void, Never>?
     @Namespace private var dashboardHeroNamespace
     private let fmoNetworkLocationProvider: any PhoneLocationProviding
     private let dashboardSpeakerLocationStore: any DashboardSpeakerLocationStoring
@@ -130,6 +134,7 @@ struct ContentView: View {
         }
         .onDisappear {
             dashboardHeroTask?.cancel()
+            pendingSpeakerEndHapticTask?.cancel()
             dashboardIdleTimerController.restore()
             Task { await audioMonitor.stop(resetWaveform: true, resetSound: true) }
         }
@@ -187,6 +192,10 @@ struct ContentView: View {
         .onChange(of: dashboardIdleTimerState, initial: true) { _, state in
             dashboardIdleTimerController.update(state)
         }
+        .onChange(of: dashboardSpeakerHapticState) { oldState, newState in
+            handleSpeakerHapticTransition(from: oldState, to: newState)
+        }
+        .appSensoryFeedback(trigger: speakerHapticPulse)
     }
 
     private var audioSessionID: String {
@@ -216,7 +225,8 @@ struct ContentView: View {
                         dashboardHeroNamespace: dashboardHeroNamespace,
                         isDashboardHeroActive: keepsDashboardSourceHidden,
                         hidesDashboardChrome: hidesDashboardChrome,
-                        openDashboardFullscreen: openDashboardHero
+                        openDashboardFullscreen: openDashboardHero,
+                        onVisibilityChanged: { isDeviceHomeVisible = $0 }
                     )
                 }
             }
@@ -368,6 +378,38 @@ struct ContentView: View {
             isFullscreenPresented: dashboardHeroContext != nil,
             isSceneActive: scenePhase == .active
         )
+    }
+
+    private var dashboardSpeakerHapticState: DashboardSpeakerHapticState {
+        DashboardSpeakerHapticState(
+            snapshot: deviceModel.dashboardSnapshot,
+            isEligible: speakerHapticsEnabled
+                && scenePhase == .active
+                && selectedTab == .device
+                && isDeviceHomeVisible
+        )
+    }
+
+    private func handleSpeakerHapticTransition(
+        from oldState: DashboardSpeakerHapticState,
+        to newState: DashboardSpeakerHapticState
+    ) {
+        pendingSpeakerEndHapticTask?.cancel()
+        pendingSpeakerEndHapticTask = nil
+
+        switch DashboardSpeakerHapticPolicy.event(from: oldState, to: newState) {
+        case .started:
+            speakerHapticPulse = AppHapticPulse(.mediumImpact)
+        case .ended:
+            pendingSpeakerEndHapticTask = Task { @MainActor in
+                do { try await Task.sleep(for: .milliseconds(400)) } catch { return }
+                guard dashboardSpeakerHapticState == newState else { return }
+                speakerHapticPulse = AppHapticPulse(.lightImpact)
+                pendingSpeakerEndHapticTask = nil
+            }
+        case nil:
+            break
+        }
     }
 
     private func adoptCurrentFMOCallsignIfAvailable() async {

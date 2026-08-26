@@ -8,6 +8,7 @@ struct QsoHomeView: View {
     @State private var exportDocument: ADIFDocument?
     @State private var isExporting = false
     @State private var exportIssue: String?
+    @State private var hapticPulse: AppHapticPulse?
 
     var body: some View {
         Group {
@@ -24,7 +25,7 @@ struct QsoHomeView: View {
                     Text(emptyDescription)
                 } actions: {
                     if model.deviceName != nil {
-                        Button("刷新") { Task { await model.refresh() } }
+                        Button("刷新") { Task { await refreshWithHaptics() } }
                             .buttonStyle(.borderedProminent)
                             .tint(.accentColor)
                             .foregroundStyle(.black)
@@ -40,7 +41,7 @@ struct QsoHomeView: View {
                     .padding(.horizontal)
                     .padding(.bottom, 24)
                 }
-                .refreshable { await model.refresh() }
+                .refreshable { await refreshWithHaptics() }
             }
         }
         .navigationTitle("QSO")
@@ -59,6 +60,7 @@ struct QsoHomeView: View {
                                 isExporting = true
                             } else {
                                 exportIssue = model.lastIssue ?? String(localized: "暂时无法生成 ADIF")
+                                hapticPulse = AppHapticPulse(.error)
                             }
                         }
                     } label: {
@@ -77,8 +79,14 @@ struct QsoHomeView: View {
             document: exportDocument,
             contentType: .data,
             defaultFilename: "FMO-QSO.adi"
-        ) { _ in
+        ) { result in
             exportDocument = nil
+            switch result {
+            case .success:
+                hapticPulse = AppHapticPulse(.success)
+            case .failure:
+                hapticPulse = AppHapticPulse(.error)
+            }
         }
         .alert(
             "无法导出 ADIF",
@@ -93,10 +101,11 @@ struct QsoHomeView: View {
         }
         .task { await model.setVisible(true) }
         .onDisappear { Task { await model.setVisible(false) } }
+        .appSensoryFeedback(trigger: hapticPulse)
     }
 
     private var syncCard: some View {
-        Button { Task { await model.refresh() } } label: {
+        Button { Task { await refreshWithHaptics() } } label: {
             HStack(spacing: 12) {
                 Image(systemName: "antenna.radiowaves.left.and.right")
                     .font(.headline)
@@ -133,6 +142,20 @@ struct QsoHomeView: View {
         .buttonStyle(.plain)
         .disabled(isSynchronizing)
         .accessibilityHint("刷新当前设备的 QSO")
+    }
+
+    private func refreshWithHaptics() async {
+        await model.refresh()
+        switch model.phase {
+        case .current:
+            hapticPulse = AppHapticPulse(.success)
+        case .partial:
+            hapticPulse = AppHapticPulse(.warning)
+        case .failed, .offline, .noDevice, .neverSynced:
+            hapticPulse = AppHapticPulse(.error)
+        case .syncing:
+            break
+        }
     }
 
     private var summaryCard: some View {
