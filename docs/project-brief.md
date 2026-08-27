@@ -19,6 +19,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 
 ## 最近变更
 
+| 2026-08-27 | 固化 FMO App 身份签发运维：新增独立 Skill，使用本机 CryptoKit 完成 FMO V4 Ed25519 签发与完整链验证，以 SQLite 事务分配防重 UID，并保持 CA 私钥、身份包和登记库不入 Git | `.claude/skills/issue-fmo-app-identity/`、`.gitignore` |
+
 | 2026-08-26 | 设置页移除“关于 FMO 助手”二级页面及产品图标/说明，只在首页单一“关于”区块展示作者、联系邮箱和动态版本，并把原“呼号”标签改为“作者” | `FMOc/Features/Settings/SettingsHomeView.swift`、`docs/architecture/modules/settings.md`、`prototype/index.html` |
 
 | 2026-08-26 | 建立统一 iPhone 触觉语言：关键主动操作按成功/警示/错误反馈；设备页与横屏仪表盘的本地讲话开始/结束使用可区分触感，根层合并短间隔说话人切换，设置页提供独立讲话触觉开关 | `FMOc/App/HapticFeedback.swift`、`FMOc/ContentView.swift`、`docs/plans/0010-haptic-feedback.md` |

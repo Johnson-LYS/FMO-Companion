@@ -1,0 +1,4 @@
+interface:
+  display_name: "签发 FMO App 身份"
+  short_description: "安全分配 UID，并签发、登记和验证 FMO App 用户身份包"
+  default_prompt: "使用 $issue-fmo-app-identity 为新的 App 公钥分配 UID、签发并验证身份包。"

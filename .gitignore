@@ -26,6 +26,11 @@ Secrets.xcconfig
 .env.*
 !.env.example
 
+# FMO identity issuer secrets and local state
+*.identity.json
+*.key.json
+uid-registry.sqlite3*
+
 # Temporary files
 *.swp
 *.swo
