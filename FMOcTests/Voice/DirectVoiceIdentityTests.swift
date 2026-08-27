@@ -94,7 +94,102 @@ struct DirectVoiceIdentityTests {
         #expect(identity.uid == 1_000_000_001)
         #expect(identity.rootFingerprint.count == 32)
         #expect(try provider.currentIdentity(now: Date(timeIntervalSince1970: 1_800_000_001)) == identity)
-        try provider.removeIdentity()
+
+        let secondEnrollment = try provider.enrollmentRequest(callsign: "bh0tst")
+        let repeatedSecondEnrollment = try provider.enrollmentRequest(callsign: "BH0TST")
+        let secondUserPublicKey = try FMOV4Base64URL.decode(
+            secondEnrollment.publicKeyBase64URL,
+            requiredByteCount: 32
+        )
+        #expect(secondEnrollment.publicKeyBase64URL != enrollment.publicKeyBase64URL)
+        #expect(repeatedSecondEnrollment == secondEnrollment)
+
+        let secondUserTBS = try DeterministicCBOR().encode(.array([
+            .text("FMO"), .unsigned(4), .text("userCert"), .unsigned(1_001),
+            .text("BH0TST"), .unsigned(1_000_000_002), .bytes(secondUserPublicKey),
+            .unsigned(issuedAt), .unsigned(expiresAt),
+        ]))
+        let secondUser: [String: Any] = [
+            "type": "userCert", "issuerSn": 1_001,
+            "subject": [
+                "callsign": "BH0TST", "uid": 1_000_000_002,
+                "publicKey": secondEnrollment.publicKeyBase64URL,
+            ],
+            "iat": issuedAt, "exp": expiresAt, "signatureAlgorithm": "Ed25519",
+            "signature": FMOV4Base64URL.encode(try intermediateKey.signature(for: secondUserTBS)),
+        ]
+        let secondBundle = try JSONSerialization.data(
+            withJSONObject: ["rootCert": root, "intermediateCert": intermediate, "userCert": secondUser]
+        )
+        let secondIdentity = try provider.importSignedBundle(
+            secondBundle,
+            now: Date(timeIntervalSince1970: 1_800_000_000)
+        )
+
+        #expect(try provider.storedIdentities() == [identity, secondIdentity])
+        #expect(try provider.currentIdentity(now: Date(timeIntervalSince1970: 1_800_000_001)) == secondIdentity)
+        #expect(throws: DirectVoiceIdentityError.certificateExpired) {
+            try provider.selectIdentity(
+                id: identity.stableID,
+                now: Date(timeIntervalSince1970: TimeInterval(expiresAt))
+            )
+        }
+        #expect(try provider.selectIdentity(
+            id: identity.stableID,
+            now: Date(timeIntervalSince1970: 1_800_000_001)
+        ) == identity)
+        let proof = Data("proof".utf8)
+        let firstSignature = try provider.sign(proof, identityID: identity.stableID)
+        let secondSignature = try provider.sign(proof, identityID: secondIdentity.stableID)
+        let firstVerificationKey = try Curve25519.Signing.PublicKey(rawRepresentation: userPublicKey)
+        let secondVerificationKey = try Curve25519.Signing.PublicKey(rawRepresentation: secondUserPublicKey)
+        #expect(firstVerificationKey.isValidSignature(firstSignature, for: proof))
+        #expect(secondVerificationKey.isValidSignature(secondSignature, for: proof))
+        #expect(firstSignature != secondSignature)
+
+        try provider.removeIdentity(
+            id: secondIdentity.stableID,
+            now: Date(timeIntervalSince1970: 1_800_000_001)
+        )
+        #expect(try provider.storedIdentities() == [identity])
+        #expect(try provider.currentIdentity(now: Date(timeIntervalSince1970: 1_800_000_001)) == identity)
+    }
+
+    @Test func migratesLegacySingleIdentityMetadataIntoCollection() throws {
+        let suiteName = "DirectVoiceIdentityMigrationTests.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let legacyIdentity = DirectVoiceIdentity(
+            callsign: "BI8SYN",
+            uid: 1_000_000_001,
+            issuedAt: 1_700_000_000,
+            expiresAt: 2_000_000_000,
+            issuerSerialNumber: 1_001,
+            rootFingerprint: Data(repeating: 0x31, count: 32),
+            intermediateCertificateJSON: Data("{}".utf8),
+            userCertificateJSON: Data("{}".utf8)
+        )
+        defaults.set(try JSONEncoder().encode(legacyIdentity), forKey: "directVoiceIdentity")
+        let secretStore = InMemoryDirectVoiceSecretStore()
+        let legacyKey = Curve25519.Signing.PrivateKey()
+        secretStore.save(
+            legacyKey.rawRepresentation,
+            account: "ed25519-seed",
+            afterFirstUnlock: false
+        )
+        let provider = KeychainDirectVoiceIdentityProvider(
+            service: "com.bi8syn.FMOc.tests.\(UUID().uuidString)",
+            defaults: defaults,
+            secretStore: secretStore
+        )
+
+        #expect(try provider.storedIdentities() == [legacyIdentity])
+        #expect(defaults.data(forKey: "directVoiceIdentity") == nil)
+        #expect(
+            try provider.enrollmentRequest(callsign: "BI8SYN").publicKeyBase64URL
+                == FMOV4Base64URL.encode(legacyKey.publicKey.rawRepresentation)
+        )
+        #expect(secretStore.load(account: "ed25519-seed") == nil)
     }
 }
 

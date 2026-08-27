@@ -17,6 +17,7 @@ final class DirectVoiceSessionModel {
 
     var snapshot = DirectVoiceSessionSnapshot()
     var identity: DirectVoiceIdentity?
+    var identities: [DirectVoiceIdentity] = []
     var serverProfile: FMOServerProfile?
     var verifiedServerProfiles: [FMOServerProfile]
     var isDirectTerminalSelected = false
@@ -47,6 +48,7 @@ final class DirectVoiceSessionModel {
     }
 
     func restore() async {
+        identities = (try? await identityProvider.storedIdentities()) ?? []
         identity = try? await identityProvider.currentIdentity(now: .now)
         serverProfile = profileStore.load()
         stateTask?.cancel()
@@ -115,11 +117,46 @@ final class DirectVoiceSessionModel {
     func importIdentity() async {
         do {
             identity = try await identityProvider.importSignedBundle(Data(importBundleText.utf8), now: .now)
+            identities = try await identityProvider.storedIdentities()
             importBundleText = ""
             configurationError = nil
             await reconnect()
         } catch {
             configurationError = String(localized: "身份包无效、已过期或与本机密钥不匹配")
+        }
+    }
+
+    func selectIdentity(_ candidate: DirectVoiceIdentity) async {
+        guard candidate.stableID != identity?.stableID else { return }
+        do {
+            identity = try await identityProvider.selectIdentity(id: candidate.stableID, now: .now)
+            configurationError = nil
+            await reconnect()
+        } catch DirectVoiceIdentityError.certificateExpired {
+            configurationError = String(localized: "该身份已过期，不能切换")
+        } catch DirectVoiceIdentityError.missingPrivateKey {
+            configurationError = String(localized: "该身份需要使用对应呼号的新公钥重新签发")
+        } catch {
+            configurationError = String(localized: "无法切换身份")
+        }
+    }
+
+    func removeIdentities(at offsets: IndexSet) async {
+        let removedIDs = offsets.compactMap { index in
+            identities.indices.contains(index) ? identities[index].stableID : nil
+        }
+        guard !removedIDs.isEmpty else { return }
+        let removedCurrentIdentity = removedIDs.contains(identity?.stableID ?? "")
+        do {
+            for id in removedIDs {
+                try await identityProvider.removeIdentity(id: id, now: .now)
+            }
+            identities = try await identityProvider.storedIdentities()
+            identity = try? await identityProvider.currentIdentity(now: .now)
+            configurationError = nil
+            if removedCurrentIdentity { await reconnect() }
+        } catch {
+            configurationError = String(localized: "无法删除身份")
         }
     }
 

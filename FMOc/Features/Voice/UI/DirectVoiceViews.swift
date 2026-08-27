@@ -123,11 +123,40 @@ struct DirectVoiceIdentityView: View {
     var body: some View {
         NavigationStack {
             Form {
-                if let identity = model.identity {
-                    Section("当前身份") {
-                        LabeledContent("呼号", value: identity.callsign)
-                        LabeledContent("UID", value: String(identity.uid))
-                        LabeledContent("到期", value: Date(timeIntervalSince1970: TimeInterval(identity.expiresAt)).formatted(date: .long, time: .omitted))
+                if !model.identities.isEmpty {
+                    Section {
+                        ForEach(model.identities, id: \.stableID) { identity in
+                            Button {
+                                Task { await model.selectIdentity(identity) }
+                            } label: {
+                                HStack(spacing: 12) {
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(identity.callsign)
+                                            .font(.headline.monospaced())
+                                            .foregroundStyle(.primary)
+                                        Text(expirationText(identity))
+                                            .font(.caption)
+                                            .foregroundStyle(identity.isExpired(at: .now) ? .red : .secondary)
+                                    }
+                                    Spacer()
+                                    if identity.stableID == model.identity?.stableID {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundStyle(.tint)
+                                    }
+                                }
+                                .contentShape(.rect)
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(identity.isExpired(at: .now))
+                            .accessibilityIdentifier("direct-voice-identity-\(identity.uid)")
+                        }
+                        .onDelete { offsets in
+                            Task { await model.removeIdentities(at: offsets) }
+                        }
+                    } header: {
+                        Text("已导入身份")
+                    } footer: {
+                        Text("点击身份即可切换；左滑可删除。切换后语音连接会使用所选呼号和 UID 重新认证。")
                     }
                 }
                 Section {
@@ -143,7 +172,7 @@ struct DirectVoiceIdentityView: View {
                 } header: {
                     Text("本机生成申请")
                 } footer: {
-                    Text("只把公钥交给签发管理员；私钥保存在本机 Keychain，不能导出。")
+                    Text("每个呼号使用独立的本机公钥；同一呼号再次读取时保持不变。只把公钥交给签发管理员；私钥保存在本机 Keychain，不能导出。")
                 }
                 Section {
                     TextEditor(text: $model.importBundleText)
@@ -154,7 +183,7 @@ struct DirectVoiceIdentityView: View {
                 } header: {
                     Text("导入已签发身份包")
                 } footer: {
-                    Text("身份包需包含 rootCert、intermediateCert 和 userCert；不得包含私钥。")
+                    Text("身份包需包含 rootCert、intermediateCert 和 userCert；不得包含私钥。导入成功后会加入列表并自动选中。")
                 }
                 if let error = model.configurationError {
                     Section { Text(error).foregroundStyle(.red) }
@@ -164,6 +193,14 @@ struct DirectVoiceIdentityView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { dismiss() } } }
         }
+    }
+
+    private func expirationText(_ identity: DirectVoiceIdentity) -> String {
+        if identity.isExpired(at: .now) {
+            return String(localized: "UID \(identity.uid) · 已过期")
+        }
+        let date = Date(timeIntervalSince1970: TimeInterval(identity.expiresAt))
+        return String(localized: "UID \(identity.uid) · \(date.formatted(date: .abbreviated, time: .omitted)) 到期")
     }
 }
 

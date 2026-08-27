@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-23
+last-reviewed: 2026-08-27
 status: in-progress
 ---
 
@@ -38,7 +38,7 @@ status: in-progress
 
 ### 3.1 首个可交付版本
 
-- 用户导入或完成签发一份 App 专用 FMO V4 身份。
+- 用户可导入一份或多份 App 专用 FMO V4 身份并选择当前身份；每个规范化呼号使用独立的本机 App 公钥。
 - 用户添加一个明确授权的 FMO 服务器配置。
 - 前台连接 MQTT 3.1.1，订阅 `FMO/RAW` 并播放当前获胜路由的 Opus 语音。
 - 用户按住 PTT 时采集麦克风、编码并向 `FMO/RAW` 发送语音。
@@ -154,7 +154,7 @@ FMOc/Features/Voice/
 ```swift
 protocol ClientIdentityProvider: Sendable {
     func currentIdentity() async throws -> FMOClientIdentity
-    func sign(_ data: Data) async throws -> Data
+    func sign(_ data: Data, identityID: String) async throws -> Data
     func certificateFingerprint() async throws -> Data
     func revocationStatus(at date: Date) async throws -> FMORevocationStatus
 }
@@ -178,7 +178,8 @@ struct FMOClientIdentity: Sendable, Equatable {
 2. App 只导出 32 字节公钥、用户填写的规范化呼号和签发请求标识。
 3. 自建 CA 管理员在其 UID 登记库中预留 UID，由受信任 Intermediate CA 签发 User Certificate。
 4. App 导入 Intermediate Certificate 与 User Certificate，验证链、有效期、呼号、UID 和公钥匹配后才保存。
-5. 私钥保存在 Keychain，证书作为非秘密结构化数据保存；删除身份必须同时删除 Keychain 项。
+5. 私钥按规范化呼号隔离并保存在 Keychain，证书作为非秘密结构化数据保存。同一呼号重复生成申请时复用其 seed，不同呼号必须生成不同 seed。删除单份身份只删除证书元数据，保留该呼号 seed 以便续签，且不得影响其他呼号。
+6. 身份集合使用 `rootFingerprint + uid` 作为稳定键，导入同一身份的新证书时替换旧元数据并自动选中；切换身份后由 Provider 使用所选呼号对应的 seed 和证书生成 fresh proof 并重连。旧版单身份元数据和单一 seed 只迁移到原呼号名下；此前错误使用共享公钥签发的其他呼号必须用各自新公钥重新签发。
 
 为了兼容当前已完成的测试，可以在 Debug/内部构建提供一次性“导入身份包”；Release 不得导入明文私钥文件。生产流程应优先本机生成密钥、只交换公钥。
 
@@ -598,10 +599,11 @@ idle
 
 ### 18.2 身份页
 
-- 显示呼号、UID、签发来源、证书到期日和可用状态。
+- 列出所有已导入身份，显示呼号、UID、证书到期日、可用状态和当前选择；过期身份不可切换。
 - 提供“本机生成申请”“导入已签发证书”和未来“官方申请”入口。
+- 同一公钥可供管理员签发多个身份；每次导入追加或更新对应 `rootFingerprint + uid` 身份并自动选中，点击其他有效身份后终止旧会话并重新认证。
 - 永不显示、复制或导出私钥；Debug 迁移工具必须从 Release composition 移除。
-- 身份删除需要确认，并说明删除后无法恢复对应私钥。
+- 身份使用系统左滑删除；删除单份证书不删除共享私钥，也不影响其他身份。删除当前身份后选择剩余的首个有效身份，并在无可用身份时停止连接。
 
 ### 18.3 服务器页
 
@@ -694,6 +696,7 @@ idle
 ### 22.1 单元测试
 
 - 证书：合法链、签名错误、UID 越界、issuer 错误、过期/未生效、私钥不匹配、Root 不受信。
+- 身份集合：多证书追加、稳定键替换、当前身份切换、过期拒绝、单份删除不删除共享密钥和旧单身份元数据迁移。
 - CBOR/proof：12 元顺序、整数宽度、大小写、32B 指纹、timestamp 边界、JSON Base64url 无 padding。
 - FMO/RAW：64B 头、1400B 边界、所有长度、CRC、frame index、尾随字节、非法 ASCII、空 Opus、未知 codec。
 - Opus：固定 320 样本、参数生效、encode/decode、reset、PLC 上限和错误返回。

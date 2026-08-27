@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-23
+last-reviewed: 2026-08-27
 ---
 
 # 项目简报
@@ -18,6 +18,8 @@ FMO Companion 是服务于持证业余无线电爱好者的原生 iOS App。它�
 - **字段门槛：** 呼号、当前服务器、过滤距离、单一频率、QSO 日志数与本地讲话/历史已由 ADR-0005 批准进入 Release 白名单；延迟、管理员、在线人数、无服务器与重启事件语义继续延期
 
 ## 最近变更
+
+| 2026-08-27 | Direct Voice 增加多身份管理：每个规范化呼号绑定独立的本机 App 私钥，同一呼号公钥稳定、不同呼号密钥隔离；身份页支持导入追加、当前身份勾选切换与左滑删除，切换后使用对应密钥和证书重新认证，旧单身份数据及 seed 自动迁移到原呼号 | `FMOc/Features/Voice/Identity/DirectVoiceIdentity.swift`、`FMOc/Features/Voice/UI/DirectVoiceViews.swift` |
 
 | 2026-08-23 | 修复 Direct Voice 麦克风 tap 继承 MainActor 导致的 libdispatch 队列断言；接收音频会话改为一次配置、RAW/PCM/播放器三层有界背压，静音持续推进 Opus 且新流重置 decoder，消除无声和秒级历史音频积压 | `FMOc/Features/Voice/Audio/DirectVoiceAudioEngine.swift`、`FMOc/Features/Voice/Session/DirectVoiceSession.swift` |
 

@@ -91,7 +91,7 @@ actor DirectVoiceSession {
                 installSuffix: installSuffix,
                 timestamp: timestamp,
                 signer: { [identityProvider] data in
-                    try await identityProvider.sign(data)
+                    try await identityProvider.sign(data, identityID: identity.stableID)
                 }
             )
             try await transport.connect(request)

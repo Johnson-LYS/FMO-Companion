@@ -966,6 +966,7 @@
       }
     },
     "UID" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -993,6 +994,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "UID %u · %@ 到期"
+          }
+        }
+      }
+    },
+    "UID %u · 已过期" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UID %u · Expired"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UID %u · 已过期"
           }
         }
       }
@@ -1894,6 +1911,7 @@
       }
     },
     "到期" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2166,6 +2184,7 @@
       }
     },
     "只把公钥交给签发管理员；私钥保存在本机 Keychain，不能导出。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2369,6 +2388,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "台站详情"
+          }
+        }
+      }
+    },
+    "每个呼号使用独立的本机公钥；同一呼号再次读取时保持不变。只把公钥交给签发管理员；私钥保存在本机 Keychain，不能导出。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each callsign uses a separate on-device public key; requesting the same callsign again returns the same key. Give only the public key to the issuing administrator. The private key stays in this device's Keychain and cannot be exported."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每个呼号使用独立的本机公钥；同一呼号再次读取时保持不变。只把公钥交给签发管理员；私钥保存在本机 Keychain，不能导出。"
           }
         }
       }
@@ -3557,6 +3592,22 @@
         }
       }
     },
+    "已导入身份" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imported Identities"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已导入身份"
+          }
+        }
+      }
+    },
     "已开启" : {
       "localizations" : {
         "en" : {
@@ -4054,6 +4105,7 @@
       }
     },
     "当前身份" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4740,6 +4792,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "无法保存远控设置"
+          }
+        }
+      }
+    },
+    "无法切换身份" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to switch identities"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法切换身份"
+          }
+        }
+      }
+    },
+    "该身份需要使用对应呼号的新公钥重新签发" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This identity must be reissued using the new public key for its callsign"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该身份需要使用对应呼号的新公钥重新签发"
+          }
+        }
+      }
+    },
+    "无法删除身份" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to delete the identity"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法删除身份"
           }
         }
       }
@@ -6506,6 +6606,22 @@
         }
       }
     },
+    "点击身份即可切换；左滑可删除。切换后语音连接会使用所选呼号和 UID 重新认证。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap an identity to switch, or swipe left to delete it. The voice connection will reauthenticate using the selected callsign and UID."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击身份即可切换；左滑可删除。切换后语音连接会使用所选呼号和 UID 重新认证。"
+          }
+        }
+      }
+    },
     "版本" : {
       "localizations" : {
         "en" : {
@@ -7947,6 +8063,22 @@
         }
       }
     },
+    "该身份已过期，不能切换" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This identity has expired and cannot be selected"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该身份已过期，不能切换"
+          }
+        }
+      }
+    },
     "语音与麦克风" : {
       "localizations" : {
         "en" : {
@@ -8764,6 +8896,7 @@
       }
     },
     "身份包需包含 rootCert、intermediateCert 和 userCert；不得包含私钥。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8775,6 +8908,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "身份包需包含 rootCert、intermediateCert 和 userCert；不得包含私钥。"
+          }
+        }
+      }
+    },
+    "身份包需包含 rootCert、intermediateCert 和 userCert；不得包含私钥。导入成功后会加入列表并自动选中。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The identity bundle must contain rootCert, intermediateCert, and userCert, and must not contain a private key. A successful import is added to the list and selected automatically."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "身份包需包含 rootCert、intermediateCert 和 userCert；不得包含私钥。导入成功后会加入列表并自动选中。"
           }
         }
       }

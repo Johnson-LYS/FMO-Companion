@@ -27,15 +27,25 @@ nonisolated struct DirectVoiceIdentity: Equatable, Codable, Sendable {
     let rootFingerprint: Data
     let intermediateCertificateJSON: Data
     let userCertificateJSON: Data
+
+    var stableID: String {
+        "\(FMOV4Base64URL.encode(rootFingerprint)):\(uid)"
+    }
+
+    func isExpired(at date: Date) -> Bool {
+        date.timeIntervalSince1970 >= TimeInterval(expiresAt)
+    }
 }
 
 protocol DirectVoiceIdentityProviding: Sendable {
     func enrollmentRequest(callsign: String) async throws -> DirectVoiceEnrollmentRequest
     func importSignedBundle(_ data: Data, now: Date) async throws -> DirectVoiceIdentity
+    func storedIdentities() async throws -> [DirectVoiceIdentity]
     func currentIdentity(now: Date) async throws -> DirectVoiceIdentity
-    func sign(_ data: Data) async throws -> Data
+    func selectIdentity(id: String, now: Date) async throws -> DirectVoiceIdentity
+    func sign(_ data: Data, identityID: String) async throws -> Data
     func installationSuffix() async throws -> String
-    func removeIdentity() async throws
+    func removeIdentity(id: String, now: Date) async throws
 }
 
 protocol DirectVoiceSecretStoring: Sendable {
@@ -93,10 +103,11 @@ nonisolated final class KeychainDirectVoiceSecretStore: DirectVoiceSecretStoring
 }
 
 nonisolated final class KeychainDirectVoiceIdentityProvider: DirectVoiceIdentityProviding, @unchecked Sendable {
-    private let account = "ed25519-seed"
+    private let legacyAccount = "ed25519-seed"
     private let installationAccount = "installation-suffix"
     private let defaults: UserDefaults
     private let metadataKey: String
+    private let collectionKey: String
     private let secretStore: any DirectVoiceSecretStoring
 
     init(
@@ -107,12 +118,13 @@ nonisolated final class KeychainDirectVoiceIdentityProvider: DirectVoiceIdentity
     ) {
         self.defaults = defaults
         self.metadataKey = metadataKey
+        collectionKey = "\(metadataKey).collection.v1"
         self.secretStore = secretStore ?? KeychainDirectVoiceSecretStore(service: service)
     }
 
     nonisolated func enrollmentRequest(callsign: String) throws -> DirectVoiceEnrollmentRequest {
         let normalized = try Self.normalizeCallsign(callsign)
-        let key = try loadOrCreatePrivateKey()
+        let key = try loadOrCreatePrivateKey(callsign: normalized)
         return DirectVoiceEnrollmentRequest(
             callsign: normalized,
             publicKeyBase64URL: FMOV4Base64URL.encode(key.publicKey.rawRepresentation)
@@ -126,26 +138,69 @@ nonisolated final class KeychainDirectVoiceIdentityProvider: DirectVoiceIdentity
         } catch {
             throw DirectVoiceIdentityError.invalidBundle
         }
-        let key = try loadPrivateKey()
-        let verified = try bundle.verifiedIdentity(publicKey: key.publicKey.rawRepresentation, now: now)
-        defaults.set(try JSONEncoder().encode(verified), forKey: metadataKey)
+        let callsign = try bundle.normalizedCallsign()
+        let key = try loadPrivateKey(callsign: callsign, allowingLegacyMigration: true)
+        let verified = try bundle.verifiedIdentity(
+            publicKey: key.publicKey.rawRepresentation,
+            callsign: callsign,
+            now: now
+        )
+        var collection = try loadCollection()
+        collection.identities.removeAll { $0.stableID == verified.stableID }
+        collection.identities.append(verified)
+        collection.selectedID = verified.stableID
+        try saveCollection(collection)
         return verified
     }
 
+    nonisolated func storedIdentities() throws -> [DirectVoiceIdentity] {
+        try loadCollection().identities
+    }
+
     nonisolated func currentIdentity(now: Date = .now) throws -> DirectVoiceIdentity {
-        guard let data = defaults.data(forKey: metadataKey),
-              let identity = try? JSONDecoder().decode(DirectVoiceIdentity.self, from: data) else {
+        var collection = try loadCollection()
+        guard !collection.identities.isEmpty else {
             throw DirectVoiceIdentityError.missingIdentity
         }
-        _ = try loadPrivateKey()
-        guard UInt64(now.timeIntervalSince1970) < identity.expiresAt else {
+        let identity: DirectVoiceIdentity
+        if let selectedID = collection.selectedID,
+           let selected = collection.identities.first(where: { $0.stableID == selectedID }) {
+            identity = selected
+        } else {
+            identity = collection.identities[0]
+            collection.selectedID = identity.stableID
+            try saveCollection(collection)
+        }
+        _ = try loadPrivateKey(callsign: identity.callsign, allowingLegacyMigration: true)
+        guard !identity.isExpired(at: now) else {
             throw DirectVoiceIdentityError.certificateExpired
         }
         return identity
     }
 
-    nonisolated func sign(_ data: Data) throws -> Data {
-        try loadPrivateKey().signature(for: data)
+    nonisolated func selectIdentity(id: String, now: Date = .now) throws -> DirectVoiceIdentity {
+        var collection = try loadCollection()
+        guard let identity = collection.identities.first(where: { $0.stableID == id }) else {
+            throw DirectVoiceIdentityError.missingIdentity
+        }
+        _ = try loadPrivateKey(callsign: identity.callsign, allowingLegacyMigration: true)
+        guard !identity.isExpired(at: now) else {
+            throw DirectVoiceIdentityError.certificateExpired
+        }
+        collection.selectedID = identity.stableID
+        try saveCollection(collection)
+        return identity
+    }
+
+    nonisolated func sign(_ data: Data, identityID: String) throws -> Data {
+        let collection = try loadCollection()
+        guard let identity = collection.identities.first(where: { $0.stableID == identityID }) else {
+            throw DirectVoiceIdentityError.missingIdentity
+        }
+        return try loadPrivateKey(
+            callsign: identity.callsign,
+            allowingLegacyMigration: true
+        ).signature(for: data)
     }
 
     nonisolated func installationSuffix() throws -> String {
@@ -165,29 +220,101 @@ nonisolated final class KeychainDirectVoiceIdentityProvider: DirectVoiceIdentity
         return value
     }
 
-    nonisolated func removeIdentity() throws {
-        defaults.removeObject(forKey: metadataKey)
-        try secretStore.remove(account: account)
+    nonisolated func removeIdentity(id: String, now: Date = .now) throws {
+        var collection = try loadCollection()
+        collection.identities.removeAll { $0.stableID == id }
+        if collection.selectedID == id {
+            collection.selectedID = collection.identities.first(where: { !$0.isExpired(at: now) })?.stableID
+                ?? collection.identities.first?.stableID
+        }
+        try saveCollection(collection)
     }
 
-    nonisolated private func loadOrCreatePrivateKey() throws -> Curve25519.Signing.PrivateKey {
-        if let key = try? loadPrivateKey() { return key }
+    nonisolated private func loadCollection() throws -> StoredDirectVoiceIdentities {
+        if let data = defaults.data(forKey: collectionKey) {
+            guard let collection = try? JSONDecoder().decode(StoredDirectVoiceIdentities.self, from: data) else {
+                throw DirectVoiceIdentityError.invalidBundle
+            }
+            return collection
+        }
+        if let legacyData = defaults.data(forKey: metadataKey),
+           let legacyIdentity = try? JSONDecoder().decode(DirectVoiceIdentity.self, from: legacyData) {
+            let collection = StoredDirectVoiceIdentities(
+                identities: [legacyIdentity],
+                selectedID: legacyIdentity.stableID
+            )
+            try saveCollection(collection)
+            defaults.removeObject(forKey: metadataKey)
+            return collection
+        }
+        return StoredDirectVoiceIdentities(identities: [], selectedID: nil)
+    }
+
+    nonisolated private func saveCollection(_ collection: StoredDirectVoiceIdentities) throws {
+        defaults.set(try JSONEncoder().encode(collection), forKey: collectionKey)
+    }
+
+    nonisolated private func loadOrCreatePrivateKey(callsign: String) throws -> Curve25519.Signing.PrivateKey {
+        let normalized = try Self.normalizeCallsign(callsign)
+        if let data = try secretStore.load(account: keyAccount(callsign: normalized)) {
+            guard let key = try? Curve25519.Signing.PrivateKey(rawRepresentation: data) else {
+                throw DirectVoiceIdentityError.missingPrivateKey
+            }
+            return key
+        }
+        if let migrated = try migrateLegacyKey(callsign: normalized) {
+            return migrated
+        }
         let key = Curve25519.Signing.PrivateKey()
-        try secretStore.save(key.rawRepresentation, account: account, afterFirstUnlock: false)
+        try secretStore.save(
+            key.rawRepresentation,
+            account: keyAccount(callsign: normalized),
+            afterFirstUnlock: false
+        )
         return key
     }
 
-    nonisolated private func loadPrivateKey() throws -> Curve25519.Signing.PrivateKey {
-        guard let data = try secretStore.load(account: account) else {
-            throw DirectVoiceIdentityError.missingPrivateKey
+    nonisolated private func loadPrivateKey(
+        callsign: String,
+        allowingLegacyMigration: Bool
+    ) throws -> Curve25519.Signing.PrivateKey {
+        let normalized = try Self.normalizeCallsign(callsign)
+        if let data = try secretStore.load(account: keyAccount(callsign: normalized)) {
+            guard let key = try? Curve25519.Signing.PrivateKey(rawRepresentation: data) else {
+                throw DirectVoiceIdentityError.missingPrivateKey
+            }
+            return key
         }
-        guard let key = try? Curve25519.Signing.PrivateKey(rawRepresentation: data) else {
-            throw DirectVoiceIdentityError.missingPrivateKey
+        if allowingLegacyMigration, let migrated = try migrateLegacyKey(callsign: normalized) {
+            return migrated
         }
+        throw DirectVoiceIdentityError.missingPrivateKey
+    }
+
+    nonisolated private func migrateLegacyKey(
+        callsign: String
+    ) throws -> Curve25519.Signing.PrivateKey? {
+        let collection = try loadCollection()
+        guard collection.identities.contains(where: { $0.callsign == callsign }),
+              let data = try secretStore.load(account: legacyAccount),
+              let key = try? Curve25519.Signing.PrivateKey(rawRepresentation: data) else {
+            return nil
+        }
+        try secretStore.save(
+            data,
+            account: keyAccount(callsign: callsign),
+            afterFirstUnlock: false
+        )
+        try secretStore.remove(account: legacyAccount)
         return key
     }
 
-    nonisolated private static func normalizeCallsign(_ value: String) throws -> String {
+    nonisolated private func keyAccount(callsign: String) -> String {
+        let digest = Data(SHA256.hash(data: Data(callsign.utf8)))
+        return "ed25519-seed.\(FMOV4Base64URL.encode(digest))"
+    }
+
+    nonisolated static func normalizeCallsign(_ value: String) throws -> String {
         let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         guard !normalized.isEmpty, normalized.utf8.count <= 12,
               normalized.utf8.allSatisfy({ byte in
@@ -197,12 +324,21 @@ nonisolated final class KeychainDirectVoiceIdentityProvider: DirectVoiceIdentity
     }
 }
 
+private nonisolated struct StoredDirectVoiceIdentities: Codable {
+    var identities: [DirectVoiceIdentity]
+    var selectedID: String?
+}
+
 private nonisolated struct SignedIdentityBundle: Decodable {
     let rootCert: RootCertificateJSON
     let intermediateCert: IntermediateCertificateJSON
     let userCert: UserCertificateJSON
 
-    func verifiedIdentity(publicKey: Data, now: Date) throws -> DirectVoiceIdentity {
+    func normalizedCallsign() throws -> String {
+        try KeychainDirectVoiceIdentityProvider.normalizeCallsign(userCert.subject.callsign)
+    }
+
+    func verifiedIdentity(publicKey: Data, callsign: String, now: Date) throws -> DirectVoiceIdentity {
         let nowSeconds = UInt64(now.timeIntervalSince1970)
         guard userCert.subject.publicKeyData == publicKey else {
             throw DirectVoiceIdentityError.publicKeyMismatch
@@ -227,7 +363,7 @@ private nonisolated struct SignedIdentityBundle: Decodable {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
         return DirectVoiceIdentity(
-            callsign: userCert.subject.callsign.uppercased(),
+            callsign: callsign,
             uid: uid,
             issuedAt: userCert.iat,
             expiresAt: userCert.exp,

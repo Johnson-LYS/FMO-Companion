@@ -116,10 +116,12 @@ private nonisolated struct StubVoiceIdentityProvider: DirectVoiceIdentityProvidi
         DirectVoiceEnrollmentRequest(callsign: callsign, publicKeyBase64URL: "")
     }
     func importSignedBundle(_ data: Data, now: Date) throws -> DirectVoiceIdentity { identity }
+    func storedIdentities() throws -> [DirectVoiceIdentity] { [identity] }
     func currentIdentity(now: Date) throws -> DirectVoiceIdentity { identity }
-    func sign(_ data: Data) -> Data { Data(repeating: 0x33, count: 64) }
+    func selectIdentity(id: String, now: Date) throws -> DirectVoiceIdentity { identity }
+    func sign(_ data: Data, identityID: String) -> Data { Data(repeating: 0x33, count: 64) }
     func installationSuffix() -> String { "test" }
-    func removeIdentity() {}
+    func removeIdentity(id: String, now: Date) {}
 }
 
 private actor RecordingVoiceTransport: FMOMQTTTransport {

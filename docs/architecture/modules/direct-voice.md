@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-23
+last-reviewed: 2026-08-27
 ---
 
 # 模块：App 直连语音
@@ -15,6 +15,7 @@ last-reviewed: 2026-08-23
 - 前台 MQTT 3.1.1 连接、`FMO/RAW` QoS 0 订阅/发布、单路半双工仲裁、Opus 收发和 AVFoundation 播放/采集。
 - App 进入非 active 状态、切换网络 FMO、松手、连接结束、路由抢占或达到 60 秒时停止发射，不补发旧音频。
 - 身份申请只导出公钥；私钥 seed 与稳定安装后缀存放在独立 Keychain 命名空间。导入时验证 Root、Intermediate、User Certificate 的 Ed25519 签名、有效期、issuer、UID 范围和本机公钥绑定。
+- 一个安装可保存多个通过验证的 User Certificate；每个规范化呼号绑定一把独立且不可导出的 App 私钥，同一呼号重复生成申请时公钥保持不变，不同呼号的公钥必须不同。证书以 `rootFingerprint + uid` 为稳定身份键；导入后自动选中，用户可在身份页切换或左滑删除，切换当前身份会停止并使用该呼号对应的私钥和证书重新建立 MQTT 会话。
 - 语音服务器页优先展示当前 FMO 网络快照中经过完整证书验证的 STATION；选择后从该服务器证书自动生成 UID、呼号、TBS SHA-256 指纹、主机和端口，手动配置只作为高级回退。
 
 首版不承诺后台 MQTT 常驻、PushToTalk framework/APNs、独立于 APRS STATION 的服务器发现、断线退避重连、CRL 客户端刷新、网络抖动缓冲或真实服务器互通验收。这些仍按计划 0010 的后续门槛推进，不能把当前模拟器/离线测试表述为真机射频闭环。
@@ -23,8 +24,10 @@ last-reviewed: 2026-08-23
 
 ```swift
 protocol DirectVoiceIdentityProviding: Sendable {
+    func storedIdentities() async throws -> [DirectVoiceIdentity]
     func currentIdentity(now: Date) async throws -> DirectVoiceIdentity
-    func sign(_ data: Data) async throws -> Data
+    func selectIdentity(id: String, now: Date) async throws -> DirectVoiceIdentity
+    func sign(_ data: Data, identityID: String) async throws -> Data
     func installationSuffix() async throws -> String
 }
 
@@ -47,7 +50,7 @@ SwiftUI 只依赖 `DirectVoiceSessionModel` 的身份、服务器 Profile、会�
 
 ## 内部结构
 
-- `KeychainDirectVoiceIdentityProvider`：生成 `ThisDeviceOnly` Ed25519 seed，验证并保存证书元数据，按需签名 SAS proof；MQTT 与 UI 无法读取 seed。
+- `KeychainDirectVoiceIdentityProvider`：按规范化呼号生成独立的 `ThisDeviceOnly` Ed25519 seed，验证并保存多份证书元数据及当前选择，并按 `identityID` 使用对应 seed 签名 SAS proof；MQTT 与 UI 无法读取 seed。旧版单身份元数据和单一 seed 首次使用时迁移到原呼号名下。删除证书元数据时保留该呼号的 seed，方便续签，且不会影响其他呼号。
 - `SASAuthPayloadBuilder`：为每次 CONNECT 构造 User TBS 指纹、12 元确定性 CBOR proof 和无 padding Base64url JSON password；TLS SNI 使用鉴权目标域名。
 - `MQTTNIOFMOMQTTTransport`：封装 mqtt-nio 2.13.0，在 iOS 使用 `NIOTSEventLoopGroup.singleton` 对接 Network.framework，只允许 `FMO/RAW`、QoS 0、clean session 和不超过 1400 字节的 payload；不得传入 iOS 上无法创建 bootstrap 的 POSIX `MultiThreadedEventLoopGroup`。
 - `FMORawParser` / `FMORawEncoder`：固定 64 字节头、小端序、嵌套长度、连续 frame index、帧区 IEEE CRC32、软件 vendor `0x2000` 和尾随字节拒绝。
@@ -59,7 +62,8 @@ SwiftUI 只依赖 `DirectVoiceSessionModel` 的身份、服务器 Profile、会�
 ## 数据与生命周期
 
 ```text
-App public key → administrator-issued certificate bundle → verified metadata + Keychain seed
+normalized callsign → callsign-scoped App public key → matching administrator-issued certificate bundle
+verified identity collection + callsign-scoped Keychain seeds → selected identity → matching seed → fresh SAS proof
 verified STATION certificate → server profile + fresh timestamp → SAS proof → MQTT CONNECT → FMO/RAW subscription
 incoming RAW → strict parse + CRC → route arbiter → Opus decode → 8 kHz playback
 hold PTT → microphone → 8 kHz Int16 → Opus → RAW/CRC → QoS 0 publish
@@ -95,4 +99,4 @@ MQTT 到 Session 的待处理 RAW 队列只保留最近四包，Session 到播�
 - `FMOcTests/Voice/`
 - `FMOcUITests/FMOcUITests.swift`
 
-自动化覆盖有效 App 证书链与 Keychain 公钥绑定、SAS password、FMO/RAW 往返和 CRC、仲裁、Opus 40 ms 往返、五帧 PTT 发布，以及首页/横屏共享侧边 PTT。真实 iPhone、真实 SAS/EMQX 和任何可能触发射频发射的验收仍需用户在受控环境明确执行。
+自动化覆盖有效 App 证书链、同呼号公钥稳定性、不同呼号密钥隔离、旧 seed 迁移、SAS password、FMO/RAW 往返和 CRC、仲裁、Opus 40 ms 往返、五帧 PTT 发布，以及首页/横屏共享侧边 PTT。真实 iPhone、真实 SAS/EMQX 和任何可能触发射频发射的验收仍需用户在受控环境明确执行。

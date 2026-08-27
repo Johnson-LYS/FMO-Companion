@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-23
+last-reviewed: 2026-08-27
 ---
 
 # 技术规格
@@ -84,7 +84,8 @@ UI 不直接依赖具体网络或加密实现；Feature 通过协议依赖 Core 
 ### App 直连 FMO 语音
 
 - ADR-0011 的 Direct Voice 与 ADR-0009 盒子本地 `/audio` 是独立模块。前者使用 App 自有 Ed25519 身份直连 MQTT，后者仍是盒子局域网只接收 PCM；两者不得共享网络会话、私钥、parser 或后台承诺。
-- 身份统一通过 `ClientIdentityProvider` 提供证书与 `sign(data)`；自建 Provider 和未来官方 Provider 必须可替换。私钥只存 Keychain，MQTT/语音层不得取得裸 seed，也不得使用盒子身份。
+- 身份统一通过 `ClientIdentityProvider` 提供证书与 `sign(data, identityID)`；自建 Provider 和未来官方 Provider 必须可替换。私钥只存 Keychain，MQTT/语音层不得取得裸 seed，也不得使用盒子身份。
+- Direct Voice 身份集合以 `rootFingerprint + uid` 区分证书并持久化当前选择；每个规范化呼号必须绑定独立的本机 App 密钥，同一呼号重复读取公钥时保持不变，不同呼号不得返回同一公钥。切换身份必须先终止现有会话，再由 Provider 使用所选呼号对应的私钥和证书生成全新的 SAS proof；过期身份保留可见但不能选用。旧单身份元数据及单一 Keychain seed 必须自动迁移到原呼号名下。
 - 每次 MQTT 3.1.1 CONNECT 重新生成 SAS password：完整证书包、目标服务器字段、Unix 秒 timestamp 与 12 元确定性 CBOR 的 Ed25519 proof；SAS ±120 秒时间窗、证书链、CRL、角色和 ACL 不得放宽。
 - MQTT 只使用 `FMO/RAW`、QoS 0、非 retained；消息 payload 上限 1400 字节。断线、后台或抢断时清空实时发送队列，恢复后不补发旧语音。
 - FMO/RAW 的所有多字节字段按小端序严格解析；验证 64 字节头、逐层长度、连续 frame index、仅覆盖帧区的 CRC32 与无尾随字节后才能交给 codec。
